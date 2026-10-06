@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { notFound } from "next/navigation";
+import { ThemeScript } from "@/components/ui/ThemeScript";
 import { getDictionary } from "@/content";
 import { hasLocale, htmlLang, localeHome, locales, siteUrl } from "@/lib/i18n";
 import "../globals.css";
@@ -24,9 +25,6 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500"],
   variable: "--font-jetbrains-mono",
 });
-
-// Applies the saved theme before first paint. Dark is the default.
-const themeScript = `try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}`;
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -77,11 +75,12 @@ export default async function RootLayout({
     <html
       lang={htmlLang[locale]}
       data-theme="dark"
+      data-scroll-behavior="smooth"
       className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <ThemeScript />
       </head>
       <body>{children}</body>
     </html>

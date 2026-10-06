@@ -13,6 +13,7 @@ export function LocaleSwitch({ locale, label }: { locale: Locale; label: string 
           )}
           <Link
             href={localeHome(item)}
+            scroll={false}
             hrefLang={htmlLang[item]}
             lang={htmlLang[item]}
             aria-current={item === locale ? "true" : undefined}
