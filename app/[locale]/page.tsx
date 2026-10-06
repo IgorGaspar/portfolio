@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { AgentDock } from "@/components/agent/AgentDock";
 import { Footer } from "@/components/layout/Footer";
 import { Nav } from "@/components/layout/Nav";
 import { AgentInline } from "@/components/sections/AgentInline";
@@ -17,6 +18,15 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
   const { locale } = await params;
   if (!hasLocale(locale)) notFound();
   const dict = getDictionary(locale);
+  const chatLabels = {
+    chips: dict.agent.chips,
+    placeholder: dict.agent.placeholder,
+    notice: dict.agent.notice,
+    send: dict.ui.send,
+    stop: dict.ui.stop,
+    you: dict.ui.you,
+    agentName: dict.ui.agentName,
+  };
 
   return (
     <>
@@ -29,7 +39,7 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
       <Nav locale={locale} dict={dict} />
       <main id="main">
         <Hero dict={dict} />
-        <AgentInline dict={dict} />
+        <AgentInline locale={locale} dict={dict} chatLabels={chatLabels} />
         <WhatIDo dict={dict} />
         <Projects dict={dict} />
         <HowIBuild dict={dict} />
@@ -39,6 +49,16 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
         <Contact dict={dict} />
       </main>
       <Footer locale={locale} dict={dict} />
+      <AgentDock
+        locale={locale}
+        labels={{
+          ...chatLabels,
+          title: dict.agent.title,
+          openAgent: dict.ui.openAgent,
+          close: dict.ui.close,
+          email: dict.contact.emailLabel,
+        }}
+      />
     </>
   );
 }

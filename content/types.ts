@@ -100,6 +100,13 @@ export type Dictionary = {
     copy: string;
     copied: string;
     send: string;
+    stop: string;
+    openAgent: string;
+    close: string;
+    you: string;
+    agentName: string;
+    draftHire: string;
+    draftProject: string;
     subjectHire: string;
     subjectProject: string;
     photoAlt: string;

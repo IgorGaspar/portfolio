@@ -3,6 +3,10 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Self-hosted on a VPS with Coolify (see Dockerfile).
   output: "standalone",
+  // The agent prompt files are read from disk at runtime, so they must ship with the server.
+  outputFileTracingIncludes: {
+    "/api/agent": ["./content/agent/*.md"],
+  },
   images: {
     formats: ["image/avif", "image/webp"],
   },

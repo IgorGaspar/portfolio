@@ -166,3 +166,62 @@
     text-decoration-thickness: 2px;
   }
 }
+
+/* Agent chat: waiting dots and streaming cursor */
+.agent-dots {
+  display: inline-flex;
+  gap: 0.3rem;
+  padding-block: 0.5rem;
+}
+
+.agent-dots span {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 999px;
+  background-color: var(--accent-2);
+  animation: agent-dot 1.2s ease-in-out infinite;
+}
+
+.agent-dots span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.agent-dots span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.agent-cursor {
+  display: inline-block;
+  width: 0.5ch;
+  height: 1em;
+  margin-left: 0.15ch;
+  vertical-align: text-bottom;
+  background-color: var(--accent-2);
+  animation: agent-blink 1s steps(2, start) infinite;
+}
+
+@keyframes agent-dot {
+  0%,
+  80%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-0.2rem);
+  }
+}
+
+@keyframes agent-blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-dots span,
+  .agent-cursor {
+    animation: none;
+  }
+}

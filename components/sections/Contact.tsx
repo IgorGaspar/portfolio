@@ -1,5 +1,6 @@
 import type { Dictionary } from "@/content";
 import { contact as channels, mailto } from "@/lib/contact";
+import { AgentCta } from "../agent/AgentCta";
 import { CopyButton } from "../ui/CopyButton";
 
 const labelClass = "font-mono text-sm text-muted";
@@ -57,20 +58,20 @@ export function Contact({ dict }: { dict: Dictionary }) {
         {contact.languages && <p className="mt-2 text-muted">{contact.languages}</p>}
 
         <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-          <a href={mailto(ui.subjectHire)} className="btn">
+          <AgentCta href={mailto(ui.subjectHire)} draft={ui.draftHire} className="btn">
             {contact.ctaHire}
-          </a>
-          <a href={mailto(ui.subjectProject)} className="btn">
+          </AgentCta>
+          <AgentCta href={mailto(ui.subjectProject)} draft={ui.draftProject} className="btn">
             {contact.ctaProject}
-          </a>
+          </AgentCta>
         </div>
 
-        <a
+        <AgentCta
           href="#agent"
           className="mt-8 inline-block py-2 text-sm text-muted underline-offset-4 transition-colors hover:text-accent-2 hover:underline"
         >
           {contact.closing}
-        </a>
+        </AgentCta>
       </div>
     </section>
   );
