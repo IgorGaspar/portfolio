@@ -491,6 +491,15 @@ html[data-custom-cursor] * {
   background-color: color-mix(in srgb, var(--accent) 15%, transparent);
 }
 
+.cursor-dot[data-contrast] {
+  background-color: var(--on-accent);
+}
+
+.cursor-ring[data-contrast] {
+  border-color: var(--on-accent);
+  background-color: color-mix(in srgb, var(--on-accent) 15%, transparent);
+}
+
 .cursor-ring[data-active] {
   width: 64px;
   height: 64px;

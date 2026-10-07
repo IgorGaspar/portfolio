@@ -63,7 +63,7 @@ export type Dictionary = {
     title: string;
     subtitle: string;
     steps: TitledText[];
-    footer: string;
+    footer?: string;
     terminal: string[];
   };
   stack: { title: string; groups: { label: string; items: string[] }[] };

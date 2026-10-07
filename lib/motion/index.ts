@@ -144,6 +144,7 @@ function customCursor(cleanups: Cleanups) {
   const moveY = gsap.quickTo(ring, "y", { duration: 0.25, ease: EASE });
   const NATIVE = "dialog, input, textarea, select";
   const INTERACTIVE = "a, button, summary, label, [role=button]";
+  const ON_ACCENT = ".btn, [aria-pressed=true]";
 
   const onMove = (event: PointerEvent) => {
     const target = event.target as Element | null;
@@ -159,6 +160,10 @@ function customCursor(cleanups: Cleanups) {
     ring.textContent = labelled?.dataset.cursor ?? "";
     ring.toggleAttribute("data-active", Boolean(labelled));
     ring.toggleAttribute("data-hover", !labelled && Boolean(target?.closest(INTERACTIVE)));
+    // Over accent-coloured controls the cursor switches to the dark tone to stay visible.
+    const onAccent = Boolean(target?.closest(ON_ACCENT));
+    ring.toggleAttribute("data-contrast", onAccent);
+    dot.toggleAttribute("data-contrast", onAccent);
     ring.style.opacity = native ? "0" : "1";
     dot.style.opacity = native || labelled ? "0" : "1";
   };
@@ -636,7 +641,8 @@ function progressLists(full: boolean, cleanups: Cleanups) {
   for (const root of $("[data-progress-list]")) {
     if (root.closest("[data-how-i-build]"))
       progressList(root, cleanups, terminalTyping(full, cleanups));
-    else if (root.hasAttribute("data-journey")) progressList(root, cleanups, journeyStep(full));
+    else if (root.hasAttribute("data-journey"))
+      progressList(root, cleanups, journeyStep(full, cleanups));
     else progressList(root, cleanups, workWithMeStep(root));
   }
 }
@@ -672,7 +678,16 @@ function terminalTyping(full: boolean, cleanups: Cleanups): StepHandler | undefi
 }
 
 /** Journey: the card slides in from the side; the Farmarcas stat counts from 40 to 8. */
-function journeyStep(full: boolean): StepHandler {
+function journeyStep(full: boolean, cleanups: Cleanups): StepHandler {
+  // The final text is kept aside and always put back: when the motion level
+  // changes mid-count (a window resize), the counter must not keep a half-way value.
+  const counters = new Map($("[data-counter]").map((el) => [el, el.textContent ?? ""]));
+  const counts: gsap.core.Tween[] = [];
+  cleanups.push(() => {
+    counts.forEach((count) => count.kill());
+    counters.forEach((text, el) => (el.textContent = text));
+  });
+
   return (index, step) => {
     const card = step.querySelector("[data-step-card]");
     if (card && !onScreenAbove(step)) {
@@ -685,18 +700,23 @@ function journeyStep(full: boolean): StepHandler {
     }
 
     const counter = step.querySelector<HTMLElement>("[data-counter]");
-    const match = counter?.textContent?.match(/^(\d+)(\D+)(\d+)(\D*)$/);
-    if (!counter || !match) return;
-    const [original, from, middle, to, suffix] = match;
+    const original = counter && counters.get(counter);
+    const match = original?.match(/^(\d+)(\D+)(\d+)(\D*)$/);
+    if (!counter || !original || !match) return;
+    const [, from, middle, to, suffix] = match;
     const value = { n: Number(from) };
-    gsap.to(value, {
-      n: Number(to),
-      duration: 1.2,
-      ease: "power2.out",
-      onUpdate: () =>
-        void (counter.textContent = `${from}${middle}${Math.round(value.n)}${suffix}`),
-      onComplete: () => void (counter.textContent = original),
-    });
+    counts.push(
+      gsap.to(value, {
+        n: Number(to),
+        duration: 1.2,
+        ease: "power2.out",
+        onUpdate: () =>
+          void (counter.textContent = `${from}${middle}${Math.round(value.n)}${suffix}`),
+        onComplete: () => void (counter.textContent = original),
+        // If anything stops the count early, the real number is shown, never a half-way one.
+        onInterrupt: () => void (counter.textContent = original),
+      }),
+    );
   };
 }
 

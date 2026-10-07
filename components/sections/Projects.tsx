@@ -122,7 +122,7 @@ export function Projects({ dict }: { dict: Dictionary }) {
                         href={data.link.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        data-cursor={ui.view}
+                        data-cursor={`${ui.view} ↗`}
                         className="block overflow-hidden rounded-xl border border-border"
                       >
                         <Image
