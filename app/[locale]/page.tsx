@@ -14,7 +14,7 @@ import { Stack } from "@/components/sections/Stack";
 import { WhatIDo } from "@/components/sections/WhatIDo";
 import { WorkWithMe } from "@/components/sections/WorkWithMe";
 import { getDictionary } from "@/content";
-import { hasLocale } from "@/lib/i18n";
+import { hasLocale, htmlLang, siteUrl } from "@/lib/i18n";
 
 export default async function Page({ params }: PageProps<"/[locale]">) {
   const { locale } = await params;
@@ -30,8 +30,24 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
     agentName: dict.ui.agentName,
   };
 
+  const person = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: "Igor Gaspar",
+    url: siteUrl,
+    jobTitle: locale === "pt" ? "Engenheiro de IA e Desenvolvedor Fullstack" : "AI Engineer & Fullstack Developer",
+    description: dict.meta.description,
+    inLanguage: htmlLang[locale],
+    sameAs: ["https://linkedin.com/in/igorfgaspar", "https://github.com/IgorGaspar"],
+    knowsAbout: ["AI agents", "LLM applications", "TypeScript", "Next.js"],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(person).replace(/</g, "\\u003c") }}
+      />
       <a
         href="#main"
         className="btn btn-solid sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50"

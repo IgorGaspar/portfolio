@@ -55,6 +55,7 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
       description: meta.description,
       locale: locale === "pt" ? "pt_BR" : "en_US",
     },
+    twitter: { card: "summary_large_image", title: meta.title, description: meta.description },
   };
 }
 
