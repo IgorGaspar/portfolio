@@ -89,7 +89,7 @@ export function AgentDock({ locale, labels }: Props) {
           onClick={(event) => {
             if (event.target === event.currentTarget) agent.closePanel();
           }}
-          className="fixed inset-0 m-0 h-full max-h-none w-full max-w-none bg-transparent backdrop:bg-black/50"
+          className="fixed inset-0 m-0 h-full max-h-none w-full max-w-none overflow-hidden bg-transparent backdrop:bg-black/50"
         >
           <AnimatePresence onExitComplete={() => dialogRef.current?.close()}>
             {panelOpen && (
@@ -98,7 +98,7 @@ export function AgentDock({ locale, labels }: Props) {
                 initial={offscreen}
                 animate={{ x: 0, y: 0 }}
                 exit={offscreen}
-                transition={{ type: "spring", stiffness: 320, damping: 34 }}
+                transition={{ type: "spring", bounce: 0, duration: 0.35 }}
                 className="absolute inset-x-0 bottom-0 flex h-[88svh] flex-col rounded-t-2xl border border-accent-2/30 bg-surface p-5 text-text md:inset-y-0 md:left-auto md:right-0 md:h-full md:w-[27rem] md:rounded-none md:border-y-0 md:border-r-0 md:p-6"
               >
                 <header className="mb-4 flex items-start justify-between gap-4">

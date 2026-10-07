@@ -31,7 +31,7 @@ export function Projects({ dict }: { dict: Dictionary }) {
                 aria-labelledby={`project-${id}`}
                 className="grid gap-10 rounded-2xl border border-border bg-surface p-6 sm:p-10 lg:grid-cols-2 lg:gap-14"
               >
-                <div>
+                <div className="min-w-0">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <Badge>{copy.badge}</Badge>
                     <span aria-hidden="true" className="font-mono text-xs text-muted">
@@ -106,7 +106,7 @@ export function Projects({ dict }: { dict: Dictionary }) {
                   )}
                 </div>
 
-                <div className="flex flex-col justify-center gap-6">
+                <div className="flex min-w-0 flex-col justify-center gap-6">
                   {data.image && (
                     <Image
                       src={data.image.src}
