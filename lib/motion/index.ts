@@ -350,22 +350,21 @@ function pillarsLight() {
 
 // ── Projects ────────────────────────────────────────────────────────────────
 
-/** Draws the connectors in sequence, then sends a pulse along them in a loop. */
-function diagramTimeline(svg: SVGSVGElement) {
+/**
+ * Architecture diagram: the connectors draw themselves in sequence, then a pulse
+ * travels along them in a loop. The resting state is always the complete
+ * diagram: connectors are only hidden while the diagram is still ahead, and
+ * once drawn they go back to plain SVG with no animation styles left on them.
+ */
+function animateDiagram(svg: SVGSVGElement, cleanups: Cleanups, alreadyReached: boolean) {
   const edges = $<SVGPathElement>("[data-edge]", svg);
   const pulse = svg.querySelector<SVGCircleElement>("[data-pulse]");
-  const draw = gsap.timeline({ paused: true });
+  const DRAW_PROPS = "strokeDasharray,strokeDashoffset,opacity";
+  let drawn = false;
+  let visible = false;
 
-  for (const edge of edges) {
-    const length = edge.getTotalLength();
-    gsap.set(edge, { strokeDasharray: length, strokeDashoffset: length, opacity: 0 });
-    draw
-      .set(edge, { opacity: 1 })
-      .to(edge, { strokeDashoffset: 0, duration: 0.45, ease: "power1.inOut" });
-  }
-
+  const loop = gsap.timeline({ paused: true, repeat: -1, repeatDelay: 0.4 });
   if (pulse) {
-    const loop = gsap.timeline({ paused: true, repeat: -1, repeatDelay: 0.4 });
     for (const edge of edges) {
       const length = edge.getTotalLength();
       const travel = { progress: 0 };
@@ -381,23 +380,51 @@ function diagramTimeline(svg: SVGSVGElement) {
         },
       });
     }
-    draw.add(() => void loop.play());
-
-    // The loop only runs while the diagram is on screen.
-    ScrollTrigger.create({
-      trigger: svg,
-      onToggle: (self) => {
-        if (!self.isActive) loop.pause();
-        else if (draw.progress() === 1) loop.play();
-      },
-    });
   }
 
-  return draw;
+  // The pulse runs only while the diagram is drawn and on screen.
+  const syncPulse = () => (drawn && visible && pulse ? loop.play() : loop.pause());
+  const observer = new IntersectionObserver(([entry]) => {
+    visible = entry.isIntersecting;
+    syncPulse();
+  });
+  observer.observe(svg);
+
+  const finish = () => {
+    drawn = true;
+    gsap.set(edges, { clearProps: DRAW_PROPS });
+    syncPulse();
+  };
+
+  const draw = gsap.timeline({ paused: true, onComplete: finish });
+  if (alreadyReached) {
+    finish();
+  } else {
+    for (const edge of edges) {
+      const length = edge.getTotalLength();
+      gsap.set(edge, { strokeDasharray: length, strokeDashoffset: length, opacity: 0 });
+      draw
+        .set(edge, { opacity: 1 })
+        .to(edge, { strokeDashoffset: 0, duration: 0.45, ease: "power1.inOut" });
+    }
+  }
+
+  cleanups.push(() => {
+    observer.disconnect();
+    loop.kill();
+    draw.kill();
+    gsap.set(edges, { clearProps: DRAW_PROPS });
+    if (pulse) gsap.set(pulse, { clearProps: "opacity" });
+  });
+
+  /** Starts the drawing if it has not happened yet. Safe to call repeatedly. */
+  return () => {
+    if (!drawn && !draw.isActive()) draw.play();
+  };
 }
 
 /** Mobile and tablet: cases stacked, each one fading up as it enters. */
-function projectsStacked() {
+function projectsStacked(cleanups: Cleanups) {
   for (const card of $("[data-project]")) {
     if (!onScreen(card)) {
       gsap.from(card, {
@@ -411,13 +438,12 @@ function projectsStacked() {
     }
   }
   for (const svg of $<SVGSVGElement>("[data-diagram]")) {
-    const draw = diagramTimeline(svg);
-    ScrollTrigger.create({
-      trigger: svg,
-      start: "top 70%",
-      once: true,
-      onEnter: () => draw.play(),
-    });
+    // A diagram the visitor has already reached or passed is shown complete right away.
+    const reached = svg.getBoundingClientRect().top < window.innerHeight * 0.7;
+    const draw = animateDiagram(svg, cleanups, reached);
+    if (!reached) {
+      ScrollTrigger.create({ trigger: svg, start: "top 70%", once: true, onEnter: draw });
+    }
   }
 }
 
@@ -437,7 +463,7 @@ function projectsHorizontal(cleanups: Cleanups) {
   const texts = cards.map((card) => card.querySelector<HTMLElement>("[data-project-text]")!);
   const images = cards.map((card) => $("img", card));
   const diagrams = cards.map((card) =>
-    $<SVGSVGElement>("[data-diagram]", card).map(diagramTimeline),
+    $<SVGSVGElement>("[data-diagram]", card).map((svg) => animateDiagram(svg, cleanups, false)),
   );
 
   section.setAttribute("data-horizontal", "");
@@ -503,7 +529,8 @@ function projectsHorizontal(cleanups: Cleanups) {
     cards.forEach((_, i) => {
       // Images open up from a 10% inset as their case arrives.
       gsap.set(images[i], { clipPath: `inset(${(1 - arrival[i]) * 10}%)` });
-      if (arrival[i] > 0.6) diagrams[i].forEach((draw) => draw.play());
+      // Diagrams start drawing as soon as their case is coming into view.
+      if (arrival[i] > 0.25) diagrams[i].forEach((draw) => draw());
     });
   };
 
@@ -801,7 +828,7 @@ export function initMotion() {
     else pillarsLight();
 
     if (full && tall) projectsHorizontal(cleanups);
-    else projectsStacked();
+    else projectsStacked(cleanups);
 
     progressLists(full, cleanups);
     stackPills();
