@@ -305,7 +305,7 @@ export const pt: Dictionary = {
     ctaProject: "Tenho um projeto",
     closing: "Ou pergunte ao meu agente.",
   },
-  footer: { text: "© 2026 Igor Gaspar · Feito com Next.js e Claude" },
+  footer: { text: "© 2026 Igor Gaspar · Feito com Next.js" },
   ui: {
     skipToContent: "Pular para o conteúdo",
     mainNav: "Navegação principal",
