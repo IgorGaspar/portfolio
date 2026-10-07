@@ -193,8 +193,6 @@ export const en: Dictionary = {
         body: "CI-driven deploys, a staging environment before production, and adjustments based on real usage.",
       },
     ],
-    footer:
-      "Day to day, I work with Claude Code, Cursor and GitHub Copilot, with human review on every change.",
     terminal: [
       "# understand: what needs to change?",
       "$ git checkout -b poc/agent",

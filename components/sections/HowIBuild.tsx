@@ -62,12 +62,6 @@ export function HowIBuild({ dict }: { dict: Dictionary }) {
             </div>
           </div>
         </div>
-
-        {howIBuild.footer && (
-          <p data-reveal="up" className="mt-14 max-w-3xl border-t border-border pt-6 text-muted">
-            {howIBuild.footer}
-          </p>
-        )}
       </div>
     </section>
   );

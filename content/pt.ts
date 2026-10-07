@@ -191,8 +191,6 @@ export const pt: Dictionary = {
         body: "Deploy com CI, ambiente de ensaio antes da produção e ajustes a partir do uso real.",
       },
     ],
-    footer:
-      "No dia a dia, trabalho com Claude Code, Cursor e GitHub Copilot, com revisão humana em cada mudança.",
     terminal: [
       "# entender: o que precisa mudar?",
       "$ git checkout -b poc/agente",
