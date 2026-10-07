@@ -528,7 +528,9 @@ function projectsHorizontal(cleanups: Cleanups) {
     gsap.set(track, { x: -x });
     cards.forEach((_, i) => {
       // Images open up from a 10% inset as their case arrives.
-      gsap.set(images[i], { clipPath: `inset(${(1 - arrival[i]) * 10}%)` });
+      if (images[i].length > 0) {
+        gsap.set(images[i], { clipPath: `inset(${(1 - arrival[i]) * 10}%)` });
+      }
       // Diagrams start drawing as soon as their case is coming into view.
       if (arrival[i] > 0.25) diagrams[i].forEach((draw) => draw());
     });

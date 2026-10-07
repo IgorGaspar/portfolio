@@ -9,7 +9,12 @@ export function Contact({ dict }: { dict: Dictionary }) {
   const { contact, ui } = dict;
 
   return (
-    <section id="contact" aria-labelledby="contact-title" className="section">
+    <section
+      id="contact"
+      aria-labelledby="contact-title"
+      className="section relative overflow-hidden"
+    >
+      <div aria-hidden="true" className="neural-static" />
       <div className="container-page">
         <h2 id="contact-title" data-reveal="mask" className="text-hero font-bold">
           {contact.title}

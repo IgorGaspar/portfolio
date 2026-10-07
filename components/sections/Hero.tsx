@@ -7,14 +7,17 @@ export function Hero({ dict }: { dict: Dictionary }) {
 
   return (
     <section
+      data-hero
       aria-labelledby="hero-title"
       className="relative flex min-h-svh items-center overflow-hidden pt-16"
     >
-      {/* Static backdrop. The WebGL scene mounts here later, behind the text. */}
+      {/* Static backdrop. The neural core (components/three) renders above it, behind the text. */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_75%_40%,color-mix(in_srgb,var(--accent)_14%,transparent),transparent_70%),radial-gradient(40%_40%_at_60%_70%,color-mix(in_srgb,var(--accent-2)_12%,transparent),transparent_70%)]"
       />
+
+      <div aria-hidden="true" className="neural-static" />
 
       <div className="container-page py-20">
         <p className="hero-in font-mono text-sm text-muted">{hero.eyebrow}</p>

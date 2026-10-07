@@ -16,7 +16,10 @@ export function AgentInline({ locale, dict, chatLabels }: Props) {
           className="mx-auto max-w-3xl rounded-2xl border border-accent-2/30 bg-surface p-6 shadow-[0_0_80px_-20px_color-mix(in_srgb,var(--accent-2)_45%,transparent)] sm:p-10"
         >
           <div className="flex items-start gap-4">
-            <AgentIcon className="mt-1 size-10 shrink-0" />
+            {/* The hero core "lands" here: it fades out as this icon fades in. */}
+            <span data-agent-core className="mt-1 shrink-0">
+              <AgentIcon className="size-10" />
+            </span>
             <div>
               <h2 id="agent-title" className="text-3xl font-semibold sm:text-4xl">
                 {agent.title}

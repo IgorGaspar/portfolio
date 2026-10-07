@@ -529,3 +529,52 @@ html[data-custom-cursor] * {
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
 }
+
+/* Static version of the neural core, for devices that do not get the WebGL scene
+   (components/three/NeuralBackdrop sets data-neural on <html>). */
+.neural-static {
+  position: absolute;
+  inset: 0;
+  z-index: -10;
+  display: none;
+  /* Off-centre so the network, on the right of the image, stays in view on portrait screens. */
+  background: url("/media/neural-dark.avif") 76% center / cover no-repeat;
+  mask-image: linear-gradient(to bottom, black 55%, transparent);
+}
+
+html[data-theme="light"] .neural-static {
+  background-image: url("/media/neural-light.avif");
+}
+
+html[data-neural="static"] .neural-static {
+  display: block;
+  animation: fade-in 0.8s both;
+}
+
+/* Behind the text on narrow screens, so dimmed to keep the text readable. */
+@media (max-width: 47.99rem) {
+  .neural-static {
+    opacity: 0.45;
+  }
+}
+
+/* Slight parallax where scroll-driven animations exist; never under reduced motion. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    html[data-neural="static"] .neural-static {
+      animation:
+        fade-in 0.8s both,
+        neural-drift linear both;
+      animation-timeline: auto, view();
+    }
+  }
+}
+
+@keyframes neural-drift {
+  from {
+    translate: 0 -4%;
+  }
+  to {
+    translate: 0 4%;
+  }
+}

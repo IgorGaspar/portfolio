@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { AgentDockLazy } from "@/components/agent/AgentDockLazy";
 import { MotionRoot } from "@/components/motion/MotionRoot";
+import { NeuralBackdrop } from "@/components/three/NeuralBackdrop";
 import { Footer } from "@/components/layout/Footer";
 import { Nav } from "@/components/layout/Nav";
 import { AgentInline } from "@/components/sections/AgentInline";
@@ -51,6 +52,7 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
         <Contact dict={dict} />
       </main>
       <Footer locale={locale} dict={dict} />
+      <NeuralBackdrop />
       <MotionRoot />
       <AgentDockLazy
         locale={locale}
