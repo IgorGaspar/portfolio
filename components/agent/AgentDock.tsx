@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { agent, useAgent } from "@/lib/agent-store";
 import { contact } from "@/lib/contact";
 import type { Locale } from "@/lib/i18n";
+import { FLIGHT_MS, startFlight } from "../three/flight";
 import { AgentIcon } from "./AgentIcon";
 import { ChatBox, type ChatLabels } from "./ChatBox";
 
@@ -25,7 +26,7 @@ type Props = {
 /** Floating agent button plus the side panel (desktop) or bottom sheet (mobile). */
 export function AgentDock({ locale, labels }: Props) {
   const { panelOpen, draft } = useAgent();
-  const [pastInlineChat, setPastInlineChat] = useState(false);
+  const [buttonVisible, setButtonVisible] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const isDesktop = useSyncExternalStore(
     subscribeDesktop,
@@ -33,15 +34,42 @@ export function AgentDock({ locale, labels }: Props) {
     () => false,
   );
 
-  // The floating button appears once the inline chat has scrolled out above the viewport.
+  // The floating button appears once the inline chat has scrolled out above the
+  // viewport. Where the 3D scene is running, the agent's core flies down from the
+  // chat to the corner first, and the button fades in as it lands.
   useEffect(() => {
     const section = document.getElementById("agent");
     if (!section) return;
-    const observer = new IntersectionObserver(([entry]) =>
-      setPastInlineChat(!entry.isIntersecting && entry.boundingClientRect.bottom < 0),
-    );
+    let timer = 0;
+    let firstCheck = true;
+    let wasPast = false;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      const past = !entry.isIntersecting && entry.boundingClientRect.bottom < 0;
+      const arriving = past && !wasPast && !firstCheck;
+      firstCheck = false;
+      wasPast = past;
+      window.clearTimeout(timer);
+
+      const icon = document.querySelector("[data-agent-core]")?.getBoundingClientRect();
+      const flying =
+        arriving &&
+        icon !== undefined &&
+        !window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
+        startFlight(
+          { x: icon.left + icon.width / 2, y: -24 },
+          // Centre of the button: 56 px wide, 20 px from the corner.
+          { x: window.innerWidth - 48, y: window.innerHeight - 48 },
+        );
+
+      if (flying) timer = window.setTimeout(() => setButtonVisible(true), FLIGHT_MS * 0.8);
+      else setButtonVisible(past);
+    });
     observer.observe(section);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(timer);
+    };
   }, []);
 
   useEffect(() => {
@@ -62,7 +90,7 @@ export function AgentDock({ locale, labels }: Props) {
     <LazyMotion features={domAnimation} strict>
       <MotionConfig reducedMotion="user">
         <AnimatePresence>
-          {pastInlineChat && !panelOpen && (
+          {buttonVisible && !panelOpen && (
             <m.button
               key="agent-button"
               type="button"

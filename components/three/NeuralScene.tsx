@@ -7,6 +7,7 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { FLIGHT_MS, getFlight, onFlightStart, setSceneReady } from "./flight";
 import { buildNetwork, linesFragment, linesVertex, pointsFragment, pointsVertex } from "./network";
 
 const MAX_TILT = THREE.MathUtils.degToRad(8);
@@ -131,6 +132,7 @@ function Network({ count, interactive }: NetworkProps) {
     const progress = hero ? clamp01(-hero.top / hero.height) : 1;
     const inHero = Boolean(hero && hero.bottom > 0);
     const narrow = size.width < 768;
+    const flight = inHero ? null : getFlight();
 
     // Screen position (in clip space) of the centre of the network when nothing moves it.
     const wide = viewport.aspect > 1.1;
@@ -168,6 +170,22 @@ function Network({ count, interactive }: NetworkProps) {
       // The agent card is opaque, so the core has to fly in front of the page to reach it.
       if (travel > 0) layer?.style.setProperty("z-index", "30");
       else layer?.style.removeProperty("z-index");
+    } else if (flight) {
+      // The core comes down from the inline chat and settles in the corner,
+      // where the floating button fades in as it arrives.
+      const t = clamp01((performance.now() - flight.start) / FLIGHT_MS);
+      const eased = smoothstep(0, 1, t);
+      condense = 1;
+      opacity = smoothstep(0, 0.15, t) * (1 - smoothstep(0.8, 1, t));
+      u.uScale.value = 0.5;
+      towards(
+        flight.from.x + (flight.to.x - flight.from.x) * eased,
+        // A slight arc, so it reads as a flight rather than a slide.
+        flight.from.y + (flight.to.y - flight.from.y) * eased - Math.sin(Math.PI * eased) * 48,
+        1,
+      );
+      icon?.style.removeProperty("opacity");
+      layer?.style.setProperty("z-index", "30");
     } else {
       // Contact: the reverse of the hero. Once the "work with me" line has filled,
       // a small core leaves its end and opens up into the calm network.
@@ -197,7 +215,7 @@ function Network({ count, interactive }: NetworkProps) {
     u.uCondense.value = condense;
     u.uCoreTint.value = coreTint;
     // All the points of the hero pile up in its core; the contact core has a third of them.
-    u.uCoreAlpha.value = inHero ? 0.025 : 0.2;
+    u.uCoreAlpha.value = inHero ? 0.025 : flight ? 0.07 : 0.2;
     u.uResolution.value.set(size.width, size.height);
     u.uSize.value = (narrow ? 2.2 : 2.6) * state.gl.getPixelRatio();
     // On narrow screens the network sits behind the text, so it is dimmed to keep it readable.
@@ -249,6 +267,24 @@ type Props = { count: number; interactive: boolean; onFailure: () => void };
 export default function NeuralScene({ count, interactive, onFailure }: Props) {
   const [active, setActive] = useState(true);
   const [ready, setReady] = useState(false);
+  const [flying, setFlying] = useState(false);
+
+  // Flights happen mid-page, where the scene is otherwise paused.
+  useEffect(() => {
+    if (!ready) return;
+    setSceneReady(true);
+    let timer = 0;
+    const stop = onFlightStart(() => {
+      setFlying(true);
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => setFlying(false), FLIGHT_MS + 80);
+    });
+    return () => {
+      setSceneReady(false);
+      window.clearTimeout(timer);
+      stop();
+    };
+  }, [ready]);
 
   useEffect(() => {
     const onScreen = new Set<Element>();
@@ -287,7 +323,7 @@ export default function NeuralScene({ count, interactive, onFailure }: Props) {
       className={`pointer-events-none fixed inset-0 -z-10 transition-opacity duration-[800ms] ${ready ? "opacity-100" : "opacity-0"}`}
     >
       <Canvas
-        frameloop={active ? "always" : "never"}
+        frameloop={active || flying ? "always" : "never"}
         dpr={[1, 1.75]}
         camera={{ position: [0, 0, 6], fov: 45 }}
         gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
