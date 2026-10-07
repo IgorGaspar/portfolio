@@ -95,6 +95,7 @@ export type Dictionary = {
     solution: string;
     engineering: string;
     lookInside: string;
+    view: string;
     stack: string;
     links: string;
     copy: string;

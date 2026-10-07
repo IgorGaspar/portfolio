@@ -65,7 +65,7 @@ export const pt: Dictionary = {
         problem:
           "Apps de finanças pedem um formulário para cada gasto. Quem desiste de registrar perde o controle do mês.",
         solution:
-          "Basta escrever \"gastei 45 no mercado no débito do Itaú\". Um agente com Claude Haiku 4.5 extrai valor, conta, categoria, data e forma de pagamento, mostra a prévia e só grava depois da confirmação. O app também cuida de contas, despesas e rendas recorrentes, e projeta o fluxo de caixa dos próximos meses.",
+          'Basta escrever "gastei 45 no mercado no débito do Itaú". Um agente com Claude Haiku 4.5 extrai valor, conta, categoria, data e forma de pagamento, mostra a prévia e só grava depois da confirmação. O app também cuida de contas, despesas e rendas recorrentes, e projeta o fluxo de caixa dos próximos meses.',
         engineering: [
           "Isolamento entre usuários com Row-Level Security no PostgreSQL, além da checagem de posse em cada serviço",
           "Dinheiro em decimal de precisão fixa; saldo e transação gravados na mesma transação de banco",
@@ -93,8 +93,7 @@ export const pt: Dictionary = {
         title: "Agente autônomo de vendas para eventos B2B",
         summary:
           "Do primeiro contato à reunião comercial: um agente no Telegram que capta, enriquece e acompanha cada lead de um evento.",
-        problem:
-          "Um evento B2B gera leads que esfriam entre a inscrição e o follow-up comercial.",
+        problem: "Um evento B2B gera leads que esfriam entre a inscrição e o follow-up comercial.",
         solution:
           "Um agente autônomo no Telegram para o Aegis Summit. Ele capta o lead com consentimento, enriquece os dados da empresa a partir de fontes públicas e conduz réguas de comunicação de 14 dias antes até 3 dias depois do evento. No fim, leva o lead até o agendamento da reunião com o time comercial.",
         engineering: [
@@ -319,6 +318,7 @@ export const pt: Dictionary = {
     solution: "A solução",
     engineering: "Engenharia que não aparece na tela",
     lookInside: "Ver por dentro",
+    view: "ver",
     stack: "Stack",
     links: "Links",
     copy: "Copiar",

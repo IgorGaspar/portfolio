@@ -28,10 +28,14 @@ export function getSystemPrompt(): string {
 // It is decided here rather than left to the model: smaller models drift to the language of the
 // system prompt (Portuguese) even when the visitor writes in English.
 const EN_WORDS = new Set(
-  "the is are was what which how does did he his him you your have has with and of to for about can could who where why it its in on tell this that would be an any there".split(" "),
+  "the is are was what which how does did he his him you your have has with and of to for about can could who where why it its in on tell this that would be an any there".split(
+    " ",
+  ),
 );
 const PT_WORDS = new Set(
-  "que qual quais como ele dele você voce vocês tem têm com de da das dos para por sobre um uma é não nao quanto quantos onde quem seu sua em na nos nas já ja foi são sao isso esse essa mais ou se quero".split(" "),
+  "que qual quais como ele dele você voce vocês tem têm com de da das dos para por sobre um uma é não nao quanto quantos onde quem seu sua em na nos nas já ja foi são sao isso esse essa mais ou se quero".split(
+    " ",
+  ),
 );
 
 /** Picks Portuguese or English for the reply; falls back to the page language when unclear. */
@@ -68,9 +72,7 @@ function toMessageParams(messages: AgentMessage[], locale: Locale): Anthropic.Me
 // Effort and server-side refusal fallbacks are not accepted by Haiku 4.5.
 const supportsEffortAndFallbacks = (model: string) => !model.includes("haiku");
 
-export type AgentResult =
-  | { type: "text"; text: string }
-  | { type: "refusal" };
+export type AgentResult = { type: "text"; text: string } | { type: "refusal" };
 
 type StreamOptions = {
   messages: AgentMessage[];

@@ -1,6 +1,13 @@
 type Tone = "default" | "agent" | "accent";
 
-type Node = { id: string; x: number; y: number; w: number; h: number; tone?: Tone };
+type Node = {
+  id: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  tone?: Tone;
+};
 
 type Layout = { height: number; nodes: Node[]; edges: string[] };
 
@@ -53,11 +60,12 @@ export function ArchitectureDiagram({ variant, label, nodeLabels }: Props) {
   return (
     <svg
       role="img"
+      data-diagram
       aria-label={label}
       viewBox={`0 0 ${WIDTH} ${layout.height}`}
       width={WIDTH}
       height={layout.height}
-      className="h-auto w-full min-w-[30rem] font-mono"
+      className="h-auto w-full min-w-[26rem] font-mono"
     >
       <defs>
         <marker id={markerId} markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
@@ -69,12 +77,16 @@ export function ArchitectureDiagram({ variant, label, nodeLabels }: Props) {
         <path
           key={d}
           d={d}
+          data-edge
           fill="none"
           stroke="var(--muted)"
           strokeWidth="1.5"
           markerEnd={`url(#${markerId})`}
         />
       ))}
+
+      {/* Travels along the edges once they are drawn (animated by lib/motion). */}
+      <circle data-pulse r="4" fill="var(--accent)" opacity="0" />
 
       {layout.nodes.map((node) => {
         const lines = nodeLabels[node.id] ?? [node.id];

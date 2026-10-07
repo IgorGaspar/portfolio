@@ -1,12 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import {
-  MAX_MESSAGES,
-  agentErrors,
-  type AgentEvent,
-  type AgentMessage,
-} from "./agent-shared";
+import { MAX_MESSAGES, agentErrors, type AgentEvent, type AgentMessage } from "./agent-shared";
 import type { Locale } from "./i18n";
 
 export type ChatMessage = AgentMessage & {

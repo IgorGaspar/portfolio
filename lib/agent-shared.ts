@@ -1,28 +1,12 @@
-import { z } from "zod";
-import { locales, type Locale } from "./i18n";
+import type { Locale } from "./i18n";
 
 // Contract shared by the browser chat and the /api/agent Route Handler.
 
 export const MAX_MESSAGES = 20;
 export const MAX_MESSAGE_LENGTH = 1000;
 
-export const agentRequestSchema = z.object({
-  locale: z.enum(locales),
-  messages: z
-    .array(
-      z.object({
-        role: z.enum(["user", "assistant"]),
-        content: z.string().trim().min(1).max(MAX_MESSAGE_LENGTH),
-      }),
-    )
-    .min(1)
-    .max(MAX_MESSAGES)
-    .refine((messages) => messages[0].role === "user", "first message must be from the user")
-    .refine((messages) => messages.at(-1)?.role === "user", "last message must be from the user"),
-});
-
-export type AgentRequest = z.infer<typeof agentRequestSchema>;
-export type AgentMessage = AgentRequest["messages"][number];
+export type AgentMessage = { role: "user" | "assistant"; content: string };
+export type AgentRequest = { locale: Locale; messages: AgentMessage[] };
 
 /** Newline-delimited JSON events streamed by the Route Handler. */
 export type AgentEvent =

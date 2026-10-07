@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { AgentDock } from "@/components/agent/AgentDock";
+import { AgentDockLazy } from "@/components/agent/AgentDockLazy";
+import { MotionRoot } from "@/components/motion/MotionRoot";
 import { Footer } from "@/components/layout/Footer";
 import { Nav } from "@/components/layout/Nav";
 import { AgentInline } from "@/components/sections/AgentInline";
@@ -36,6 +37,7 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
       >
         {dict.ui.skipToContent}
       </a>
+      <div aria-hidden="true" id="scroll-progress" />
       <Nav locale={locale} dict={dict} />
       <main id="main">
         <Hero dict={dict} />
@@ -43,13 +45,14 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
         <WhatIDo dict={dict} />
         <Projects dict={dict} />
         <HowIBuild dict={dict} />
-        <Stack dict={dict} />
+        <Stack locale={locale} dict={dict} />
         <Journey dict={dict} />
         <WorkWithMe dict={dict} />
         <Contact dict={dict} />
       </main>
       <Footer locale={locale} dict={dict} />
-      <AgentDock
+      <MotionRoot />
+      <AgentDockLazy
         locale={locale}
         labels={{
           ...chatLabels,

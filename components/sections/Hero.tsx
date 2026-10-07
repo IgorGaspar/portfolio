@@ -17,13 +17,13 @@ export function Hero({ dict }: { dict: Dictionary }) {
       />
 
       <div className="container-page py-20">
-        <p className="font-mono text-sm text-muted">{hero.eyebrow}</p>
-        <h1 id="hero-title" className="mt-6 max-w-5xl text-hero font-bold">
+        <p className="hero-in font-mono text-sm text-muted">{hero.eyebrow}</p>
+        <h1 id="hero-title" className="hero-mask mt-6 max-w-5xl text-hero font-bold">
           {hero.title}
         </h1>
-        <p className="mt-8 max-w-2xl text-lead text-muted">{hero.subtitle}</p>
+        <p className="hero-in mt-8 max-w-2xl text-lead text-muted [--i:3]">{hero.subtitle}</p>
 
-        <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+        <div className="hero-in mt-10 flex flex-col gap-4 sm:flex-row [--i:4]">
           <AgentCta href={mailto(ui.subjectHire)} draft={ui.draftHire} className="btn">
             {hero.ctaHire}
           </AgentCta>
@@ -34,7 +34,7 @@ export function Hero({ dict }: { dict: Dictionary }) {
 
         <a
           href="#agent"
-          className="mt-8 inline-block py-2 text-sm text-muted underline-offset-4 transition-colors hover:text-accent-2 hover:underline"
+          className="hero-in mt-8 inline-block py-2 text-sm text-muted [--i:5] underline-offset-4 transition-colors hover:text-accent-2 hover:underline"
         >
           {hero.agentLink}
         </a>

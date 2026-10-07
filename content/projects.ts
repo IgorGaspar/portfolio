@@ -72,3 +72,34 @@ export const projects: Record<ProjectId, ProjectData> = {
     ],
   },
 };
+
+/**
+ * Stack-section pills each project uses, in lowercase (spec 3.3.6). Matched by
+ * exact name or as a prefix, so "vps" covers "VPS com Coolify" and "VPS with Coolify".
+ */
+export const stackPills: Record<ProjectId, string[]> = {
+  monai: [
+    "claude (anthropic sdk)",
+    "structured outputs",
+    "evals",
+    "react",
+    "next.js",
+    "typescript",
+    "tailwind css",
+    "postgresql",
+    "prisma",
+    "docker",
+    "github actions",
+    "vps",
+  ],
+  b2b: [
+    "claude (anthropic sdk)",
+    "tool use",
+    "python",
+    "fastapi",
+    "postgresql",
+    "supabase",
+    "railway",
+  ],
+  esteticaah: ["n8n", "typebot", "react", "typescript", "tailwind css", "tanstack start", "vercel"],
+};

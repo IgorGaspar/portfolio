@@ -65,7 +65,7 @@ export const en: Dictionary = {
         problem:
           "Finance apps ask for a form for every expense. People who stop logging lose track of their month.",
         solution:
-          "Just type \"spent 45 at the grocery store on my Itaú debit card\". An agent powered by Claude Haiku 4.5 extracts amount, account, category, date and payment method, shows a preview and only saves after confirmation. The app also handles accounts, recurring expenses and income, and projects cash flow for the coming months.",
+          'Just type "spent 45 at the grocery store on my Itaú debit card". An agent powered by Claude Haiku 4.5 extracts amount, account, category, date and payment method, shows a preview and only saves after confirmation. The app also handles accounts, recurring expenses and income, and projects cash flow for the coming months.',
         engineering: [
           "User isolation with Row-Level Security in PostgreSQL, plus ownership checks in every service",
           "Money stored as fixed-precision decimals; balance and transaction written in the same database transaction",
@@ -94,8 +94,7 @@ export const en: Dictionary = {
         title: "Autonomous sales agent for B2B events",
         summary:
           "From first contact to sales meeting: a Telegram agent that captures, enriches and nurtures every lead from an event.",
-        problem:
-          "A B2B event generates leads that go cold between sign-up and sales follow-up.",
+        problem: "A B2B event generates leads that go cold between sign-up and sales follow-up.",
         solution:
           "An autonomous Telegram agent for Aegis Summit. It captures leads with consent, enriches company data from public sources and runs communication sequences from 14 days before to 3 days after the event. At the end, it takes the lead all the way to booking a meeting with the sales team.",
         engineering: [
@@ -304,7 +303,8 @@ export const en: Dictionary = {
     text: "Whether it's a role or a project, I reply personally.",
     emailLabel: "Email",
     location: "Mauá, São Paulo, Brazil · remote, or on-site in Greater São Paulo",
-    languages: "Languages: Portuguese (native), English (professional working), Spanish (elementary)",
+    languages:
+      "Languages: Portuguese (native), English (professional working), Spanish (elementary)",
     ctaHire: "Hire me for your team",
     ctaProject: "I have a project",
     closing: "Or ask my agent.",
@@ -320,6 +320,7 @@ export const en: Dictionary = {
     solution: "The solution",
     engineering: "Engineering you don't see on screen",
     lookInside: "Look inside",
+    view: "view",
     stack: "Stack",
     links: "Links",
     copy: "Copy",

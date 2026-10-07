@@ -11,7 +11,10 @@ export function AgentInline({ locale, dict, chatLabels }: Props) {
   return (
     <section id="agent" aria-labelledby="agent-title" className="section">
       <div className="container-page">
-        <div className="mx-auto max-w-3xl rounded-2xl border border-accent-2/30 bg-surface p-6 shadow-[0_0_80px_-20px_color-mix(in_srgb,var(--accent-2)_45%,transparent)] sm:p-10">
+        <div
+          data-reveal="agent"
+          className="mx-auto max-w-3xl rounded-2xl border border-accent-2/30 bg-surface p-6 shadow-[0_0_80px_-20px_color-mix(in_srgb,var(--accent-2)_45%,transparent)] sm:p-10"
+        >
           <div className="flex items-start gap-4">
             <AgentIcon className="mt-1 size-10 shrink-0" />
             <div>

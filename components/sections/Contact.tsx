@@ -11,10 +11,12 @@ export function Contact({ dict }: { dict: Dictionary }) {
   return (
     <section id="contact" aria-labelledby="contact-title" className="section">
       <div className="container-page">
-        <h2 id="contact-title" className="text-hero font-bold">
+        <h2 id="contact-title" data-reveal="mask" className="text-hero font-bold">
           {contact.title}
         </h2>
-        <p className="mt-6 max-w-2xl text-lead text-muted">{contact.text}</p>
+        <p data-reveal="up" className="mt-6 max-w-2xl text-lead text-muted">
+          {contact.text}
+        </p>
 
         <dl className="mt-12 divide-y divide-border border-y border-border">
           <div className="grid gap-2 py-5 sm:grid-cols-[10rem_1fr] sm:items-center">

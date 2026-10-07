@@ -9,7 +9,6 @@ export const hasLocale = (value: string): value is Locale =>
 export const htmlLang: Record<Locale, string> = { pt: "pt-BR", en: "en" };
 
 /** Public URL of the home page for a locale ("/" for pt, "/en" for en). */
-export const localeHome = (locale: Locale) =>
-  locale === defaultLocale ? "/" : `/${locale}`;
+export const localeHome = (locale: Locale) => (locale === defaultLocale ? "/" : `/${locale}`);
 
 export const siteUrl = "https://igorgaspar.tech";

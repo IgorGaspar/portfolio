@@ -1,5 +1,6 @@
 import { streamAgentAnswer } from "@/lib/agent";
-import { agentErrors, agentRequestSchema, type AgentEvent } from "@/lib/agent-shared";
+import { agentRequestSchema } from "@/lib/agent-schema";
+import { agentErrors, type AgentEvent } from "@/lib/agent-shared";
 import { defaultLocale, hasLocale, siteUrl } from "@/lib/i18n";
 import { checkRateLimit } from "@/lib/rate-limit";
 
