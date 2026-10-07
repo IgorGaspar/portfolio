@@ -24,10 +24,31 @@ export function getSystemPrompt(): string {
   return cachedSystem;
 }
 
-// The page language goes in the user turn, never in the system prompt, to keep the cache prefix stable.
-const localeHint: Record<Locale, string> = {
-  pt: "(Idioma da página: português. Use-o apenas se o idioma da pergunta for ambíguo.)",
-  en: "(Idioma da página: inglês. Use-o apenas se o idioma da pergunta for ambíguo.)",
+// The reply language goes in the user turn, never in the system prompt, to keep the cache prefix stable.
+// It is decided here rather than left to the model: smaller models drift to the language of the
+// system prompt (Portuguese) even when the visitor writes in English.
+const EN_WORDS = new Set(
+  "the is are was what which how does did he his him you your have has with and of to for about can could who where why it its in on tell this that would be an any there".split(" "),
+);
+const PT_WORDS = new Set(
+  "que qual quais como ele dele você voce vocês tem têm com de da das dos para por sobre um uma é não nao quanto quantos onde quem seu sua em na nos nas já ja foi são sao isso esse essa mais ou se quero".split(" "),
+);
+
+/** Picks Portuguese or English for the reply; falls back to the page language when unclear. */
+export function detectLanguage(text: string, fallback: Locale): Locale {
+  let en = 0;
+  let pt = /[ãõçáéíóúâêô]/i.test(text) ? 2 : 0;
+  for (const word of text.toLowerCase().match(/[a-zà-ú']+/g) ?? []) {
+    if (EN_WORDS.has(word)) en += 1;
+    else if (PT_WORDS.has(word)) pt += 1;
+  }
+  if (en === pt) return fallback;
+  return en > pt ? "en" : "pt";
+}
+
+const languageNote: Record<Locale, string> = {
+  pt: "(Note from the site, not the visitor: reply in Portuguese.)",
+  en: "(Note from the site, not the visitor: reply in English.)",
 };
 
 function toMessageParams(messages: AgentMessage[], locale: Locale): Anthropic.MessageParam[] {
@@ -36,7 +57,7 @@ function toMessageParams(messages: AgentMessage[], locale: Locale): Anthropic.Me
       ? {
           role: message.role,
           content: [
-            { type: "text", text: localeHint[locale] },
+            { type: "text", text: languageNote[detectLanguage(message.content, locale)] },
             { type: "text", text: message.content },
           ],
         }

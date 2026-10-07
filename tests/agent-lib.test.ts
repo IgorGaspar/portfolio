@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getSystemPrompt } from "@/lib/agent";
+import { detectLanguage, getSystemPrompt } from "@/lib/agent";
 import { createMemoryLimiter, parseWindow } from "@/lib/rate-limit";
 
 describe("getSystemPrompt", () => {
@@ -42,5 +42,23 @@ describe("createMemoryLimiter", () => {
 
     now = 1000;
     expect((await limit("ip")).success).toBe(true);
+  });
+});
+
+describe("detectLanguage", () => {
+  it.each([
+    ["What's your experience with .NET and Angular?", "pt", "en"],
+    ["Is Igor a senior developer?", "pt", "en"],
+    ["Which projects have you shipped to production?", "pt", "en"],
+    ["Qual sua experiência com .NET e Angular?", "en", "pt"],
+    ["Quais projetos você já colocou em produção?", "en", "pt"],
+    ["Ele lidera time?", "en", "pt"],
+    ["Quanto ele cobra por um site?", "en", "pt"],
+  ] as const)("detects the language of %s", (text, pageLocale, expected) => {
+    expect(detectLanguage(text, pageLocale)).toBe(expected);
+  });
+
+  it.each(["pt", "en"] as const)("falls back to the page language (%s) when unclear", (locale) => {
+    expect(detectLanguage("MonAI?", locale)).toBe(locale);
   });
 });
