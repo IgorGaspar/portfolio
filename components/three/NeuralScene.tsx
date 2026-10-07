@@ -48,6 +48,9 @@ function Network({ count, interactive }: NetworkProps) {
       uOpacity: { value: 0 },
       uSize: { value: 1 },
       uLineOpacity: { value: 0.22 },
+      uScale: { value: 1 },
+      uCoreTint: { value: 1 },
+      uCoreAlpha: { value: 0.025 },
     };
     const shared = { uniforms, transparent: true, depthWrite: false };
     return {
@@ -119,47 +122,94 @@ function Network({ count, interactive }: NetworkProps) {
     const root = group.current;
     if (!root) return;
 
+    const viewportHeight = window.innerHeight;
     const hero = document.querySelector("[data-hero]")?.getBoundingClientRect();
-    const contact = document.getElementById("contact")?.getBoundingClientRect();
     const icon = document.querySelector<HTMLElement>("[data-agent-core]");
+    const layer = state.gl.domElement.closest<HTMLElement>("[data-neural-canvas]");
 
     // Hero: 0 at the top of the page, 1 when the hero has scrolled away.
     const progress = hero ? clamp01(-hero.top / hero.height) : 1;
     const inHero = Boolean(hero && hero.bottom > 0);
-    // Contact: how far the section has come into view.
-    const contactView = contact
-      ? clamp01((window.innerHeight - contact.top) / window.innerHeight)
-      : 0;
+    const narrow = size.width < 768;
 
-    // 0-60%: condense into the core. 60-100%: the core travels to the agent icon.
-    const condense = inHero ? smoothstep(0, 0.6, progress) : 0;
-    const travel = inHero ? smoothstep(0.6, 1, progress) : 0;
-    const arrive = inHero ? smoothstep(0.85, 1, progress) : 0;
+    // Screen position (in clip space) of the centre of the network when nothing moves it.
+    const wide = viewport.aspect > 1.1;
+    root.position.set(wide ? viewport.width * 0.25 : 0, wide ? 0 : viewport.height * 0.12, 0);
+    center.current.copy(root.position).project(camera);
+    const towards = (x: number, y: number, amount: number) =>
+      u.uShift.value.set(
+        ((x / window.innerWidth) * 2 - 1 - center.current.x) * amount,
+        (-(y / viewportHeight) * 2 + 1 - center.current.y) * amount,
+      );
+
+    let condense = 0;
+    let coreTint = 1;
+    let opacity = 0;
+    let follow = false;
+
+    if (inHero) {
+      // 0-60%: the network condenses into the core. 60-100%: the core flies to the
+      // agent icon, shrinking to its size, and the two cross-fade as it lands.
+      condense = smoothstep(0, 0.6, progress);
+      const travel = smoothstep(0.55, 0.97, progress);
+      const landing = smoothstep(0.8, 0.97, progress);
+      opacity = 1 - smoothstep(0.9, 1, progress);
+      follow = interactive;
+      u.uScale.value = 1 - 0.55 * landing;
+
+      if (icon) {
+        const rect = icon.getBoundingClientRect();
+        towards(rect.left + rect.width / 2, rect.top + rect.height / 2, travel);
+        // Hidden for the whole flight, so it only ever appears where the core lands.
+        icon.style.opacity = String(landing);
+      } else {
+        u.uShift.value.set(0, 0);
+      }
+      // The agent card is opaque, so the core has to fly in front of the page to reach it.
+      if (travel > 0) layer?.style.setProperty("z-index", "30");
+      else layer?.style.removeProperty("z-index");
+    } else {
+      // Contact: the reverse of the hero. Once the "work with me" line has filled,
+      // a small core leaves its end and opens up into the calm network.
+      const track = document.querySelector("[data-work-with-me]");
+      const fill = track?.querySelector("[data-line-fill]")?.getBoundingClientRect();
+      const trackBottom = track?.getBoundingClientRect().bottom ?? viewportHeight;
+      // The line is full when the list's bottom reaches 55% of the viewport (lib/motion).
+      const opening = smoothstep(
+        0,
+        1,
+        (viewportHeight * 0.55 - trackBottom) / (viewportHeight * 0.7),
+      );
+
+      condense = 1 - opening;
+      coreTint = 0;
+      // Bright while it is a small core, settling to the calm level as it opens.
+      opacity = (1 - 0.4 * opening) * smoothstep(0, 0.06, opening);
+      u.uScale.value = 1;
+      if (fill) towards(fill.right, fill.bottom, 1 - smoothstep(0, 0.85, opening));
+      else u.uShift.value.set(0, 0);
+
+      icon?.style.removeProperty("opacity");
+      layer?.style.removeProperty("z-index");
+    }
 
     u.uTime.value += delta;
     u.uCondense.value = condense;
+    u.uCoreTint.value = coreTint;
+    // All the points of the hero pile up in its core; the contact core has a third of them.
+    u.uCoreAlpha.value = inHero ? 0.025 : 0.2;
     u.uResolution.value.set(size.width, size.height);
-    u.uSize.value = (size.width < 768 ? 2.2 : 2.6) * state.gl.getPixelRatio();
+    u.uSize.value = (narrow ? 2.2 : 2.6) * state.gl.getPixelRatio();
     // On narrow screens the network sits behind the text, so it is dimmed to keep it readable.
-    const strength = size.width < 768 ? 0.45 : 1;
-    u.uOpacity.value = strength * (inHero ? 1 - arrive : 0.55 * smoothstep(0.1, 0.7, contactView));
+    u.uOpacity.value = opacity * (narrow ? 0.45 : 1);
 
-    // The contact version is calmer: a third of the points and no pointer play.
-    const calm = !inHero;
-    const visible = calm ? Math.floor(count / 3) : count;
-    pointsGeometry.current?.setDrawRange(0, visible);
-    linesGeometry.current?.setDrawRange(0, calm ? 0 : Infinity);
-
-    const active = interactive && !calm ? 1 - condense : 0;
-    u.uRepel.value = active;
+    // The contact version is calmer: a third of the points, no lines, no pointer play.
+    pointsGeometry.current?.setDrawRange(0, inHero ? count : Math.floor(count / 3));
+    linesGeometry.current?.setDrawRange(0, inHero ? Infinity : 0);
+    u.uRepel.value = follow ? 1 - condense : 0;
     u.uPointer.value.copy(pointer.current);
 
-    // Sits to the right of the text on wide screens, behind it on narrow ones.
-    const wide = viewport.aspect > 1.1;
-    root.position.set(wide ? viewport.width * 0.25 : 0, wide ? 0 : viewport.height * 0.12, 0);
-
     // Leans up to 8 degrees towards the pointer, on top of a slow spin of its own.
-    const follow = interactive && !calm;
     const ease = 1 - Math.exp(-delta * 3);
     const leanX = follow ? -THREE.MathUtils.clamp(pointer.current.y, -1, 1) * MAX_TILT : 0;
     const leanY = follow ? THREE.MathUtils.clamp(pointer.current.x, -1, 1) * MAX_TILT : 0;
@@ -167,29 +217,6 @@ function Network({ count, interactive }: NetworkProps) {
     tilt.current.y += (leanY - tilt.current.y) * ease;
     spin.current += delta * 0.06;
     root.rotation.set(tilt.current.x, spin.current + tilt.current.y, 0);
-
-    // Slide the whole core to where the agent icon is on screen.
-    if (icon && travel > 0) {
-      const rect = icon.getBoundingClientRect();
-      center.current.copy(root.position).project(camera);
-      const targetX = ((rect.left + rect.width / 2) / window.innerWidth) * 2 - 1;
-      const targetY = -((rect.top + rect.height / 2) / window.innerHeight) * 2 + 1;
-      u.uShift.value.set(
-        (targetX - center.current.x) * travel,
-        (targetY - center.current.y) * travel,
-      );
-      icon.style.opacity = String(arrive);
-      // The agent card is opaque, so the core has to fly in front of the page to reach it.
-      state.gl.domElement
-        .closest<HTMLElement>("[data-neural-canvas]")
-        ?.style.setProperty("z-index", "30");
-    } else {
-      u.uShift.value.set(0, 0);
-      icon?.style.removeProperty("opacity");
-      state.gl.domElement
-        .closest<HTMLElement>("[data-neural-canvas]")
-        ?.style.removeProperty("z-index");
-    }
   });
 
   return (
@@ -234,7 +261,10 @@ export default function NeuralScene({ count, interactive, onFailure }: Props) {
       }
       update();
     });
-    document.querySelectorAll("[data-hero], #contact").forEach((el) => observer.observe(el));
+    // The contact network starts opening while "work with me" is still on screen.
+    document
+      .querySelectorAll("[data-hero], [data-work-with-me], #contact")
+      .forEach((el) => observer.observe(el));
     document.addEventListener("visibilitychange", update);
 
     return () => {

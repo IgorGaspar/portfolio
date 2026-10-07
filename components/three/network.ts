@@ -109,6 +109,8 @@ export function buildNetwork(count: number): Network {
 const displace = /* glsl */ `
   uniform float uTime;
   uniform float uCondense;
+  uniform float uScale;
+  uniform float uCoreTint;
   uniform float uRepel;
   uniform vec2 uPointer;
   uniform vec2 uResolution;
@@ -124,7 +126,7 @@ const displace = /* glsl */ `
       cos(t * 1.1 + base.z * 2.0),
       sin(t * 0.9 + base.x * 2.0)
     );
-    p *= mix(1.0, 0.045 + 0.03 * aSeed, uCondense);
+    p *= mix(1.0, 0.045 + 0.03 * aSeed, uCondense) * uScale;
 
     vec4 view = modelViewMatrix * vec4(p, 1.0);
     vec4 clip = projectionMatrix * view;
@@ -136,7 +138,8 @@ const displace = /* glsl */ `
     clip.xy += normalize(fromPointer + 0.0001) * push / (uResolution * 0.5) * clip.w;
 
     clip.xy += uShift * clip.w;
-    vTint = max(aTint, uCondense);
+    // The hero core turns violet (the agent's colour); the contact one keeps the accent.
+    vTint = max(aTint, uCondense * uCoreTint);
     return clip;
   }
 `;
@@ -146,6 +149,7 @@ const tint = /* glsl */ `
   uniform vec3 uColorB;
   uniform float uOpacity;
   uniform float uCondense;
+  uniform float uCoreAlpha;
   varying float vTint;
 `;
 
@@ -164,7 +168,7 @@ export const pointsFragment = /* glsl */ `
   void main() {
     float d = length(gl_PointCoord - 0.5);
     // Thousands of points pile up in the core, so each one dims as they condense.
-    float alpha = smoothstep(0.5, 0.05, d) * uOpacity * mix(1.0, 0.04, uCondense);
+    float alpha = smoothstep(0.5, 0.05, d) * uOpacity * mix(1.0, uCoreAlpha, uCondense);
     if (alpha < 0.01) discard;
     gl_FragColor = vec4(mix(uColorA, uColorB, vTint), alpha);
   }

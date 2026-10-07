@@ -79,8 +79,17 @@ export function ChatBox({ locale, labels, variant, initialDraft = "" }: Props) {
   const { messages, status } = useAgent();
   const [input, setInput] = useState(initialDraft);
   const listRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const busy = status !== "idle";
   const last = messages.at(-1);
+
+  // The field is as tall as its text (including a prefilled draft), up to its max height.
+  useEffect(() => {
+    const field = inputRef.current;
+    if (!field) return;
+    field.style.height = "auto";
+    field.style.height = `${field.scrollHeight + 2}px`;
+  }, [input]);
 
   // Keep the newest text in view while the answer streams in.
   useEffect(() => {
@@ -177,7 +186,7 @@ export function ChatBox({ locale, labels, variant, initialDraft = "" }: Props) {
       )}
 
       <form
-        className="mt-4 flex gap-2"
+        className="mt-4 flex items-end gap-2"
         onSubmit={(event) => {
           event.preventDefault();
           submit(input);
@@ -186,16 +195,23 @@ export function ChatBox({ locale, labels, variant, initialDraft = "" }: Props) {
         <label htmlFor={inputId} className="sr-only">
           {labels.placeholder}
         </label>
-        <input
+        {/* Grows with the message, up to a few lines. Enter sends; Shift+Enter breaks the line. */}
+        <textarea
           id={inputId}
-          type="text"
+          ref={inputRef}
+          rows={1}
           value={input}
           onChange={(event) => setInput(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
+            event.preventDefault();
+            submit(input);
+          }}
           maxLength={MAX_MESSAGE_LENGTH}
           autoComplete="off"
           enterKeyHint="send"
           placeholder={labels.placeholder}
-          className="min-h-12 w-full min-w-0 rounded-xl border border-border bg-bg px-4 text-base placeholder:text-muted focus-visible:outline-accent-2"
+          className="chat-scroll max-h-40 min-h-12 w-full min-w-0 resize-none rounded-xl border border-border bg-bg px-4 py-3 text-base leading-6 placeholder:text-muted focus-visible:outline-accent-2"
         />
         {busy ? (
           <button

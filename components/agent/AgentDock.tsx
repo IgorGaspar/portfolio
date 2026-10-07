@@ -49,7 +49,7 @@ export function AgentDock({ locale, labels }: Props) {
     if (!panelOpen || !dialog) return;
     if (!dialog.open) dialog.showModal();
     // preventScroll: the panel starts off-screen, and scrolling it into view would shift the dialog.
-    dialog.querySelector("input")?.focus({ preventScroll: true });
+    dialog.querySelector("textarea")?.focus({ preventScroll: true });
     document.documentElement.style.overflow = "hidden";
     return () => {
       document.documentElement.style.overflow = "";
