@@ -48,7 +48,8 @@ export function AgentDock({ locale, labels }: Props) {
     const dialog = dialogRef.current;
     if (!panelOpen || !dialog) return;
     if (!dialog.open) dialog.showModal();
-    dialog.querySelector("input")?.focus();
+    // preventScroll: the panel starts off-screen, and scrolling it into view would shift the dialog.
+    dialog.querySelector("input")?.focus({ preventScroll: true });
     document.documentElement.style.overflow = "hidden";
     return () => {
       document.documentElement.style.overflow = "";
@@ -89,7 +90,7 @@ export function AgentDock({ locale, labels }: Props) {
           onClick={(event) => {
             if (event.target === event.currentTarget) agent.closePanel();
           }}
-          className="fixed inset-0 m-0 h-full max-h-none w-full max-w-none overflow-hidden bg-transparent backdrop:bg-black/50"
+          className="fixed inset-0 m-0 h-full max-h-none w-full max-w-none overflow-clip bg-transparent backdrop:bg-black/50"
         >
           <AnimatePresence onExitComplete={() => dialogRef.current?.close()}>
             {panelOpen && (

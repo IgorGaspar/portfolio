@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { MAX_MESSAGE_LENGTH } from "@/lib/agent-shared";
 import { agent, useAgent } from "@/lib/agent-store";
 import type { Locale } from "@/lib/i18n";
-import { RichText } from "../ui/RichText";
 import { AgentIcon } from "./AgentIcon";
+import { ChatText } from "./ChatText";
 
 export type ChatLabels = {
   chips: string[];
@@ -24,51 +25,60 @@ type Props = {
   initialDraft?: string;
 };
 
-/** The chip text "flies" to the input before it is sent (FLIP, 300 ms; spec 3.3.2). */
-function flyToInput(chip: HTMLElement, input: HTMLElement | null) {
-  if (!input || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    return Promise.resolve();
-  }
+/**
+ * The clicked chip flies up and lands as the visitor's message in the chat
+ * (FLIP from the chip's position to the new bubble; spec 3.3.2).
+ */
+function flyToBubble(from: DOMRect, list: HTMLElement | null) {
+  const bubble = Array.from(list?.querySelectorAll<HTMLElement>("[data-user-message]") ?? []).at(
+    -1,
+  );
+  if (!list || !bubble || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  const from = chip.getBoundingClientRect();
-  const to = input.getBoundingClientRect();
-  const ghost = chip.cloneNode(true) as HTMLElement;
+  list.scrollTop = list.scrollHeight;
+  const to = bubble.getBoundingClientRect();
+  const ghost = bubble.cloneNode(true) as HTMLElement;
   ghost.setAttribute("aria-hidden", "true");
   Object.assign(ghost.style, {
     position: "fixed",
-    left: `${from.left}px`,
-    top: `${from.top}px`,
-    width: `${from.width}px`,
+    left: `${to.left}px`,
+    top: `${to.top}px`,
+    width: `${to.width}px`,
+    maxWidth: "none",
     margin: "0",
     zIndex: "70",
     pointerEvents: "none",
+    transformOrigin: "top left",
   });
   // Inside the panel the ghost must live in the dialog to stay above it.
-  (chip.closest("dialog") ?? document.body).append(ghost);
+  (list.closest("dialog") ?? document.body).append(ghost);
+  bubble.style.visibility = "hidden";
 
   const animation = ghost.animate(
     [
-      { transform: "none", opacity: 1 },
       {
-        transform: `translate(${to.left - from.left}px, ${to.top - from.top}px)`,
-        opacity: 0.2,
+        transform: `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${from.width / to.width}, ${from.height / to.height})`,
+        borderRadius: "999px",
+        opacity: 0.6,
       },
+      { transform: "none", opacity: 1 },
     ],
-    { duration: 300, easing: "cubic-bezier(0.2, 0.7, 0.2, 1)" },
+    { duration: 450, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" },
   );
 
-  // Sending never waits on the animation for long: a background tab pauses it.
-  const timeout = new Promise((resolve) => setTimeout(resolve, 450));
-  return Promise.race([animation.finished.catch(() => undefined), timeout]).then(() =>
-    ghost.remove(),
-  );
+  // The real bubble always shows up, even if a background tab pauses the animation.
+  const land = () => {
+    ghost.remove();
+    bubble.style.visibility = "";
+  };
+  const timeout = new Promise((resolve) => setTimeout(resolve, 650));
+  void Promise.race([animation.finished.catch(() => undefined), timeout]).then(land);
 }
 
 export function ChatBox({ locale, labels, variant, initialDraft = "" }: Props) {
   const { messages, status } = useAgent();
   const [input, setInput] = useState(initialDraft);
   const listRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
   const busy = status !== "idle";
   const last = messages.at(-1);
 
@@ -79,9 +89,20 @@ export function ChatBox({ locale, labels, variant, initialDraft = "" }: Props) {
   }, [messages]);
 
   const submit = (text: string) => {
-    if (busy || !text.trim()) return;
+    if (busy || !text.trim()) return false;
     setInput("");
     void agent.send(text, locale);
+    return true;
+  };
+
+  const submitChip = (chip: HTMLElement, text: string) => {
+    const from = chip.getBoundingClientRect();
+    let sent = false;
+    // The message must be in the DOM before the flight can target it.
+    flushSync(() => {
+      sent = submit(text);
+    });
+    if (sent) flyToBubble(from, listRef.current);
   };
 
   const inputId = `agent-input-${variant}`;
@@ -95,14 +116,15 @@ export function ChatBox({ locale, labels, variant, initialDraft = "" }: Props) {
           data-native-scroll
           className={
             variant === "panel"
-              ? "min-h-0 flex-1 space-y-4 overflow-y-auto pr-1"
-              : "mt-8 max-h-96 space-y-4 overflow-y-auto pr-1"
+              ? "chat-scroll min-h-0 flex-1 space-y-4 overflow-y-auto pr-2"
+              : "chat-scroll mt-8 max-h-96 space-y-4 overflow-y-auto pr-2"
           }
         >
           {messages.map((message) =>
             message.role === "user" ? (
               <p
                 key={message.id}
+                data-user-message
                 className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-sm bg-accent-2/15 px-4 py-2.5 whitespace-pre-wrap"
               >
                 <span className="sr-only">{labels.you}: </span>
@@ -114,7 +136,7 @@ export function ChatBox({ locale, labels, variant, initialDraft = "" }: Props) {
                 <p className={`whitespace-pre-wrap ${message.notice ? "text-muted" : ""}`}>
                   <span className="sr-only">{labels.agentName}: </span>
                   {message.content ? (
-                    <RichText text={message.content} />
+                    <ChatText text={message.content} />
                   ) : (
                     <span className="agent-dots" aria-hidden="true">
                       <span />
@@ -144,9 +166,7 @@ export function ChatBox({ locale, labels, variant, initialDraft = "" }: Props) {
               <button
                 type="button"
                 disabled={busy}
-                onClick={(event) =>
-                  void flyToInput(event.currentTarget, inputRef.current).then(() => submit(chip))
-                }
+                onClick={(event) => submitChip(event.currentTarget, chip)}
                 className="rounded-full border border-accent-2/40 px-4 py-2 text-left text-sm transition-colors hover:border-accent-2 hover:bg-accent-2/10 disabled:opacity-50"
               >
                 {chip}
@@ -168,7 +188,6 @@ export function ChatBox({ locale, labels, variant, initialDraft = "" }: Props) {
         </label>
         <input
           id={inputId}
-          ref={inputRef}
           type="text"
           value={input}
           onChange={(event) => setInput(event.target.value)}

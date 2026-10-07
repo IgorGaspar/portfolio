@@ -33,99 +33,107 @@ export function Projects({ dict }: { dict: Dictionary }) {
                   data-project
                   className="project-card grid gap-10 rounded-2xl border border-border bg-surface p-6 sm:p-10 lg:grid-cols-2 lg:gap-14"
                 >
-                  <div data-project-text data-native-scroll className="min-w-0">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <Badge>{copy.badge}</Badge>
-                      <span
-                        aria-hidden="true"
-                        data-project-index
-                        className="font-mono text-xs text-muted"
-                      >
-                        {String(i + 1).padStart(2, "0")} / {total}
-                      </span>
-                    </div>
-
-                    <h3 id={`project-${id}`} className="mt-6 text-2xl font-semibold sm:text-3xl">
-                      {copy.title}
-                    </h3>
-                    <p className="mt-4 text-lead">{copy.summary}</p>
-
-                    <dl className="mt-8 space-y-6">
-                      <div>
-                        <dt className={labelClass}>{ui.problem}</dt>
-                        <dd className="mt-2 text-muted">{copy.problem}</dd>
-                      </div>
-                      <div>
-                        <dt className={labelClass}>{ui.solution}</dt>
-                        <dd className="mt-2 text-muted">{copy.solution}</dd>
-                      </div>
-                    </dl>
-
-                    <details className="group mt-8 rounded-xl border border-border">
-                      <summary className="flex list-none items-center justify-between gap-4 px-4 py-3 font-medium">
-                        {ui.lookInside}
+                  <div data-project-text className="min-w-0">
+                    <div data-project-text-inner>
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <Badge>{copy.badge}</Badge>
                         <span
                           aria-hidden="true"
-                          className="font-mono text-accent transition-transform group-open:rotate-45"
+                          data-project-index
+                          className="font-mono text-xs text-muted"
                         >
-                          +
+                          {String(i + 1).padStart(2, "0")} / {total}
                         </span>
-                      </summary>
-                      <div className="border-t border-border px-4 py-4">
-                        <h4 className={labelClass}>{ui.engineering}</h4>
-                        <ul className="mt-3 space-y-2 text-sm text-muted">
-                          {copy.engineering.map((item) => (
-                            <li key={item} className="flex gap-3">
-                              <span
-                                aria-hidden="true"
-                                className="mt-2 size-1 shrink-0 rounded-full bg-accent"
-                              />
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
                       </div>
-                    </details>
 
-                    <h4 className={`mt-8 ${labelClass}`}>{ui.stack}</h4>
-                    <ul className="mt-3 flex flex-wrap gap-2">
-                      {copy.stack.map((item) => (
-                        <li key={item} className="pill bg-bg">
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
+                      <h3 id={`project-${id}`} className="mt-6 text-2xl font-semibold sm:text-3xl">
+                        {copy.title}
+                      </h3>
+                      <p className="mt-4 text-lead">{copy.summary}</p>
 
-                    {data.link && (
-                      <p className="mt-8 text-sm">
-                        <span className="sr-only">{ui.links}: </span>
-                        <a
-                          href={data.link.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="link"
-                        >
-                          {data.link.label} ↗
-                        </a>
-                        {copy.linkNote && <span className="ml-2 text-muted">{copy.linkNote}</span>}
-                      </p>
-                    )}
+                      <dl className="mt-8 space-y-6">
+                        <div>
+                          <dt className={labelClass}>{ui.problem}</dt>
+                          <dd className="mt-2 text-muted">{copy.problem}</dd>
+                        </div>
+                        <div>
+                          <dt className={labelClass}>{ui.solution}</dt>
+                          <dd className="mt-2 text-muted">{copy.solution}</dd>
+                        </div>
+                      </dl>
+
+                      <details className="group mt-8 rounded-xl border border-border">
+                        <summary className="flex list-none items-center justify-between gap-4 px-4 py-3 font-medium">
+                          {ui.lookInside}
+                          <span
+                            aria-hidden="true"
+                            className="font-mono text-accent transition-transform group-open:rotate-45"
+                          >
+                            +
+                          </span>
+                        </summary>
+                        <div className="border-t border-border px-4 py-4">
+                          <h4 className={labelClass}>{ui.engineering}</h4>
+                          <ul className="mt-3 space-y-2 text-sm text-muted">
+                            {copy.engineering.map((item) => (
+                              <li key={item} className="flex gap-3">
+                                <span
+                                  aria-hidden="true"
+                                  className="mt-2 size-1 shrink-0 rounded-full bg-accent"
+                                />
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </details>
+
+                      <h4 className={`mt-8 ${labelClass}`}>{ui.stack}</h4>
+                      <ul className="mt-3 flex flex-wrap gap-2">
+                        {copy.stack.map((item) => (
+                          <li key={item} className="pill bg-bg">
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+
+                      {data.link && (
+                        <p className="mt-8 text-sm">
+                          <span className="sr-only">{ui.links}: </span>
+                          <a
+                            href={data.link.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="link"
+                          >
+                            {data.link.label} ↗
+                          </a>
+                          {copy.linkNote && (
+                            <span className="ml-2 text-muted">{copy.linkNote}</span>
+                          )}
+                        </p>
+                      )}
+                    </div>
                   </div>
 
-                  <div
-                    data-project-media
-                    data-cursor={ui.view}
-                    className="flex min-w-0 flex-col justify-center gap-6"
-                  >
-                    {data.image && (
-                      <Image
-                        src={data.image.src}
-                        alt={copy.mediaAlt ?? ""}
-                        width={data.image.width}
-                        height={data.image.height}
-                        sizes="(min-width: 1024px) 540px, 92vw"
-                        className="h-auto w-full rounded-xl border border-border"
-                      />
+                  <div data-project-media className="flex min-w-0 flex-col justify-center gap-6">
+                    {data.image && data.link && (
+                      <a
+                        href={data.link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        data-cursor={ui.view}
+                        className="block overflow-hidden rounded-xl border border-border"
+                      >
+                        <Image
+                          src={data.image.src}
+                          alt={copy.mediaAlt ?? ""}
+                          width={data.image.width}
+                          height={data.image.height}
+                          sizes="(min-width: 1024px) 540px, 92vw"
+                          className="h-auto w-full"
+                        />
+                      </a>
                     )}
                     {data.diagram && copy.diagram && (
                       <div className="overflow-x-auto rounded-xl border border-border bg-bg p-4">

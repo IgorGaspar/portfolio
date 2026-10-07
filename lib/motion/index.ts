@@ -41,15 +41,27 @@ function smoothScroll(cleanups: Cleanups) {
     anchors: true,
     // Scrollable areas keep their own native scroll.
     prevent: (node) => node.closest("dialog, [data-native-scroll]") !== null,
+    // Lenis stops by itself while the page is locked (agent panel open).
+    autoToggle: true,
   });
   lenis.on("scroll", ScrollTrigger.update);
   const raf = (time: number) => lenis.raf(time * 1000);
   gsap.ticker.add(raf);
   gsap.ticker.lagSmoothing(0);
+  activeLenis = lenis;
   cleanups.push(() => {
+    activeLenis = undefined;
     gsap.ticker.remove(raf);
     lenis.destroy();
   });
+}
+
+let activeLenis: Lenis | undefined;
+
+/** Jumps the page to a scroll position without animation, with or without Lenis. */
+function jumpTo(top: number) {
+  if (activeLenis) activeLenis.scrollTo(top, { immediate: true, force: true });
+  else window.scrollTo({ top, behavior: "instant" });
 }
 
 function progressBar() {
@@ -112,54 +124,79 @@ function navState(cleanups: Cleanups) {
   });
 }
 
-/** Ring that follows the pointer and shows a label over elements with data-cursor. */
+/**
+ * Custom cursor that replaces the native one on desktop: a dot at the pointer
+ * and a ring that trails it. The ring grows over links and buttons, and turns
+ * into a labelled disc over elements with data-cursor. Inside the agent panel
+ * and over text fields the native cursor comes back.
+ */
 function customCursor(cleanups: Cleanups) {
+  const root = document.documentElement;
   const ring = document.createElement("div");
+  const dot = document.createElement("div");
   ring.className = "cursor-ring";
+  dot.className = "cursor-dot";
   ring.setAttribute("aria-hidden", "true");
-  document.body.append(ring);
+  dot.setAttribute("aria-hidden", "true");
+  document.body.append(ring, dot);
 
   const moveX = gsap.quickTo(ring, "x", { duration: 0.25, ease: EASE });
   const moveY = gsap.quickTo(ring, "y", { duration: 0.25, ease: EASE });
+  const NATIVE = "dialog, input, textarea, select";
+  const INTERACTIVE = "a, button, summary, label, [role=button]";
 
   const onMove = (event: PointerEvent) => {
-    ring.style.opacity = "1";
+    const target = event.target as Element | null;
+    const native = Boolean(target?.closest(NATIVE));
+    const labelled = native ? null : target?.closest<HTMLElement>("[data-cursor]");
+
+    // The native cursor is only hidden once the custom one has a position.
+    root.toggleAttribute("data-custom-cursor", !native);
+    dot.style.transform = `translate(${event.clientX}px, ${event.clientY}px)`;
     moveX(event.clientX);
     moveY(event.clientY);
-    const target = (event.target as Element | null)?.closest<HTMLElement>("[data-cursor]");
-    ring.textContent = target?.dataset.cursor ?? "";
-    ring.toggleAttribute("data-active", Boolean(target));
+
+    ring.textContent = labelled?.dataset.cursor ?? "";
+    ring.toggleAttribute("data-active", Boolean(labelled));
+    ring.toggleAttribute("data-hover", !labelled && Boolean(target?.closest(INTERACTIVE)));
+    ring.style.opacity = native ? "0" : "1";
+    dot.style.opacity = native || labelled ? "0" : "1";
   };
-  const onLeave = () => (ring.style.opacity = "0");
+  const onLeave = () => {
+    root.removeAttribute("data-custom-cursor");
+    ring.style.opacity = dot.style.opacity = "0";
+  };
 
   window.addEventListener("pointermove", onMove, { passive: true });
-  document.documentElement.addEventListener("pointerleave", onLeave);
+  root.addEventListener("pointerleave", onLeave);
   cleanups.push(() => {
     window.removeEventListener("pointermove", onMove);
-    document.documentElement.removeEventListener("pointerleave", onLeave);
+    root.removeEventListener("pointerleave", onLeave);
+    root.removeAttribute("data-custom-cursor");
     ring.remove();
+    dot.remove();
   });
 }
 
 /** Layout changes that ScrollTrigger cannot see on its own. */
 function refreshOnLayoutChange(cleanups: Cleanups) {
-  let frame = 0;
+  let timer = 0;
   const refresh = () => {
-    cancelAnimationFrame(frame);
-    frame = requestAnimationFrame(() => ScrollTrigger.refresh());
+    window.clearTimeout(timer);
+    timer = window.setTimeout(() => ScrollTrigger.refresh(), 120);
   };
 
   // The inline chat grows as answers arrive; accordions open inside project cards.
+  // Both are watched by size, so the refresh happens once the change has settled.
   const chat = document.getElementById("agent");
   const observer = new ResizeObserver(refresh);
   if (chat) observer.observe(chat);
-  document.addEventListener("toggle", refresh, true);
+  $("[data-project-text-inner]").forEach((text) => observer.observe(text));
   void document.fonts.ready.then(refresh);
 
   cleanups.push(() => {
-    cancelAnimationFrame(frame);
+    window.clearTimeout(timer);
     observer.disconnect();
-    document.removeEventListener("toggle", refresh, true);
   });
 }
 
@@ -379,68 +416,145 @@ function projectsStacked() {
   }
 }
 
-/** Desktop: the section is pinned and the three cases slide sideways with the scroll. */
+/**
+ * Desktop: the section is pinned and the scroll plays a script, measured in
+ * pixels of scroll: read case 1 (its text scrolls inside the card), slide to
+ * case 2, read it, and so on. Because the script is in pixels, opening an
+ * accordion only makes the current "read" step longer; nothing before it moves.
+ */
 function projectsHorizontal(cleanups: Cleanups) {
   const section = document.querySelector<HTMLElement>("[data-projects]");
   const viewport = section?.querySelector<HTMLElement>("[data-projects-viewport]");
   const track = section?.querySelector<HTMLElement>("[data-projects-track]");
   if (!section || !viewport || !track) return;
+
   const cards = $("[data-project]", track);
+  const texts = cards.map((card) => card.querySelector<HTMLElement>("[data-project-text]")!);
+  const images = cards.map((card) => $("img", card));
+  const diagrams = cards.map((card) =>
+    $<SVGSVGElement>("[data-diagram]", card).map(diagramTimeline),
+  );
 
   section.setAttribute("data-horizontal", "");
-  cleanups.push(() => section.removeAttribute("data-horizontal"));
 
-  const slide = gsap.to(track, {
-    x: () => -(track.scrollWidth - viewport.clientWidth),
-    ease: "none",
-    scrollTrigger: {
-      trigger: section,
-      start: "top top",
-      end: "+=300%",
-      pin: true,
-      scrub: 1,
-      invalidateOnRefresh: true,
-    },
+  // Scroll spent resting on a case before and after its text moves.
+  const DWELL = 120;
+  type Step = { kind: "read" | "slide"; card: number; length: number; from: number; to: number };
+  let steps: Step[] = [];
+  let total = 0;
+  // Where the scroll currently is in the script: which step, and how far into it.
+  let place = { step: 0, offset: 0 };
+
+  const measure = () => {
+    const origin = track.getBoundingClientRect().left;
+    const maxX = Math.max(0, track.scrollWidth - viewport.clientWidth);
+    const offsets = cards.map((card) => Math.min(card.getBoundingClientRect().left - origin, maxX));
+
+    steps = [];
+    cards.forEach((_, i) => {
+      const overflow = Math.max(0, texts[i].scrollHeight - texts[i].clientHeight);
+      steps.push({ kind: "read", card: i, length: overflow + DWELL * 2, from: 0, to: overflow });
+      if (i < cards.length - 1) {
+        steps.push({
+          kind: "slide",
+          card: i + 1,
+          length: offsets[i + 1] - offsets[i],
+          from: offsets[i],
+          to: offsets[i + 1],
+        });
+      }
+    });
+    total = steps.reduce((sum, step) => sum + step.length, 0);
+    return total;
+  };
+
+  const clamp = gsap.utils.clamp;
+
+  const apply = (scrolled: number) => {
+    let remaining = clamp(0, total, scrolled);
+    let x = 0;
+    const arrival: number[] = cards.map((_, i) => (i === 0 ? 1 : 0));
+
+    let placed = false;
+
+    for (const [index, step] of steps.entries()) {
+      if (!placed && (remaining <= step.length || index === steps.length - 1)) {
+        // While reading, the place is the text position, so text added below does not move it.
+        const offset = step.kind === "read" ? Math.min(remaining, DWELL + step.to) : remaining;
+        place = { step: index, offset };
+        placed = true;
+      }
+      if (step.kind === "read") {
+        texts[step.card].scrollTop = clamp(0, step.to, remaining - DWELL);
+      } else {
+        const progress = step.length > 0 ? clamp(0, 1, remaining / step.length) : 1;
+        if (remaining > 0) x = step.from + (step.to - step.from) * progress;
+        arrival[step.card] = remaining > 0 ? progress : 0;
+      }
+      remaining -= step.length;
+    }
+
+    gsap.set(track, { x: -x });
+    cards.forEach((_, i) => {
+      // Images open up from a 10% inset as their case arrives.
+      gsap.set(images[i], { clipPath: `inset(${(1 - arrival[i]) * 10}%)` });
+      if (arrival[i] > 0.6) diagrams[i].forEach((draw) => draw.play());
+    });
+  };
+
+  const trigger = ScrollTrigger.create({
+    trigger: section,
+    start: "top top",
+    end: () => `+=${measure()}`,
+    pin: true,
+    invalidateOnRefresh: true,
+    onUpdate: (self) => apply(self.scroll() - self.start),
+    onRefresh: (self) => apply(self.scroll() - self.start),
   });
 
-  for (const card of cards) {
-    for (const image of $("img", card)) {
-      gsap.fromTo(
-        image,
-        { clipPath: "inset(10%)" },
-        {
-          clipPath: "inset(0%)",
-          ease: "none",
-          scrollTrigger: {
-            trigger: card,
-            containerAnimation: slide,
-            start: "left 80%",
-            end: "left 25%",
-            scrub: true,
-          },
-        },
-      );
-    }
-    for (const svg of $<SVGSVGElement>("[data-diagram]", card)) {
-      const draw = diagramTimeline(svg);
-      ScrollTrigger.create({
-        trigger: card,
-        containerAnimation: slide,
-        start: "left 55%",
-        once: true,
-        onEnter: () => draw.play(),
-      });
-    }
-  }
+  // When the script changes length (an accordion opened, the window resized),
+  // the page goes back to the same place in it, so what is on screen stays put.
+  let saved: typeof place | undefined;
+  const savePlace = () => (saved = trigger.isActive ? { ...place } : undefined);
+  const restorePlace = () => {
+    const step = saved && steps[saved.step];
+    if (!saved || !step) return;
+    const before = steps.slice(0, saved.step).reduce((sum, s) => sum + s.length, 0);
+    const scrolled = before + Math.min(saved.offset, step.length);
+    if (Math.abs(trigger.start + scrolled - trigger.scroll()) > 1) jumpTo(trigger.start + scrolled);
+    apply(scrolled);
+  };
+  ScrollTrigger.addEventListener("refreshInit", savePlace);
+  ScrollTrigger.addEventListener("refresh", restorePlace);
+  cleanups.push(() => {
+    ScrollTrigger.removeEventListener("refreshInit", savePlace);
+    ScrollTrigger.removeEventListener("refresh", restorePlace);
+  });
 
-  // Keyboard: focusing something in an off-screen case scrolls the page to that
-  // case instead of letting the browser shift the pinned container sideways.
+  // Keyboard only: focusing something in another case scrolls the page to it.
+  // Mouse clicks (such as opening an accordion) leave the page where it is.
   const onFocus = (event: FocusEvent) => {
-    const card = (event.target as Element).closest<HTMLElement>("[data-project]");
-    const trigger = slide.scrollTrigger;
-    if (!card || !trigger) return;
-    const progress = cards.indexOf(card) / (cards.length - 1);
-    window.scrollTo({ top: trigger.start + (trigger.end - trigger.start) * progress });
+    const target = event.target as HTMLElement;
+    if (!target.matches(":focus-visible")) return;
+    const index = cards.findIndex((card) => card.contains(target));
+    if (index < 0) return;
+
+    let offset = 0;
+    for (const step of steps) {
+      if (step.kind === "read" && step.card === index) {
+        const text = texts[index];
+        const position = text.contains(target)
+          ? target.getBoundingClientRect().top -
+            text.getBoundingClientRect().top +
+            text.scrollTop -
+            text.clientHeight / 2
+          : 0;
+        offset += DWELL + clamp(0, step.to, position);
+        break;
+      }
+      offset += step.length;
+    }
+    window.scrollTo({ top: trigger.start + offset });
   };
   // The browser may still scroll the clipped containers to reveal the focused element.
   const resetScroll = (event: Event) => ((event.currentTarget as HTMLElement).scrollLeft = 0);
@@ -452,6 +566,10 @@ function projectsHorizontal(cleanups: Cleanups) {
     track.removeEventListener("focusin", onFocus);
     section.removeEventListener("scroll", resetScroll);
     viewport.removeEventListener("scroll", resetScroll);
+    section.removeAttribute("data-horizontal");
+    gsap.set(track, { clearProps: "transform" });
+    gsap.set(images.flat(), { clearProps: "clipPath" });
+    texts.forEach((text) => (text.scrollTop = 0));
   });
 }
 
