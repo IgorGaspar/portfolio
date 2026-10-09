@@ -18,12 +18,13 @@ type State = {
   draft: string;
 };
 
-// Module-level store: the conversation lives in the browser only and survives
-// the root layout re-render that happens when the visitor switches language.
+// Module-level store: the conversation lives in the browser only. It outlives the page
+// re-mount that happens when the visitor switches language, so syncLocale() clears it then.
 let state: State = { messages: [], status: "idle", panelOpen: false, draft: "" };
 const listeners = new Set<() => void>();
 let nextId = 1;
 let controller: AbortController | undefined;
+let currentLocale: Locale | undefined;
 
 function setState(patch: Partial<State>) {
   state = { ...state, ...patch };
@@ -114,8 +115,19 @@ async function send(text: string, locale: Locale) {
   }
 }
 
+/** Starts a fresh conversation when the site language changes, so PT and EN never mix. */
+function syncLocale(locale: Locale) {
+  const changed = currentLocale !== undefined && currentLocale !== locale;
+  currentLocale = locale;
+  if (!changed) return;
+  controller?.abort();
+  setState({ messages: [], status: "idle", draft: "" });
+}
+
 export const agent = {
   send,
+  syncLocale,
+  getState: () => state,
   stop: () => controller?.abort(),
   openPanel: (draft = "") => setState({ panelOpen: true, draft }),
   /** Closing the chat also cancels a request in flight. */

@@ -136,12 +136,7 @@ export function Projects({ dict }: { dict: Dictionary }) {
                       </a>
                     )}
                     {data.diagram && copy.diagram && (
-                      <div
-                        role="region"
-                        aria-label={copy.diagram.label}
-                        tabIndex={0}
-                        className="overflow-x-auto rounded-xl border border-border bg-bg p-4"
-                      >
+                      <div className="rounded-xl border border-border bg-bg p-4">
                         <ArchitectureDiagram
                           variant={data.diagram}
                           label={copy.diagram.label}

@@ -153,3 +153,78 @@ test("full motion (control): WebGL scene, smooth scroll and pinned sections are 
   await expect(page.locator(".pin-spacer").first()).toBeAttached();
   await context.close();
 });
+
+test("the agent card's suggestions are clickable as soon as they are visible", async ({ page }) => {
+  await mockAgent(page);
+  await page.goto("/");
+  await page.mouse.move(300, 300); // wakes the WebGL scene, which must never cover the page
+  await expect(page.locator("canvas").first()).toBeAttached({ timeout: 25_000 });
+  // Card entering from the bottom of the screen, as it does when scrolling down.
+  for (let i = 0; i < 40; i++) {
+    const cardTop = await page.evaluate(() => document.getElementById("agent")!.getBoundingClientRect().top);
+    if (cardTop < 450) break;
+    await page.mouse.wheel(0, 150);
+    await page.waitForTimeout(100);
+  }
+  const chip = page.getByRole("button", { name: /^Quais projetos/ });
+  await expect(chip).toHaveCSS("opacity", "1");
+  const covered = await chip.evaluate((el) => {
+    const box = el.getBoundingClientRect();
+    return !el.contains(document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2));
+  });
+  expect(covered).toBe(false);
+});
+
+test("the OG image is served directly, without a redirect", async ({ request }) => {
+  for (const path of ["/pt/opengraph-image", "/en/opengraph-image"]) {
+    const response = await request.get(path, { maxRedirects: 0 });
+    expect(response.status()).toBe(200);
+    expect(response.headers()["content-type"]).toContain("image/png");
+  }
+});
+
+test("switching language starts a fresh chat", async ({ page }) => {
+  await mockAgent(page, "Resposta em português.");
+  await page.goto("/");
+  await page.getByRole("button", { name: /^Quais projetos/ }).click();
+  await expect(page.getByText("Resposta em português.").first()).toBeVisible();
+
+  await page.getByRole("group", { name: "Idioma" }).first().getByRole("link", { name: "EN" }).click();
+  await expect(page).toHaveURL(/\/en$/);
+  await expect(page.getByRole("button", { name: /^Which projects/ })).toBeVisible();
+  await expect(page.getByText("Resposta em português.")).toHaveCount(0);
+});
+
+test.describe("touch screens", () => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+
+  test("tapping a selected project again clears the stack highlight", async ({ page }) => {
+    await page.goto("/");
+    const chip = page.getByRole("button", { name: "MonAI", exact: true });
+    await chip.scrollIntoViewIfNeeded();
+    const dimmed = page.locator("[data-pill].opacity-20");
+
+    await chip.tap();
+    await expect(chip).toHaveAttribute("aria-pressed", "true");
+    expect(await dimmed.count()).toBeGreaterThan(0);
+
+    await chip.tap();
+    await expect(chip).toHaveAttribute("aria-pressed", "false");
+    await expect(dimmed).toHaveCount(0);
+  });
+
+  test("architecture diagrams fit the screen without scrolling sideways", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(() => document.querySelectorAll("details").forEach((d) => (d.open = true)));
+    const diagrams = page.locator("svg[data-diagram]:visible");
+    await expect(diagrams).toHaveCount(2);
+    for (let i = 0; i < 2; i++) {
+      const fits = await diagrams.nth(i).evaluate((svg) => {
+        const box = svg.getBoundingClientRect();
+        const parent = svg.parentElement!;
+        return parent.scrollWidth <= parent.clientWidth && box.width <= window.innerWidth;
+      });
+      expect(fits).toBe(true);
+    }
+  });
+});

@@ -16,7 +16,9 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: "/pt", destination: "/", permanent: true },
-      { source: "/pt/:path*", destination: "/:path*", permanent: true },
+      // The generated OG image is advertised under /pt/ (its route segment): serve it there
+      // directly, because link-preview crawlers do not always follow a redirect.
+      { source: "/pt/:path((?!opengraph-image).+)", destination: "/:path", permanent: true },
     ];
   },
   async rewrites() {

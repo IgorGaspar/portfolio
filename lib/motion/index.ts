@@ -357,6 +357,9 @@ function pillarsLight() {
  * once drawn they go back to plain SVG with no animation styles left on them.
  */
 function animateDiagram(svg: SVGSVGElement, cleanups: Cleanups, alreadyReached: boolean) {
+  // Each diagram has a wide and a narrow drawing and only one is displayed; a hidden one
+  // has no geometry to measure, and stays as the plain, complete diagram if it is shown later.
+  if (svg.getClientRects().length === 0) return () => {};
   const edges = $<SVGPathElement>("[data-edge]", svg);
   const pulse = svg.querySelector<SVGCircleElement>("[data-pulse]");
   const DRAW_PROPS = "strokeDasharray,strokeDashoffset,opacity";

@@ -83,6 +83,9 @@ export function ChatBox({ locale, labels, variant, initialDraft = "" }: Props) {
   const busy = status !== "idle";
   const last = messages.at(-1);
 
+  // Switching language re-mounts the page but not the store: start a fresh conversation then.
+  useEffect(() => agent.syncLocale(locale), [locale]);
+
   // The field is as tall as its text (including a prefilled draft), up to its max height.
   useEffect(() => {
     const field = inputRef.current;

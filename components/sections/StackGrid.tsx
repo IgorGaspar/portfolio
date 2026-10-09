@@ -28,8 +28,10 @@ export function StackGrid({ groups, projects }: Props) {
               type="button"
               aria-pressed={pinned === id}
               onClick={() => setPinned(pinned === id ? null : id)}
-              onMouseEnter={() => setHovered(id)}
-              onFocus={() => setHovered(id)}
+              // Hover is a mouse-only preview: on touch screens a tap would leave the chip
+              // "hovered" for good and keep it lit after it is unselected.
+              onPointerEnter={(event) => event.pointerType === "mouse" && setHovered(id)}
+              onFocus={(event) => event.currentTarget.matches(":focus-visible") && setHovered(id)}
               onBlur={() => setHovered(null)}
               className="rounded-full border border-border px-4 py-2 text-sm transition-colors hover:border-accent aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-on-accent"
             >

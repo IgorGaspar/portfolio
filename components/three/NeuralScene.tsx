@@ -223,11 +223,15 @@ function Network({ count, interactive }: NetworkProps) {
     u.uCondense.value = condense;
     u.uCoreTint.value = coreTint;
     // All the points of the hero pile up in its core; the contact core has a third of them.
-    u.uCoreAlpha.value = inHero ? 0.025 : flight ? 0.07 : 0.2;
+    // The core is the sum of every point piled up, so a phone's lighter network (fewer points)
+    // gets a proportionally stronger alpha to keep the core as bright as on desktop.
+    const density = Math.min(4, 4000 / count);
+    u.uCoreAlpha.value = (inHero ? 0.025 : flight ? 0.07 : 0.2) * density;
     u.uResolution.value.set(size.width, size.height);
     u.uSize.value = (narrow ? 2.2 : 2.6) * state.gl.getPixelRatio();
-    // On narrow screens the network sits behind the text, so it is dimmed to keep it readable.
-    u.uOpacity.value = opacity * (narrow ? 0.45 : 1);
+    // On narrow screens the open network sits behind the text, so it is dimmed to keep the text
+    // readable; the condensed core (flying to the agent icon) is small and must stay visible.
+    u.uOpacity.value = opacity * (narrow ? 0.45 + 0.55 * condense : 1);
 
     // The contact version is calmer: a third of the points, no lines, no pointer play.
     pointsGeometry.current?.setDrawRange(0, inHero ? count : Math.floor(count / 3));
@@ -317,10 +321,12 @@ export default function NeuralScene({ count, interactive, onFailure }: Props) {
     };
   }, []);
 
-  // When rendering stops, the agent icon must not be left half-faded.
+  // When rendering stops, the agent icon must not be left half-faded and the canvas
+  // must not stay raised above the page (the frame loop that lowers it has stopped).
   useEffect(() => {
     if (!active) {
       document.querySelector<HTMLElement>("[data-agent-core]")?.style.removeProperty("opacity");
+      document.querySelector<HTMLElement>("[data-neural-canvas]")?.style.removeProperty("z-index");
     }
   }, [active]);
 
@@ -332,6 +338,9 @@ export default function NeuralScene({ count, interactive, onFailure }: Props) {
     >
       <Canvas
         frameloop={active || flying ? "always" : "never"}
+        // R3F makes its wrapper (and so the canvas) catch pointer events unless told not to.
+        // The scene is decoration: it must never swallow a click meant for the page.
+        style={{ pointerEvents: "none" }}
         dpr={[1, 1.75]}
         camera={{ position: [0, 0, 6], fov: 45 }}
         gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
