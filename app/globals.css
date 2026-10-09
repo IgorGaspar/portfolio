@@ -261,20 +261,18 @@ html.lenis {
   }
 }
 
+/* Start at a hair above 0 so the text is a paint candidate (LCP) from the first frame. */
 @keyframes hero-in {
   from {
-    opacity: 0;
+    opacity: 0.01;
     transform: translateY(16px);
   }
 }
 
 @keyframes hero-mask {
   from {
-    clip-path: inset(0 0 100% 0);
+    opacity: 0.01;
     transform: translateY(24px);
-  }
-  to {
-    clip-path: inset(0 0 -10% 0);
   }
 }
 

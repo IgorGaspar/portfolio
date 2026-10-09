@@ -9,6 +9,9 @@ import "../globals.css";
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
+  // No font preloads: on a slow link they compete with the stylesheet and delay the first paint.
+  // The fallback is metric-adjusted by next/font, so the swap does not shift the layout.
+  preload: false,
   variable: "--font-inter",
 });
 
@@ -16,6 +19,7 @@ const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   display: "swap",
   weight: ["600", "700"],
+  preload: false,
   variable: "--font-space-grotesk",
 });
 
@@ -23,6 +27,7 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   display: "swap",
   weight: ["400", "500"],
+  preload: false,
   variable: "--font-jetbrains-mono",
 });
 

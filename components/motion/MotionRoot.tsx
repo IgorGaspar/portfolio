@@ -19,12 +19,27 @@ export function MotionRoot() {
     }
     mountedBefore = true;
 
-    void import("@/lib/motion").then(({ initMotion }) => {
-      if (!cancelled) cleanup = initMotion();
-    });
+    // The choreography is not needed for the first paint: start it once the page has
+    // loaded and the main thread is idle (the hero entrance is pure CSS).
+    let idle = 0;
+    const start = () => {
+      idle = typeof window.requestIdleCallback === "function"
+        ? window.requestIdleCallback(load, { timeout: 800 })
+        : window.setTimeout(load, 200);
+    };
+    const load = () => {
+      void import("@/lib/motion").then(({ initMotion }) => {
+        if (!cancelled) cleanup = initMotion();
+      });
+    };
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
 
     return () => {
       cancelled = true;
+      window.removeEventListener("load", start);
+      if (typeof window.requestIdleCallback === "function") window.cancelIdleCallback(idle);
+      else window.clearTimeout(idle);
       cleanup?.();
     };
   }, []);

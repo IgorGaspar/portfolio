@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/api/agent": ["./content/agent/*.md"],
   },
+  // The stylesheet is small (Tailwind): inlining removes a render-blocking round trip on first visit.
+  experimental: { inlineCss: true },
   images: {
     formats: ["image/avif", "image/webp"],
   },

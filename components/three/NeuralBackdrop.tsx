@@ -40,14 +40,24 @@ export function NeuralBackdrop() {
   const [mode, setMode] = useState<Mode>({ kind: "pending" });
 
   useEffect(() => {
-    // Wait for idle time so the scene never competes with the first paint.
+    // The scene is decoration: wait for the page to finish loading, then for idle
+    // time, so it never competes with the first paint or the first interactions.
+    let timer = 0;
+    let idle = 0;
     const start = () => setMode(chooseMode());
-    if ("requestIdleCallback" in window) {
-      const id = window.requestIdleCallback(start, { timeout: 1500 });
-      return () => window.cancelIdleCallback(id);
-    }
-    const id = setTimeout(start, 300);
-    return () => clearTimeout(id);
+    const schedule = () => {
+      timer = window.setTimeout(() => {
+        if ("requestIdleCallback" in window) idle = window.requestIdleCallback(start, { timeout: 2000 });
+        else start();
+      }, 1200);
+    };
+    if (document.readyState === "complete") schedule();
+    else window.addEventListener("load", schedule, { once: true });
+    return () => {
+      window.removeEventListener("load", schedule);
+      window.clearTimeout(timer);
+      if (idle) window.cancelIdleCallback(idle);
+    };
   }, []);
 
   // The static image is drawn by CSS inside the hero and contact sections.
