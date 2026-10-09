@@ -131,6 +131,16 @@ describe("POST /api/agent", () => {
     expect((await POST(from("2.2.2.2"))).status).toBe(200);
   });
 
+  it("ignores client-supplied x-forwarded-for entries when rate limiting", async () => {
+    streamAgentAnswer.mockImplementation(() => answer({ type: "text", text: "ok" }));
+    // The proxy appends the real address last; the leading entries are forged per request.
+    const from = (forged: string) => post(question, { "x-forwarded-for": `${forged}, 9.9.9.9` });
+
+    expect((await POST(from("3.3.3.1"))).status).toBe(200);
+    expect((await POST(from("3.3.3.2"))).status).toBe(200);
+    expect((await POST(from("3.3.3.3"))).status).toBe(429);
+  });
+
   it("returns 503 without calling the model when the API key is missing", async () => {
     vi.stubEnv("ANTHROPIC_API_KEY", "");
 

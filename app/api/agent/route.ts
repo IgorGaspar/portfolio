@@ -19,8 +19,13 @@ function isAllowedOrigin(request: Request): boolean {
   }
 }
 
+/**
+ * The site runs behind one proxy (Traefik on Coolify), which appends the address it saw
+ * to x-forwarded-for. Entries before the last one are client-supplied and can be forged,
+ * so only the last counts: otherwise a new fake IP per request would bypass the limit.
+ */
 function clientIp(request: Request): string {
-  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  const forwarded = request.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim();
   return forwarded || request.headers.get("x-real-ip") || "unknown";
 }
 
