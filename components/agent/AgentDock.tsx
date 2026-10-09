@@ -28,6 +28,7 @@ export function AgentDock({ locale, labels }: Props) {
   const { panelOpen, draft } = useAgent();
   const [buttonVisible, setButtonVisible] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
   const isDesktop = useSyncExternalStore(
     subscribeDesktop,
     () => window.matchMedia(DESKTOP_QUERY).matches,
@@ -75,7 +76,11 @@ export function AgentDock({ locale, labels }: Props) {
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!panelOpen || !dialog) return;
-    if (!dialog.open) dialog.showModal();
+    if (!dialog.open) {
+      const active = document.activeElement;
+      openerRef.current = active instanceof HTMLElement && active !== document.body ? active : null;
+      dialog.showModal();
+    }
     // preventScroll: the panel starts off-screen, and scrolling it into view would shift the dialog.
     dialog.querySelector("textarea")?.focus({ preventScroll: true });
     document.documentElement.style.overflow = "hidden";
@@ -95,6 +100,7 @@ export function AgentDock({ locale, labels }: Props) {
               key="agent-button"
               type="button"
               aria-label={labels.openAgent}
+              data-agent-open
               onClick={() => agent.openPanel()}
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -120,7 +126,19 @@ export function AgentDock({ locale, labels }: Props) {
           }}
           className="fixed inset-0 m-0 h-full max-h-none w-full max-w-none overflow-clip bg-transparent backdrop:bg-black/50"
         >
-          <AnimatePresence onExitComplete={() => dialogRef.current?.close()}>
+          <AnimatePresence
+            onExitComplete={() => {
+              dialogRef.current?.close();
+              // The floating button unmounts while the panel is open, so the opener
+              // may be gone: fall back to the button that replaced it.
+              const opener = openerRef.current;
+              const target = opener?.isConnected
+                ? opener
+                : document.querySelector<HTMLElement>("[data-agent-open]");
+              target?.focus({ preventScroll: true });
+              openerRef.current = null;
+            }}
+          >
             {panelOpen && (
               <m.div
                 key="agent-panel"

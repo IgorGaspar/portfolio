@@ -3,7 +3,7 @@ import { htmlLang, localeHome, locales, type Locale } from "@/lib/i18n";
 
 export function LocaleSwitch({ locale, label }: { locale: Locale; label: string }) {
   return (
-    <nav aria-label={label} className="flex items-center gap-2 font-mono text-sm">
+    <div role="group" aria-label={label} className="flex items-center gap-2 font-mono text-sm">
       {locales.map((item, i) => (
         <span key={item} className="flex items-center gap-2">
           {i > 0 && (
@@ -27,6 +27,6 @@ export function LocaleSwitch({ locale, label }: { locale: Locale; label: string 
           </Link>
         </span>
       ))}
-    </nav>
+    </div>
   );
 }

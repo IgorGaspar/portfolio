@@ -295,7 +295,7 @@ function contactTitle() {
 
 // ── What I do ───────────────────────────────────────────────────────────────
 
-const splitWords = (el: Element) => SplitText.create(el, { type: "words" }).words;
+const splitWords = (el: Element) => SplitText.create(el, { type: "words", aria: "none" }).words;
 
 /** Desktop: the section is pinned and one pillar at a time is revealed word by word. */
 function pillarsPinned(cleanups: Cleanups) {
