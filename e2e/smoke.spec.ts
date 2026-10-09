@@ -227,4 +227,40 @@ test.describe("touch screens", () => {
       expect(fits).toBe(true);
     }
   });
+
+  test("the chat panel follows the visual viewport when the keyboard opens", async ({ page }) => {
+    // A stand-in for window.visualViewport that the test can shrink, as a keyboard does.
+    await page.addInitScript(() => {
+      const fake = Object.assign(new EventTarget(), {
+        offsetTop: 0,
+        height: window.innerHeight,
+        width: window.innerWidth,
+      });
+      Object.defineProperty(window, "visualViewport", { value: fake, configurable: true });
+      (window as unknown as { __vv: typeof fake }).__vv = fake;
+    });
+    await mockAgent(page);
+    await page.goto("/");
+    await page.waitForTimeout(1000);
+    await page.mouse.wheel(0, 2500);
+    await page.getByRole("button", { name: "Abrir o agente" }).tap();
+    const dialog = page.locator("dialog[open]");
+    await expect(dialog).toBeVisible();
+    const input = dialog.locator("textarea");
+
+    // Keyboard opens: the visible area is the top 450 px.
+    await page.evaluate(() => {
+      const vv = (window as unknown as { __vv: EventTarget & { height: number } }).__vv;
+      vv.height = 450;
+      vv.dispatchEvent(new Event("resize"));
+    });
+    await expect.poll(async () => (await dialog.boundingBox())?.height).toBe(450);
+    // The field sits inside the visible 450 px (poll: the panel is still sliding in).
+    await expect
+      .poll(async () => {
+        const box = await input.boundingBox();
+        return box ? box.y + box.height : Infinity;
+      })
+      .toBeLessThanOrEqual(450);
+  });
 });

@@ -49,18 +49,19 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
-            padding: "72px 80px",
+            padding: "64px 72px",
             width: "100%",
             height: "100%",
           }}
         >
-          <div style={{ display: "flex", fontSize: 30, color: "#9AA3B8", letterSpacing: 0.5 }}>
+          {/* Sizes are chosen for the ~500 px wide previews of LinkedIn and Facebook feeds. */}
+          <div style={{ display: "flex", fontSize: 36, fontWeight: 500, color: "#C9D0E0", letterSpacing: 0.3 }}>
             {dict.hero.eyebrow}
           </div>
-          <div style={{ display: "flex", fontSize: 84, fontWeight: 700, lineHeight: 1.05, maxWidth: 820 }}>
+          <div style={{ display: "flex", fontSize: 96, fontWeight: 700, lineHeight: 1.05, maxWidth: 960 }}>
             {dict.hero.title}
           </div>
-          <div style={{ display: "flex", fontSize: 28, color: "#7DD3FC" }}>igorgaspar.tech</div>
+          <div style={{ display: "flex", fontSize: 40, fontWeight: 600, color: "#7DD3FC" }}>igorgaspar.tech</div>
         </div>
       </div>
     ),

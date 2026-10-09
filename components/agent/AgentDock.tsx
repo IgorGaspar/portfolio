@@ -84,8 +84,27 @@ export function AgentDock({ locale, labels }: Props) {
     // preventScroll: the panel starts off-screen, and scrolling it into view would shift the dialog.
     dialog.querySelector("textarea")?.focus({ preventScroll: true });
     document.documentElement.style.overflow = "hidden";
+
+    // A phone's on-screen keyboard shrinks the visual viewport but not the fixed layout the
+    // dialog is sized to, so the input would sit behind it. Follow the visual viewport.
+    const viewport = window.visualViewport;
+    const fit = () => {
+      if (!viewport) return;
+      dialog.style.top = `${viewport.offsetTop}px`;
+      dialog.style.height = `${viewport.height}px`;
+      dialog.style.bottom = "auto";
+    };
+    fit();
+    viewport?.addEventListener("resize", fit);
+    viewport?.addEventListener("scroll", fit);
+
     return () => {
       document.documentElement.style.overflow = "";
+      viewport?.removeEventListener("resize", fit);
+      viewport?.removeEventListener("scroll", fit);
+      dialog.style.removeProperty("top");
+      dialog.style.removeProperty("height");
+      dialog.style.removeProperty("bottom");
     };
   }, [panelOpen]);
 
@@ -146,7 +165,7 @@ export function AgentDock({ locale, labels }: Props) {
                 animate={{ x: 0, y: 0 }}
                 exit={offscreen}
                 transition={{ type: "spring", bounce: 0, duration: 0.35 }}
-                className="absolute inset-x-0 bottom-0 flex h-[88svh] flex-col rounded-t-2xl border border-accent-2/30 bg-surface p-5 text-text md:inset-y-0 md:left-auto md:right-0 md:h-full md:w-[27rem] md:rounded-none md:border-y-0 md:border-r-0 md:p-6"
+                className="absolute inset-x-0 bottom-0 flex h-[88svh] max-h-full flex-col rounded-t-2xl border border-accent-2/30 bg-surface p-5 text-text md:inset-y-0 md:left-auto md:right-0 md:h-full md:w-[27rem] md:rounded-none md:border-y-0 md:border-r-0 md:p-6"
               >
                 <header className="mb-4 flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
