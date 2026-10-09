@@ -6,6 +6,9 @@ export default defineConfig({
   testDir: "e2e",
   timeout: 60_000,
   fullyParallel: true,
+  // Swiftshader WebGL and the production build are CPU-heavy: more workers make timing tests flaky.
+  workers: 4,
+  expect: { timeout: 10_000 },
   reporter: [["list"]],
   use: {
     baseURL: `http://localhost:${PORT}`,

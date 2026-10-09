@@ -144,8 +144,10 @@ test("full motion (control): WebGL scene, smooth scroll and pinned sections are 
   const page = await context.newPage();
   await mockAgent(page);
   await page.goto("/");
-  await page.waitForTimeout(2500);
-  await expect(page.locator("canvas").first()).toBeAttached();
+  // The scene loads on the first sign of life from the visitor.
+  await expect(page.locator("canvas")).toHaveCount(0);
+  await page.mouse.move(400, 300);
+  await expect(page.locator("canvas").first()).toBeAttached({ timeout: 25_000 });
   await expect(page.locator("html")).not.toHaveAttribute("data-neural", "static");
   await expect(page.locator("html.lenis")).toHaveCount(1);
   await expect(page.locator(".pin-spacer").first()).toBeAttached();

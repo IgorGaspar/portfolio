@@ -72,7 +72,7 @@ async function main() {
     .map((item, i) => ({ ...item, number: i + 1 }))
     .filter((item) => only.length === 0 || only.includes(item.number));
 
-  console.log(`Model: ${process.env.ANTHROPIC_MODEL || "claude-opus-5-5"}\n`);
+  console.log(`Model: ${process.env.ANTHROPIC_MODEL || "claude-haiku-4-5"}\n`);
 
   for (const item of selected) {
     console.log(`── ${item.number}. ${item.question}`);

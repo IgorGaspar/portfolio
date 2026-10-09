@@ -11,6 +11,8 @@ import { FLIGHT_MS, getFlight, onFlightStart, setSceneReady } from "./flight";
 import { buildNetwork, linesFragment, linesVertex, pointsFragment, pointsVertex } from "./network";
 
 const MAX_TILT = THREE.MathUtils.degToRad(8);
+// The scene mounts on the visitor's first input, so it opens up from a point instead of popping in.
+const INTRO_MS = 1900;
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
 const smoothstep = (edge0: number, edge1: number, value: number) => {
   const t = clamp01((value - edge0) / (edge1 - edge0));
@@ -118,6 +120,7 @@ function Network({ count, interactive }: NetworkProps) {
   );
 
   const center = useRef(new THREE.Vector3());
+  const born = useRef<number | null>(null);
 
   useFrame((state, delta) => {
     const root = group.current;
@@ -144,6 +147,11 @@ function Network({ count, interactive }: NetworkProps) {
         (-(y / viewportHeight) * 2 + 1 - center.current.y) * amount,
       );
 
+    // 1 at the first frame (a single point), easing to 0 as the network opens up.
+    born.current ??= performance.now();
+    const introT = clamp01((performance.now() - born.current) / INTRO_MS);
+    const intro = (1 - introT) ** 3;
+
     let condense = 0;
     let coreTint = 1;
     let opacity = 0;
@@ -152,10 +160,10 @@ function Network({ count, interactive }: NetworkProps) {
     if (inHero) {
       // 0-60%: the network condenses into the core. 60-100%: the core flies to the
       // agent icon, shrinking to its size, and the two cross-fade as it lands.
-      condense = smoothstep(0, 0.6, progress);
+      condense = Math.max(smoothstep(0, 0.6, progress), intro);
       const travel = smoothstep(0.55, 0.97, progress);
       const landing = smoothstep(0.8, 0.97, progress);
-      opacity = 1 - smoothstep(0.9, 1, progress);
+      opacity = (1 - smoothstep(0.9, 1, progress)) * smoothstep(0, 0.12, introT);
       follow = interactive;
       u.uScale.value = 1 - 0.55 * landing;
 

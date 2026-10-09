@@ -4,7 +4,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import type { AgentMessage } from "./agent-shared";
 import type { Locale } from "./i18n";
 
-const DEFAULT_MODEL = "claude-opus-5-5";
+const DEFAULT_MODEL = "claude-haiku-4-5";
 // Room for the answer plus the model's own thinking, which counts toward the limit.
 const MAX_TOKENS = 2048;
 const KNOWLEDGE_PLACEHOLDER = "{{CONTEÚDO DA SEÇÃO 7.2}}";

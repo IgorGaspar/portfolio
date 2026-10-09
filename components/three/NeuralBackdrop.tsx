@@ -40,24 +40,33 @@ export function NeuralBackdrop() {
   const [mode, setMode] = useState<Mode>({ kind: "pending" });
 
   useEffect(() => {
-    // The scene is decoration: wait for the page to finish loading, then for idle
-    // time, so it never competes with the first paint or the first interactions.
+    // The scene is decoration (about 240 KB of JavaScript): load it on the first sign of
+    // life from the visitor, or after a long idle wait, so it never competes with the
+    // first paint or the first interactions.
+    // The static image costs no JavaScript, so it needs no waiting.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const id = window.setTimeout(() => setMode({ kind: "static" }), 0);
+      return () => window.clearTimeout(id);
+    }
+    const events = ["pointerdown", "pointermove", "scroll", "keydown", "touchstart"] as const;
     let timer = 0;
-    let idle = 0;
-    const start = () => setMode(chooseMode());
-    const schedule = () => {
-      timer = window.setTimeout(() => {
-        if ("requestIdleCallback" in window) idle = window.requestIdleCallback(start, { timeout: 2000 });
-        else start();
-      }, 1200);
+    const start = () => {
+      cleanup();
+      setMode(chooseMode());
     };
-    if (document.readyState === "complete") schedule();
-    else window.addEventListener("load", schedule, { once: true });
-    return () => {
-      window.removeEventListener("load", schedule);
+    const cleanup = () => {
+      for (const name of events) window.removeEventListener(name, onInput);
       window.clearTimeout(timer);
-      if (idle) window.cancelIdleCallback(idle);
     };
+    const onInput = () => {
+      // Let the input be handled first; the scene mounts right after.
+      if ("requestIdleCallback" in window) window.requestIdleCallback(start, { timeout: 500 });
+      else setTimeout(start, 100);
+      for (const name of events) window.removeEventListener(name, onInput);
+    };
+    for (const name of events) window.addEventListener(name, onInput, { passive: true });
+    timer = window.setTimeout(start, 12_000);
+    return cleanup;
   }, []);
 
   // The static image is drawn by CSS inside the hero and contact sections.
