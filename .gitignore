@@ -48,3 +48,6 @@ next-env.d.ts
 
 # docs
 /docs/PACOTE-PARA-O-CODE.md
+# agent prompt (private; see content/agent/*.example.md)
+/content/agent/instructions.md
+/content/agent/knowledge.md

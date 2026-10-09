@@ -6,9 +6,10 @@ describe("getSystemPrompt", () => {
   it("injects the knowledge base into the instructions", () => {
     const system = getSystemPrompt();
 
+    // Content-agnostic: the real prompt is private, so a clone only has the example templates.
     expect(system).not.toContain("{{");
-    expect(system).toContain("Você é o assistente do portfólio de Igor Gaspar");
-    expect(system).toMatch(/<base_de_conhecimento>\s*# Igor Gaspar/);
+    expect(system).toMatch(/Você é o assistente do portfólio de /);
+    expect(system).toMatch(/<base_de_conhecimento>\s*# \S/);
     expect(system).toContain("Trajetória em uma frase");
   });
 

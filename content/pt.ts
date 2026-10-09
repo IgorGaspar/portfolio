@@ -1,6 +1,5 @@
 import type { Dictionary } from "./types";
 
-// Textos da seção 2A do pacote (docs/PACOTE-PARA-O-CODE.md). Não editar sem atualizar o pacote.
 export const pt: Dictionary = {
   meta: {
     title: "Igor Gaspar · Engenheiro de IA e Desenvolvedor Fullstack",
@@ -300,7 +299,7 @@ export const pt: Dictionary = {
     title: "Vamos conversar.",
     text: "Seja para uma vaga ou para um projeto, respondo pessoalmente.",
     emailLabel: "E-mail",
-    location: "Mauá, SP · trabalho remoto ou presencial na Grande São Paulo",
+    location: "São Paulo, SP",
     ctaHire: "Contratar para o time",
     ctaProject: "Tenho um projeto",
     closing: "Ou pergunte ao meu agente.",

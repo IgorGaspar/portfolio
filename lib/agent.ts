@@ -10,8 +10,24 @@ const MAX_TOKENS = 2048;
 const KNOWLEDGE_PLACEHOLDER = "{{CONTEÚDO DA SEÇÃO 7.2}}";
 const FALLBACK_BETA = "server-side-fallback-2026-07-01";
 
-const readAgentFile = (name: string) =>
-  readFileSync(path.join(process.cwd(), "content", "agent", name), "utf8").trim();
+const agentDir = path.join(process.cwd(), "content", "agent");
+
+/**
+ * The real prompt files are private (git-ignored) and mounted into the container in
+ * production. Outside production a missing file falls back to its `.example.md` template,
+ * so a fresh clone still runs and the tests do not depend on private content. In
+ * production a missing file is an error: the agent must never run on the template.
+ */
+function readAgentFile(name: string): string {
+  try {
+    return readFileSync(path.join(agentDir, name), "utf8").trim();
+  } catch (error) {
+    const missing = (error as NodeJS.ErrnoException).code === "ENOENT";
+    if (!missing || process.env.NODE_ENV === "production") throw error;
+    console.warn(`[agent] ${name} not found, using the example template`);
+    return readFileSync(path.join(agentDir, name.replace(/\.md$/, ".example.md")), "utf8").trim();
+  }
+}
 
 let cachedSystem: string | undefined;
 

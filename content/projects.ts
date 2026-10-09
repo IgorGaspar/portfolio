@@ -39,7 +39,6 @@ export const projects: Record<ProjectId, ProjectData> = {
   b2b: {
     id: "b2b",
     name: { pt: "Agente B2B", en: "B2B Agent" },
-    // Links are added only after the repository is anonymized (spec section 8).
     diagram: "b2b",
     technologies: [
       "Python",
