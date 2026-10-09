@@ -51,11 +51,9 @@ for (const [path, reduced] of [
       }
       seen.push(info.id);
     }
-    console.log(`### ${path} reduced=${reduced}: ${seen.length} stops`);
-    console.log(seen.map((x) => x.replace(/#\d+$/, "")).join(" > "));
-    console.log("problems:", JSON.stringify([...new Set(problems)], null, 1));
-    const scrollY = await page.evaluate(() => window.scrollY);
-    console.log("scrollY at end:", scrollY);
+    // Focus leaving to the browser chrome after the last control is expected.
+    expect(problems.filter((p) => !p.includes("focus left to body"))).toEqual([]);
+    expect(seen.length).toBeGreaterThan(30);
     await context.close();
   });
 }
@@ -76,7 +74,7 @@ test("chat dialog keyboard", async ({ browser }) => {
   await expect(dialog).toBeVisible();
   await page.waitForTimeout(700);
   const insideAfterOpen = await page.evaluate(() => !!document.activeElement?.closest("dialog"));
-  console.log("focus inside dialog after open:", insideAfterOpen);
+  expect(insideAfterOpen).toBe(true);
   const stops: string[] = [];
   for (let i = 0; i < 12; i++) {
     await page.keyboard.press("Tab");
@@ -87,13 +85,12 @@ test("chat dialog keyboard", async ({ browser }) => {
       }),
     );
   }
-  console.log("dialog tab cycle:", stops.join(" > "));
+  // Tab never reaches the page behind the modal.
+  expect(stops.filter((x) => x.startsWith("body")).length).toBeLessThanOrEqual(2);
+  expect(stops.filter((x) => !x.startsWith("body") && x.endsWith(":false"))).toEqual([]);
   await page.keyboard.press("Escape");
   await page.waitForTimeout(900);
-  console.log("dialog closed:", await dialog.count() === 0);
-  console.log(
-    "focus after close:",
-    await page.evaluate(() => `${document.activeElement?.tagName}:${document.activeElement?.getAttribute("aria-label")}`),
-  );
+  await expect(dialog).toHaveCount(0);
+  await expect(button).toBeFocused();
   await context.close();
 });

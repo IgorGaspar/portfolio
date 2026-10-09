@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 const paths = ["/", "/en"];
 const themes = ["dark", "light"] as const;
@@ -45,8 +45,7 @@ for (const path of paths) {
             body: JSON.stringify(rows, null, 2),
             contentType: "application/json",
           });
-          console.log(`### ${name}: ${rows.length} violation types`);
-          for (const r of rows) console.log(JSON.stringify(r));
+          expect(rows).toEqual([]);
           await context.close();
         });
       }
