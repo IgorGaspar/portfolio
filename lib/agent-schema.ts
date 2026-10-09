@@ -15,6 +15,6 @@ export const agentRequestSchema = z.object({
     )
     .min(1)
     .max(MAX_MESSAGES)
-    .refine((messages) => messages[0].role === "user", "first message must be from the user")
+    .refine((messages) => messages[0]?.role === "user", "first message must be from the user")
     .refine((messages) => messages.at(-1)?.role === "user", "last message must be from the user"),
 });

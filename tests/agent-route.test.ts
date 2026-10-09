@@ -37,7 +37,6 @@ describe("POST /api/agent", () => {
     streamAgentAnswer.mockReset();
     vi.stubEnv("ANTHROPIC_API_KEY", "test-key");
     vi.stubEnv("AGENT_RATE_LIMIT_MAX", "2");
-    vi.stubEnv("UPSTASH_REDIS_REST_URL", "");
     vi.spyOn(console, "error").mockImplementation(() => {});
     ({ POST } = await import("@/app/api/agent/route"));
   });
@@ -139,6 +138,31 @@ describe("POST /api/agent", () => {
     expect((await POST(from("3.3.3.1"))).status).toBe(200);
     expect((await POST(from("3.3.3.2"))).status).toBe(200);
     expect((await POST(from("3.3.3.3"))).status).toBe(429);
+  });
+
+  it("rejects an empty conversation with 400, not a crash", async () => {
+    const response = await POST(post({ locale: "pt", messages: [] }));
+
+    expect(response.status).toBe(400);
+    expect(streamAgentAnswer).not.toHaveBeenCalled();
+  });
+
+  it("stops calling the model once the site-wide daily limit is reached", async () => {
+    vi.stubEnv("AGENT_DAILY_LIMIT", "2");
+    vi.stubEnv("AGENT_RATE_LIMIT_MAX", "100");
+    vi.resetModules();
+    ({ POST } = await import("@/app/api/agent/route"));
+    streamAgentAnswer.mockImplementation(() => answer({ type: "text", text: "ok" }));
+    // Different visitors: the per-IP limit never triggers, only the shared ceiling does.
+    const from = (ip: string) => post(question, { "x-forwarded-for": ip });
+
+    expect((await POST(from("4.4.4.1"))).status).toBe(200);
+    expect((await POST(from("4.4.4.2"))).status).toBe(200);
+
+    const blocked = await POST(from("4.4.4.3"));
+    expect(blocked.status).toBe(503);
+    expect(await blocked.json()).toEqual({ error: agentErrors.pt.unavailable });
+    expect(streamAgentAnswer).toHaveBeenCalledTimes(2);
   });
 
   it("returns 503 without calling the model when the API key is missing", async () => {

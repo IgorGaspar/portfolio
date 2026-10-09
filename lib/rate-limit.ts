@@ -1,8 +1,7 @@
-import { Ratelimit, type Duration } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
-
 const DEFAULT_MAX = 20;
 const DEFAULT_WINDOW = "1 h";
+// Whole-site ceiling per UTC day: the last line of defence for the API bill.
+const DEFAULT_DAILY_LIMIT = 200;
 
 const UNIT_MS: Record<string, number> = {
   ms: 1,
@@ -12,7 +11,7 @@ const UNIT_MS: Record<string, number> = {
   d: 86_400_000,
 };
 
-/** Parses durations such as "1 h" or "30m" (the format Upstash uses). */
+/** Parses durations such as "1 h" or "30m". */
 export function parseWindow(value: string): number {
   const match = /^(\d+)\s*(ms|s|m|h|d)$/.exec(value.trim());
   if (!match) throw new Error(`Invalid AGENT_RATE_LIMIT_WINDOW: "${value}"`);
@@ -21,7 +20,10 @@ export function parseWindow(value: string): number {
 
 type Limiter = (key: string) => Promise<{ success: boolean }>;
 
-/** Fixed-window limiter kept in process memory. Used in dev and when Upstash is not configured. */
+/**
+ * Fixed-window limiter kept in process memory. The site runs as a single instance, so no
+ * shared store is needed; the counters reset when the container restarts.
+ */
 export function createMemoryLimiter(max: number, windowMs: number, now = Date.now): Limiter {
   const hits = new Map<string, { count: number; resetAt: number }>();
 
@@ -50,18 +52,26 @@ function getLimiter(): Limiter {
   const window = process.env.AGENT_RATE_LIMIT_WINDOW || DEFAULT_WINDOW;
   const windowMs = parseWindow(window);
 
-  if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
-    const upstash = new Ratelimit({
-      redis: Redis.fromEnv(),
-      limiter: Ratelimit.slidingWindow(max, `${windowMs} ms` as Duration),
-      prefix: "portfolio:agent",
-    });
-    limiter = (key) => upstash.limit(key);
-  } else {
-    limiter = createMemoryLimiter(max, windowMs);
-  }
+  limiter = createMemoryLimiter(max, windowMs);
 
   return limiter;
 }
 
 export const checkRateLimit = (ip: string) => getLimiter()(ip);
+
+const dayKey = () => new Date().toISOString().slice(0, 10);
+const dailyHits = new Map<string, number>();
+
+/**
+ * Counts one agent call against the site-wide daily ceiling (AGENT_DAILY_LIMIT) and
+ * says whether it is still within it. Kept in process memory, so it resets on restart.
+ */
+export async function checkDailyBudget(): Promise<boolean> {
+  const limit = Number(process.env.AGENT_DAILY_LIMIT) || DEFAULT_DAILY_LIMIT;
+  const key = dayKey();
+
+  for (const day of dailyHits.keys()) if (day !== key) dailyHits.delete(day);
+  const count = (dailyHits.get(key) ?? 0) + 1;
+  dailyHits.set(key, count);
+  return count <= limit;
+}

@@ -6,7 +6,7 @@ Personal portfolio of Igor Gaspar, AI engineer and fullstack developer. Bilingua
 
 ## What is in it
 
-- **AI agent.** A Route Handler (`app/api/agent/route.ts`) streams answers from the Anthropic API as NDJSON. It checks the request origin, rate limits by client IP (Upstash Redis, with an in-memory fallback), validates the body with Zod and cancels the upstream call when the visitor closes the chat. The API key never reaches the browser. The chat UI lives in `components/agent/`.
+- **AI agent.** A Route Handler (`app/api/agent/route.ts`) streams answers from the Anthropic API as NDJSON. It checks the request origin, rate limits by client IP and by a site-wide daily ceiling (in memory, since the site runs as a single instance), validates the body with Zod and cancels the upstream call when the visitor closes the chat. The API key never reaches the browser. The chat UI lives in `components/agent/`.
 - **Three motion levels.** `lib/motion/` (GSAP, ScrollTrigger, SplitText, Lenis) is driven by `data-*` attributes and loaded in its own chunk after the page is idle. It runs a full level on desktop, a light one on touch screens and a fades-only one under `prefers-reduced-motion`.
 - **3D neural core.** One fixed React Three Fiber canvas serves the hero and the contact section (`components/three/`). It loads on the visitor's first input, grows from a single point and pauses when off screen. Devices that cannot afford it, or that ask for reduced motion, get a pre-rendered static image.
 - **Performance.** CSS is inlined, fonts are not preloaded, and the hero text is painted from CSS alone, so it never waits for JavaScript. Mobile Lighthouse scores 93-94 in the default simulated run.
@@ -15,7 +15,7 @@ Personal portfolio of Igor Gaspar, AI engineer and fullstack developer. Bilingua
 
 ## Stack
 
-Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · GSAP · Lenis · Motion · React Three Fiber · Anthropic SDK · Upstash Redis · Zod · Vitest · Playwright
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · GSAP · Lenis · Motion · React Three Fiber · Anthropic SDK · Zod · Vitest · Playwright
 
 ## Run it locally
 
@@ -37,8 +37,8 @@ Server-side only. Nothing here is ever prefixed with `NEXT_PUBLIC_`.
 |---|---|
 | `ANTHROPIC_API_KEY` | Key for the agent route |
 | `ANTHROPIC_MODEL` | Model used by the agent (defaults to Claude Haiku 4.5) |
-| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Shared rate limit. Optional: without them the limit is per process |
 | `AGENT_RATE_LIMIT_MAX`, `AGENT_RATE_LIMIT_WINDOW` | Requests per IP and window (default 20 per hour) |
+| `AGENT_DAILY_LIMIT` | Site-wide ceiling of agent calls per UTC day (default 200). Past it the agent points visitors to e-mail |
 
 ### The agent prompt
 

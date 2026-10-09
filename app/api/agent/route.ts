@@ -2,7 +2,7 @@ import { streamAgentAnswer } from "@/lib/agent";
 import { agentRequestSchema } from "@/lib/agent-schema";
 import { agentErrors, type AgentEvent } from "@/lib/agent-shared";
 import { defaultLocale, hasLocale, siteUrl } from "@/lib/i18n";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkDailyBudget, checkRateLimit } from "@/lib/rate-limit";
 
 const allowedHosts = new Set([new URL(siteUrl).host, `www.${new URL(siteUrl).host}`]);
 
@@ -47,6 +47,12 @@ export async function POST(request: Request) {
 
   const { success } = await checkRateLimit(clientIp(request));
   if (!success) return errorResponse(errors.rateLimited, 429);
+
+  // Site-wide daily ceiling: past it the agent steps aside and points to e-mail.
+  if (!(await checkDailyBudget())) {
+    console.error("[agent] daily limit reached");
+    return errorResponse(errors.unavailable, 503);
+  }
 
   if (!process.env.ANTHROPIC_API_KEY) {
     console.error("[agent] ANTHROPIC_API_KEY is not set");
