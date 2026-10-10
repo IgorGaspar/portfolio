@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 
 // The page re-mounts when the visitor switches language; from the second mount on
-// the content cross-fades in (spec 3.2).
+// the content cross-fades in.
 let mountedBefore = false;
 
 /** Loads the scroll choreography after hydration, in its own chunk. Renders nothing. */

@@ -2,7 +2,7 @@
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
-/* Design tokens (spec 3.1). Dark is the default theme. */
+/* Design tokens. Dark is the default theme. */
 :root {
   color-scheme: dark;
   --bg: #07080c;
@@ -226,7 +226,7 @@
   }
 }
 
-/* ── Motion (spec section 3). States below only apply once lib/motion sets its data attributes. ── */
+/* ── Motion. States below only apply once lib/motion sets its data attributes. ── */
 
 html.lenis {
   scroll-behavior: auto;

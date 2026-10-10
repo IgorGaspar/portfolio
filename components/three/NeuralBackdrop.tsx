@@ -14,7 +14,7 @@ type NavigatorHints = Navigator & {
   connection?: { saveData?: boolean };
 };
 
-/** Picks the 3D scene or the static image for this device (spec 3.3.1, fallbacks). */
+/** Picks the 3D scene or the static image for this device (with fallbacks). */
 function chooseMode(): Mode {
   const hints = navigator as NavigatorHints;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

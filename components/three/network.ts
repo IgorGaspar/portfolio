@@ -1,4 +1,4 @@
-// Geometry and shaders for the neural core (spec 3.3.1). All per-frame motion
+// Geometry and shaders for the neural core. All per-frame motion
 // happens in the vertex shader; JavaScript only updates a handful of uniforms.
 
 /** Deterministic random numbers, so the network looks the same on every visit. */

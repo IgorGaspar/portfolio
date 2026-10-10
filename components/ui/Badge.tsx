@@ -1,4 +1,4 @@
-/** Mono badge with a 1px border and a green "live" dot (spec 3.1). */
+/** Mono badge with a 1px border and a green "live" dot. */
 export function Badge({ children }: { children: React.ReactNode }) {
   return (
     <span className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 font-mono text-xs text-muted">

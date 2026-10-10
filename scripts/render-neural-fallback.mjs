@@ -1,4 +1,4 @@
-// Renders the static fallback of the hero's neural core (spec 3.3.1): one AVIF
+// Renders the static fallback of the hero's neural core: one AVIF
 // per theme, shown to devices that do not get the WebGL scene.
 //
 // Run it again whenever the scene's look changes:

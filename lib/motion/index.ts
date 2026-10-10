@@ -3,10 +3,10 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import Lenis from "lenis";
 
-// Scroll choreography for the whole page (spec section 3). Everything here is
+// Scroll choreography for the whole page. Everything here is
 // progressive enhancement: the server-rendered page is complete without it.
 //
-// Motion levels (spec 3.0):
+// Motion levels:
 //   full    - desktop with a fine pointer: smooth scroll, pins, scrub, cursor
 //   light   - phones and tablets: simple entrances, no pin, no smooth scroll
 //   reduced - prefers-reduced-motion: 150 ms fades only

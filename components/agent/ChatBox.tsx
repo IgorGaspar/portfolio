@@ -27,7 +27,7 @@ type Props = {
 
 /**
  * The clicked chip flies up and lands as the visitor's message in the chat
- * (FLIP from the chip's position to the new bubble; spec 3.3.2).
+ * (FLIP from the chip's position to the new bubble).
  */
 function flyToBubble(from: DOMRect, list: HTMLElement | null) {
   const bubble = Array.from(list?.querySelectorAll<HTMLElement>("[data-user-message]") ?? []).at(

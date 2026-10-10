@@ -34,7 +34,7 @@ export function HowIBuild({ dict }: { dict: Dictionary }) {
             </ol>
           </div>
 
-          {/* Decorative terminal, desktop only (spec 3.3.5). Always dark. */}
+          {/* Decorative terminal, desktop only. Always dark. */}
           <div aria-hidden="true" className="hidden lg:block">
             <div className="sticky top-28 overflow-hidden rounded-xl border border-[#1e2230] bg-[#07080c] font-mono text-sm text-[#e8eaf0] shadow-2xl">
               <div className="flex items-center gap-1.5 border-b border-[#1e2230] px-4 py-3">

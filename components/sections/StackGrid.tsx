@@ -13,7 +13,7 @@ const usedBy = (project: ProjectId, pill: string) => {
   return stackPills[project].some((key) => name === key || name.startsWith(`${key} `));
 };
 
-/** Stack pills with project chips: pick a project to highlight what it uses (spec 3.3.6). */
+/** Stack pills with project chips: pick a project to highlight what it uses. */
 export function StackGrid({ groups, projects }: Props) {
   const [pinned, setPinned] = useState<ProjectId | null>(null);
   const [hovered, setHovered] = useState<ProjectId | null>(null);

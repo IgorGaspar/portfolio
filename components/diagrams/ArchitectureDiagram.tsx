@@ -14,7 +14,7 @@ type Layout = { height: number; nodes: Node[]; edges: string[] };
 const WIDE = 640;
 const NARROW = 320;
 
-// Node order and edges follow the flows in spec 3.3.4.
+// Node order and edges follow the request flows described in the README.
 const layouts = {
   b2b: {
     height: 340,

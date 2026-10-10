@@ -1,4 +1,4 @@
-// Runs the 12 pre-launch questions (spec section 7.3) through the same code path
+// Runs the 12 pre-launch questions through the same code path
 // as the /api/agent Route Handler and prints each answer for manual review.
 //
 // Usage: npm run eval:agent            (reads ANTHROPIC_API_KEY from .env.local)
