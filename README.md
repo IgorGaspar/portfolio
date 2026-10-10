@@ -4,6 +4,8 @@
 
 **A bilingual developer portfolio with a streaming AI agent, a WebGL neural core and scroll choreography that degrades gracefully.**
 
+**English** · [Português](README.pt-BR.md)
+
 [![CI](https://github.com/IgorGaspar/portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/IgorGaspar/portfolio/actions/workflows/ci.yml)
 [![Live site](https://img.shields.io/badge/live-igorgaspar.tech-7dd3fc?style=flat-square)](https://igorgaspar.tech)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
@@ -25,7 +27,7 @@ Not a template with the lorem ipsum swapped out: it is the production site of a 
 | **An agent you can talk to** | A Route Handler streams answers from the Anthropic API as NDJSON. Origin check, Zod validation, per-IP rate limit and a site-wide daily ceiling sit in front of the model, and the call is cancelled when the visitor closes the chat. The key never reaches the browser. |
 | **3D that earns its bytes** | One fixed React Three Fiber canvas serves the hero and the contact section. It loads on the first user input, grows from a single point, pauses off screen and falls back to a pre-rendered image on weak devices or under reduced motion. |
 | **Motion in three levels** | Full on desktop, light on touch screens, fades-only for `prefers-reduced-motion`. Driven by `data-*` attributes (GSAP, ScrollTrigger, SplitText, Lenis) in its own lazy chunk, so the content never depends on it. |
-| **Fast by construction** | The hero is painted from CSS alone, CSS is inlined, fonts are not preloaded, and the JavaScript for the scene and the choreography waits for idle. Mobile Lighthouse scores 93-94 in the default run, with a real-throttling LCP of about 1.1-1.4 s. |
+| **Fast by construction** | The hero is painted from CSS alone, CSS is inlined, fonts are not preloaded, and the JavaScript for the scene and the choreography waits for idle. Mobile Lighthouse scores 92-94 in the default run, with a real-throttling LCP of about 1.1-1.4 s. |
 | **Accessible** | AA contrast in both themes, visible focus, a keyboard-operable chat dialog that returns focus to its opener, pinned sections that never trap focus, and zero axe violations in the automated audit. |
 | **Bilingual and indexable** | Portuguese at `/`, English at `/en`, per-locale metadata and `hreflang`, generated Open Graph images, Person JSON-LD, `robots.txt` and `sitemap.xml`. |
 
