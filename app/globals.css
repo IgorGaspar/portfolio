@@ -549,10 +549,16 @@ html[data-neural="static"] .neural-static {
   animation: fade-in 0.8s both;
 }
 
-/* Behind the text on narrow screens, so dimmed to keep the text readable. */
+/* Behind the text on narrow screens, so dimmed to keep the text readable. Measured on
+   captures: over the dense network lines, muted and accent text stayed under 4.5:1 at the
+   previous 0.45; the light image has darker lines, so it needs to be fainter. */
 @media (max-width: 47.99rem) {
   .neural-static {
-    opacity: 0.45;
+    opacity: 0.24;
+  }
+
+  html[data-theme="light"] .neural-static {
+    opacity: 0.1;
   }
 }
 
