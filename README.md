@@ -4,6 +4,7 @@
 
 **A bilingual developer portfolio with a streaming AI agent, a WebGL neural core and scroll choreography that degrades gracefully.**
 
+[![CI](https://github.com/IgorGaspar/portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/IgorGaspar/portfolio/actions/workflows/ci.yml)
 [![Live site](https://img.shields.io/badge/live-igorgaspar.tech-7dd3fc?style=flat-square)](https://igorgaspar.tech)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 ![Next.js 16](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=nextdotjs)
