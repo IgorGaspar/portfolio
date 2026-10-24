@@ -505,12 +505,14 @@ html[data-custom-cursor] * {
   background-color: var(--accent);
 }
 
-/* Project accordions open with a height transition where the browser supports it. */
-.project-card details {
+/* Project and FAQ accordions open with a height transition where the browser supports it. */
+.project-card details,
+details[data-accordion] {
   interpolate-size: allow-keywords;
 }
 
-.project-card details::details-content {
+.project-card details::details-content,
+details[data-accordion]::details-content {
   block-size: 0;
   overflow: clip;
   transition:
@@ -518,7 +520,8 @@ html[data-custom-cursor] * {
     content-visibility 300ms allow-discrete;
 }
 
-.project-card details[open]::details-content {
+.project-card details[open]::details-content,
+details[data-accordion][open]::details-content {
   block-size: auto;
 }
 
