@@ -11,7 +11,11 @@ export function RoboFaq() {
 
         <div className="mt-12 max-w-4xl space-y-3">
           {faq.items.map((item) => (
-            <details key={item.title} className="group rounded-xl border border-border bg-surface">
+            <details
+              key={item.title}
+              data-accordion
+              className="group rounded-xl border border-border bg-surface"
+            >
               <summary className="flex list-none items-center justify-between gap-4 px-5 py-4 font-medium">
                 {item.title}
                 <span

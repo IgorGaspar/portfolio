@@ -7,7 +7,6 @@ export function RoboHero() {
 
   return (
     <section
-      data-hero
       aria-labelledby="hero-title"
       className="relative flex min-h-svh items-center overflow-hidden pt-16"
     >
@@ -19,7 +18,10 @@ export function RoboHero() {
       <div className="container-page grid items-center gap-14 py-20 lg:grid-cols-[1fr_auto]">
         <div>
           <p className="hero-in font-mono text-sm text-muted">{hero.eyebrow}</p>
-          <h1 id="hero-title" className="hero-mask mt-6 max-w-4xl text-hero font-bold">
+          <h1
+            id="hero-title"
+            className="hero-mask mt-6 max-w-4xl text-hero font-bold lg:text-[clamp(3.5rem,0.6rem+4.6vw,5rem)]"
+          >
             {hero.title}
           </h1>
           <p className="hero-in mt-8 max-w-2xl text-lead text-muted [--i:3]">{hero.subtitle}</p>
@@ -49,7 +51,8 @@ export function RoboHero() {
             alt={hero.mediaAlt}
             width={640}
             height={1125}
-            priority
+            loading="eager"
+            fetchPriority="high"
             sizes="(min-width: 1024px) 320px, 288px"
             className="h-auto w-full rounded-[1.5rem]"
           />

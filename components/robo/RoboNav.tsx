@@ -3,6 +3,7 @@ import { pt } from "@/content/pt";
 import { robo } from "@/content/robo";
 import { NavMenu } from "../layout/NavMenu";
 import { ThemeToggle } from "../ui/ThemeToggle";
+import { WhatsAppLink } from "./WhatsAppLink";
 
 /** Header of the offers-bot page: same shell as the portfolio nav, with the page's own sections. */
 export function RoboNav() {
@@ -43,20 +44,14 @@ export function RoboNav() {
 
         <div className="flex items-center gap-3">
           <ThemeToggle label={pt.ui.themeToggle} />
-          <a
-            href="#contato"
+          <WhatsAppLink
+            draft={robo.draft}
             className="btn btn-solid hidden min-h-10 px-4 py-2 text-sm sm:inline-flex"
           >
             {robo.cta}
-          </a>
-          <NavMenu
-            label={pt.ui.menu}
-            navLabel="Seções da página"
-            links={[
-              ...robo.nav,
-              { href: "#contato", label: robo.cta, accent: true, smallOnly: true },
-            ]}
-          />
+          </WhatsAppLink>
+          {/* No WhatsApp entry in the menu: on phones the bottom bar (RoboFooter) carries it. */}
+          <NavMenu label={pt.ui.menu} navLabel="Seções da página" links={robo.nav} />
         </div>
       </div>
     </header>

@@ -25,6 +25,15 @@ export function generateStaticParams() {
   return [{ locale: "pt" }];
 }
 
+// A child segment that sets its own openGraph loses the image generated for the parent
+// segment, so the portfolio card is named explicitly until the page has an image of its own.
+const ogImage = {
+  url: "/pt/opengraph-image",
+  width: 1200,
+  height: 630,
+  alt: "Igor Gaspar · igorgaspar.tech",
+};
+
 export const metadata: Metadata = {
   title: robo.meta.title,
   description: robo.meta.description,
@@ -36,11 +45,13 @@ export const metadata: Metadata = {
     title: robo.meta.title,
     description: robo.meta.description,
     locale: "pt_BR",
+    images: [ogImage],
   },
   twitter: {
     card: "summary_large_image",
     title: robo.meta.title,
     description: robo.meta.description,
+    images: [ogImage],
   },
 };
 
@@ -59,12 +70,22 @@ export default async function Page({ params }: PageProps<"/[locale]/robo-de-ofer
     provider: { "@type": "Person", name: "Igor Gaspar", url: siteUrl },
     offers: robo.plans.items
       .filter((plan) => plan.id !== "pro")
-      .map((plan) => ({
-        "@type": "Offer",
-        name: plan.name,
-        price: plan.price.replace(/\D/g, ""),
-        priceCurrency: "BRL",
-      })),
+      .map((plan) => {
+        // "R$ 99" -> 99, "R$ 99,90" -> 99.9
+        const price = Number(plan.price.replace(/[^\d,]/g, "").replace(",", "."));
+        return {
+          "@type": "Offer",
+          name: plan.name,
+          price,
+          priceCurrency: "BRL",
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price,
+            priceCurrency: "BRL",
+            unitCode: "MON",
+          },
+        };
+      }),
   };
 
   return (

@@ -167,7 +167,7 @@ export const robo = {
         setup: "Implantação: R$ 300",
         badge: "Recomendado",
         summary:
-          "O robô busca sozinho as ofertas da Shopee que mais pagam, no seu nicho. E qualquer link vira o seu link de afiliado.",
+          "O robô busca sozinho as ofertas da Shopee que mais pagam, no seu nicho. E qualquer link da Shopee ou do Mercado Livre vira o seu link de afiliado.",
         features: features(5),
         extra: "Grupo extra por R$ 29/mês",
         cta: "Quero o Plus",

@@ -49,6 +49,32 @@ for (const [path, lang, hreflangOther] of [
   });
 }
 
+test("loads the offers-bot page in Portuguese only", async ({ page, request }) => {
+  const errors = collectErrors(page);
+  const response = await page.goto("/robo-de-ofertas");
+  expect(response?.status()).toBe(200);
+  await expect(page.locator("html")).toHaveAttribute("lang", "pt-BR");
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    "https://igorgaspar.tech/robo-de-ofertas",
+  );
+  await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(0);
+  await expect(page.locator('meta[property="og:image"]')).toHaveCount(1);
+  const jsonLd = await page.locator('script[type="application/ld+json"]').first().textContent();
+  expect(JSON.parse(jsonLd ?? "{}")["@type"]).toBe("Service");
+  // Every sales button opens WhatsApp with a prefilled message.
+  const whatsapp = page.locator('a[href^="https://wa.me/"]');
+  expect(await whatsapp.count()).toBeGreaterThan(0);
+  for (const href of await whatsapp.evaluateAll((links) => links.map((a) => a.getAttribute("href")))) {
+    expect(href).toMatch(/^https:\/\/wa\.me\/\d+\?text=.+/);
+  }
+  await page.waitForTimeout(1500);
+  expect(errors).toEqual([]);
+
+  expect((await request.get("/en/robo-de-ofertas")).status()).toBe(404);
+});
+
 test("language switch goes PT -> EN", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("group", { name: "Idioma" }).first().getByRole("link", { name: "EN" }).click();
