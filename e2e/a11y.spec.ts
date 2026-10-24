@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-const paths = ["/", "/en"];
+const paths = ["/", "/en", "/robo-de-ofertas"];
 const themes = ["dark", "light"] as const;
 const viewports = {
   desktop: { width: 1280, height: 800 },
