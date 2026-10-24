@@ -795,6 +795,8 @@ function stackPills() {
 }
 
 function photoParallax() {
+  // Only the home page has the journey photo.
+  if (!document.querySelector("[data-parallax]")) return;
   gsap.to("[data-parallax]", {
     y: -30,
     ease: "none",
