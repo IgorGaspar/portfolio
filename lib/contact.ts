@@ -6,3 +6,9 @@ export const contact = {
 
 export const mailto = (subject: string) =>
   `mailto:${contact.email}?subject=${encodeURIComponent(subject)}`;
+
+/** WhatsApp is the sales channel of the offers bot (/robo-de-ofertas). */
+const whatsappNumber = "5511986893761";
+
+export const whatsapp = (text: string) =>
+  `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
