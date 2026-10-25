@@ -29,7 +29,8 @@ Não é um template com o lorem ipsum trocado: é o site em produção de um eng
 | **Movimento em três níveis** | Completo no desktop, leve em telas de toque, apenas fades para `prefers-reduced-motion`. Guiado por atributos `data-*` (GSAP, ScrollTrigger, SplitText, Lenis) em um chunk próprio e preguiçoso, então o conteúdo nunca depende dele. |
 | **Rápido por construção** | O hero é pintado só com CSS, o CSS vai inline, as fontes não são pré-carregadas, e o JavaScript da cena e da coreografia espera o idle. O Lighthouse mobile marca 92-94 na execução padrão, com LCP real (throttling real) de cerca de 1,1-1,4 s. |
 | **Acessível** | Contraste AA nos dois temas, foco visível, diálogo de chat operável por teclado que devolve o foco a quem o abriu, seções fixadas que nunca prendem o foco e zero violações do axe na auditoria automatizada. |
-| **Bilíngue e indexável** | Português em `/`, inglês em `/en`, metadados e `hreflang` por idioma, imagens Open Graph geradas, JSON-LD de Person, `robots.txt` e `sitemap.xml`. |
+| **Vitrine e portfólio separados** | `/` é a vitrine dos meus produtos e serviços para clientes (só em português, hero leve sem WebGL). O portfólio fica em `/sobre`, com a versão em inglês em `/en`. |
+| **Bilíngue e indexável** | O portfólio existe nas duas línguas (`/sobre` ↔ `/en`, com `hreflang`), imagens Open Graph geradas, JSON-LD de Person, `robots.txt` e `sitemap.xml`. As páginas só em português declaram apenas o canonical. |
 | **Uma página de vendas na mesma base** | [`/robo-de-ofertas`](https://igorgaspar.tech/robo-de-ofertas) vende meu robô de ofertas para WhatsApp como serviço gerenciado. Só em português (a rota em inglês dá 404 de propósito), com metadados próprios, JSON-LD de Service com ofertas mensais, CTAs para o WhatsApp com mensagem pronta e o mesmo motion, temas e auditorias axe do portfólio. |
 
 <table>
@@ -91,6 +92,7 @@ Somente no servidor. Nada aqui recebe o prefixo `NEXT_PUBLIC_`.
 | `ANTHROPIC_MODEL` | Modelo usado pelo agente (padrão: Claude Haiku 4.5) |
 | `AGENT_RATE_LIMIT_MAX`, `AGENT_RATE_LIMIT_WINDOW` | Requisições por IP e janela (padrão: 20 por hora) |
 | `AGENT_DAILY_LIMIT` | Teto de chamadas ao agente por dia UTC, para o site inteiro (padrão: 200). Acima disso, o agente encaminha os visitantes ao e-mail |
+| `SITE_ENV` | `staging` no ambiente de ensaio: `noindex` em todas as respostas e `robots.txt` bloqueando tudo. É lida no build, então precisa ser variável de build também. Em produção, deixe vazia |
 
 ### Scripts
 
@@ -115,9 +117,9 @@ Pode partir deste código. O que trocar:
 ## Estrutura do projeto
 
 ```
-app/             rotas (portfólio e a página de vendas /robo-de-ofertas), o Route Handler do agente, health check, robots, sitemap
+app/             rotas (vitrine em /, portfólio em /sobre e /en, página de vendas /robo-de-ofertas), o Route Handler do agente, health check, robots, sitemap
 components/      seções, chat do agente, cena 3D, diagramas de arquitetura, página de vendas, layout e UI
-content/         dicionários pt/en tipados, dados dos projetos, textos e planos da página de vendas, modelos do prompt do agente
+content/         dicionários pt/en tipados, dados dos projetos, textos da vitrine, textos e planos da página de vendas, modelos do prompt do agente
 lib/             agente, rate limit, i18n, coreografia de rolagem
 e2e/             specs do Playwright
 tests/           specs do Vitest
@@ -137,6 +139,16 @@ Algumas decisões que valem a leitura antes de copiá-las:
 ## Deploy
 
 O app compila com `output: "standalone"` e vai em um contêiner (`Dockerfile`: Node 22 Alpine, usuário sem privilégios, healthcheck em `/api/health`). Roda em uma VPS gerenciada pelo [Coolify](https://coolify.io), que cuida do roteamento e do HTTPS. Qualquer host de contêiner funciona do mesmo jeito: exponha a porta 3000, defina as variáveis de ambiente como variáveis de runtime e monte os dois arquivos de prompt do agente.
+
+### Branches e ambientes
+
+| Branch | Ambiente | Para que serve |
+|---|---|---|
+| `main` | Produção, `igorgaspar.tech` | Só recebe merge da `develop`, depois de validado no ensaio |
+| `develop` | Ensaio, com `SITE_ENV=staging` | Onde as mudanças são integradas e testadas no ar |
+| `feat/*`, `fix/*` | Local | Uma branch por mudança, criada a partir da `develop`, com PR para a `develop` |
+
+O CI (lint, typecheck, testes unitários, build e e2e) roda em todo PR e a cada push na `main` e na `develop`. Para promover, abra um PR da `develop` para a `main`.
 
 ## Licença
 

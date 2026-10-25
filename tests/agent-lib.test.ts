@@ -13,6 +13,22 @@ describe("getSystemPrompt", () => {
     expect(system).toContain("Trajetória em uma frase");
   });
 
+  it("always carries the products and the public offers-bot prices", () => {
+    const system = getSystemPrompt();
+
+    expect(system).toContain("Robô de ofertas para WhatsApp");
+    expect(system).toContain("https://igorgaspar.tech/robo-de-ofertas");
+    expect(system).toMatch(/Essencial: R\$ 99\/mês/);
+    expect(system).toMatch(/Plus .*: R\$ 119\/mês/);
+    // Inside the knowledge base, so it works whatever the private files say about prices.
+    expect(system.indexOf("Robô de ofertas para WhatsApp")).toBeGreaterThan(
+      system.indexOf("<base_de_conhecimento>"),
+    );
+    expect(system.indexOf("Robô de ofertas para WhatsApp")).toBeLessThan(
+      system.indexOf("</base_de_conhecimento>"),
+    );
+  });
+
   it("is identical across calls so the prompt cache prefix stays stable", () => {
     expect(getSystemPrompt()).toBe(getSystemPrompt());
   });

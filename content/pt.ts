@@ -2,11 +2,13 @@ import type { Dictionary } from "./types";
 
 export const pt: Dictionary = {
   meta: {
-    title: "Igor Gaspar · Engenheiro de IA e Desenvolvedor Fullstack",
+    title: "Sobre Igor Gaspar · Engenheiro de IA e Desenvolvedor Fullstack",
     description:
       "Construo produtos com agentes de IA que funcionam em produção: do prompt ao banco de dados. Veja projetos, stack e converse com meu agente.",
   },
   nav: {
+    products: "Produtos",
+    robo: "Robô de ofertas",
     projects: "Projetos",
     howIBuild: "Como construo",
     journey: "Trajetória",
@@ -18,8 +20,8 @@ export const pt: Dictionary = {
     title: "Coloco agentes de IA em produção.",
     subtitle:
       "Do prompt ao banco de dados. Construo produtos com LLMs que funcionam fora da demo: com testes, segurança de dados e deploy.",
-    ctaHire: "Contratar para o time",
-    ctaProject: "Tenho um projeto",
+    ctaHire: "Contratar para a minha empresa",
+    ctaProject: "Contratar um freela",
     agentLink: "Ou pergunte ao meu agente ↓",
   },
   agent: {
@@ -55,6 +57,7 @@ export const pt: Dictionary = {
   projects: {
     title: "Projetos em produção.",
     subtitle: "Três sistemas reais, três formas diferentes de usar Claude.",
+    productsLink: "Quer algo assim para o seu negócio? Veja os produtos",
     items: {
       monai: {
         badge: "Produto próprio · em produção",
@@ -297,11 +300,11 @@ export const pt: Dictionary = {
   },
   contact: {
     title: "Vamos conversar.",
-    text: "Seja para uma vaga ou para um projeto, respondo pessoalmente.",
+    text: "Para uma vaga na sua empresa ou um projeto freela, respondo pessoalmente.",
     emailLabel: "E-mail",
     location: "São Paulo, SP",
-    ctaHire: "Contratar para o time",
-    ctaProject: "Tenho um projeto",
+    ctaHire: "Contratar para a minha empresa",
+    ctaProject: "Contratar um freela",
     closing: "Ou pergunte ao meu agente.",
   },
   footer: { text: "© 2026 Igor Gaspar · Feito com Next.js" },
@@ -326,10 +329,10 @@ export const pt: Dictionary = {
     close: "Fechar",
     you: "Você",
     agentName: "Agente",
-    draftHire: "Estou contratando para o meu time. O que devo saber sobre o Igor?",
-    draftProject: "Tenho um projeto em mente. Como o Igor pode ajudar?",
-    subjectHire: "Vaga",
-    subjectProject: "Projeto",
+    whatsappHire: "Oi, Igor! Vi o seu portfólio e quero conversar sobre uma vaga na minha empresa.",
+    whatsappProject: "Oi, Igor! Vi o seu portfólio e tenho um projeto freela em mente.",
+    whatsappSchedule: "Oi, Igor! Vim pelo seu site e quero agendar uma conversa.",
+    whatsappGeneral: "Oi, Igor! Vim pelo seu site e quero conversar.",
     photoAlt: "Monograma IG",
     notFoundTitle: "Página não encontrada.",
     notFoundText: "O endereço que você abriu não existe neste site.",

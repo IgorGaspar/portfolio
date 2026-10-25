@@ -1,6 +1,7 @@
 import type { Dictionary } from "@/content";
-import { contact as channels, mailto } from "@/lib/contact";
+import { contact as channels } from "@/lib/contact";
 import { AgentCta } from "../agent/AgentCta";
+import { WhatsAppLink } from "../robo/WhatsAppLink";
 import { CopyButton } from "../ui/CopyButton";
 
 const labelClass = "font-mono text-sm text-muted";
@@ -22,6 +23,15 @@ export function Contact({ dict }: { dict: Dictionary }) {
         <p data-reveal="up" className="mt-6 max-w-2xl text-lead text-muted">
           {contact.text}
         </p>
+
+        <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+          <WhatsAppLink draft={ui.whatsappHire} className="btn btn-solid">
+            {contact.ctaHire}
+          </WhatsAppLink>
+          <WhatsAppLink draft={ui.whatsappProject} className="btn btn-solid">
+            {contact.ctaProject}
+          </WhatsAppLink>
+        </div>
 
         <dl className="mt-12 divide-y divide-border border-y border-border">
           <div className="grid gap-2 py-5 sm:grid-cols-[10rem_1fr] sm:items-center">
@@ -63,15 +73,6 @@ export function Contact({ dict }: { dict: Dictionary }) {
 
         <p className="mt-6 text-muted">{contact.location}</p>
         {contact.languages && <p className="mt-2 text-muted">{contact.languages}</p>}
-
-        <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-          <AgentCta href={mailto(ui.subjectHire)} draft={ui.draftHire} className="btn">
-            {contact.ctaHire}
-          </AgentCta>
-          <AgentCta href={mailto(ui.subjectProject)} draft={ui.draftProject} className="btn">
-            {contact.ctaProject}
-          </AgentCta>
-        </div>
 
         <AgentCta
           href="#agent"

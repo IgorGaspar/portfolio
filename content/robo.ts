@@ -59,7 +59,7 @@ export const robo = {
     secondary: "Ver planos",
     highlights: ["Postagens ilimitadas", "Sem fidelidade", "Controle pelo WhatsApp"],
     mediaAlt:
-      "Conversa com o robô: link de afiliado enviado e a mensagem pronta com preço de e por",
+      "O robô em ação num grupo de ofertas real: mensagens com foto, preço de e por, cupom e link de compra chegando uma após a outra",
   },
   howItWorks: {
     title: "Como funciona.",
@@ -130,9 +130,9 @@ export const robo = {
     includedTitle: "Incluso em todos os planos",
     included: [
       "Controle total pelo WhatsApp, com comandos simples",
+      "Cupons com o seu link e a sua arte, que você manda uma vez só",
       "Horários de postagem do seu jeito",
       "Fila de ofertas: ver, remover ou enviar na hora",
-      "Cupons com o seu link e a sua arte, que você manda uma vez só",
       "Títulos automáticos nas datas promocionais",
       "Avisos e mensagens livres para o grupo",
       "Atualizações e manutenção sem custo extra",
@@ -265,6 +265,16 @@ export const robo = {
       },
     ] satisfies TitledText[],
   },
+  agent: {
+    title: "Ficou com alguma dúvida? Pergunte.",
+    support:
+      "Este assistente conhece o robô, os planos e como funciona a implantação. Ele também é um exemplo do que eu construo.",
+    chips: [
+      "Quanto custa o robô de ofertas?",
+      "O que eu preciso ter para começar?",
+      "Meu número corre risco de bloqueio?",
+    ],
+  },
   about: {
     title: "Quem cuida do seu robô.",
     name: "Igor Gaspar",
@@ -274,8 +284,8 @@ export const robo = {
     photoAlt: "Monograma IG",
   },
   closing: {
-    title: "Bora colocar seu grupo para rodar?",
-    text: "Escolha o plano, separe o chip e em poucos dias as ofertas com o seu link começam a sair sozinhas.",
+    title: "Bora colocar seu grupo para render?",
+    text: "Escolha o plano, separe o chip e em poucos dias as ofertas com o seu link começam a rodar sozinhas.",
     cta: "Fala comigo no WhatsApp",
     note: "Resultado que cresce com o grupo: quanto mais gente ativa, mais vendas.",
   },

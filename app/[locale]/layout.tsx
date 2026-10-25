@@ -3,7 +3,15 @@ import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { notFound } from "next/navigation";
 import { ThemeScript } from "@/components/ui/ThemeScript";
 import { getDictionary } from "@/content";
-import { hasLocale, htmlLang, localeHome, locales, siteUrl } from "@/lib/i18n";
+import {
+  hasLocale,
+  htmlLang,
+  isStaging,
+  localeHome,
+  locales,
+  portfolioLanguages,
+  siteUrl,
+} from "@/lib/i18n";
 import "../globals.css";
 
 const inter = Inter({
@@ -44,14 +52,13 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
     metadataBase: new URL(siteUrl),
     title: meta.title,
     description: meta.description,
+    // Pages override this. The language pair is the portfolio (/sobre <-> /en); the
+    // Portuguese pages without an English version declare only their canonical.
     alternates: {
       canonical: localeHome(locale),
-      languages: {
-        "pt-BR": localeHome("pt"),
-        en: localeHome("en"),
-        "x-default": localeHome("pt"),
-      },
+      ...(locale === "en" && { languages: portfolioLanguages }),
     },
+    ...(isStaging && { robots: { index: false, follow: false } }),
     openGraph: {
       type: "website",
       url: localeHome(locale),

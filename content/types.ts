@@ -32,6 +32,9 @@ export type JourneyItem = {
 export type Dictionary = {
   meta: { title: string; description: string };
   nav: {
+    /** Links to the products showcase and the offers-bot page (Portuguese only). */
+    products?: string;
+    robo?: string;
     projects: string;
     howIBuild: string;
     journey: string;
@@ -57,6 +60,8 @@ export type Dictionary = {
   projects: {
     title: string;
     subtitle: string;
+    /** Link from the cases to the products showcase (Portuguese only). */
+    productsLink?: string;
     items: Record<ProjectId, ProjectCopy>;
   };
   howIBuild: {
@@ -105,10 +110,11 @@ export type Dictionary = {
     close: string;
     you: string;
     agentName: string;
-    draftHire: string;
-    draftProject: string;
-    subjectHire: string;
-    subjectProject: string;
+    /** Messages sent to Igor on WhatsApp. */
+    whatsappHire: string;
+    whatsappProject: string;
+    whatsappSchedule: string;
+    whatsappGeneral: string;
     photoAlt: string;
     notFoundTitle: string;
     notFoundText: string;

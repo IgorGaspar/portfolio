@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { robo } from "@/content/robo";
+import { BotClip } from "./BotClip";
 import { WhatsAppLink } from "./WhatsAppLink";
 
 export function RoboHero() {
@@ -7,6 +7,7 @@ export function RoboHero() {
 
   return (
     <section
+      data-hero
       aria-labelledby="hero-title"
       className="relative flex min-h-svh items-center overflow-hidden pt-16"
     >
@@ -14,6 +15,8 @@ export function RoboHero() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_75%_40%,color-mix(in_srgb,var(--accent)_14%,transparent),transparent_70%),radial-gradient(40%_40%_at_60%_70%,color-mix(in_srgb,var(--accent-2)_12%,transparent),transparent_70%)]"
       />
+
+      <div aria-hidden="true" className="neural-static" />
 
       <div className="container-page grid items-center gap-14 py-20 lg:grid-cols-[1fr_auto]">
         <div>
@@ -44,18 +47,9 @@ export function RoboHero() {
           </ul>
         </div>
 
-        {/* Phone-sized screenshot of the bot at work. */}
+        {/* Phone-sized clip of the bot working in a real group. */}
         <div className="hero-in mx-auto w-64 overflow-hidden rounded-[2rem] border border-border bg-surface p-2 shadow-2xl [--i:4] sm:w-72 lg:w-80">
-          <Image
-            src="/media/robo/mensagem.webp"
-            alt={hero.mediaAlt}
-            width={640}
-            height={1125}
-            loading="eager"
-            fetchPriority="high"
-            sizes="(min-width: 1024px) 320px, 288px"
-            className="h-auto w-full rounded-[1.5rem]"
-          />
+          <BotClip label={hero.mediaAlt} className="overflow-hidden rounded-[1.5rem]" />
         </div>
       </div>
     </section>
