@@ -20,6 +20,8 @@ const describe = (el: Element | null) => {
 for (const [path, reduced] of [
   ["/", false],
   ["/", true],
+  ["/sobre", false],
+  ["/robo-de-ofertas", false],
   ["/en", false],
 ] as const) {
   test(`tab through page ${path} reduced=${reduced}`, async ({ browser }) => {
@@ -53,7 +55,8 @@ for (const [path, reduced] of [
     }
     // Focus leaving to the browser chrome after the last control is expected.
     expect(problems.filter((p) => !p.includes("focus left to body"))).toEqual([]);
-    expect(seen.length).toBeGreaterThan(30);
+    // The sales page is shorter than the portfolio, so it has fewer stops.
+    expect(seen.length).toBeGreaterThan(path === "/robo-de-ofertas" ? 20 : 30);
     await context.close();
   });
 }
@@ -62,7 +65,7 @@ test("chat dialog keyboard", async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
   const page = await context.newPage();
   await page.route("**/api/agent", (route) => route.abort());
-  await page.goto("/");
+  await page.goto("/sobre");
   await page.waitForTimeout(1500);
   // Scroll so the floating button can appear, then reach it by keyboard.
   await page.mouse.wheel(0, 2500);

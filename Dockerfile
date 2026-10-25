@@ -7,6 +7,9 @@ RUN npm ci
 FROM node:22-alpine AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+# "staging" on the develop deploy: noindex and a blocking robots.txt are baked in at build time.
+ARG SITE_ENV=""
+ENV SITE_ENV=$SITE_ENV
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build

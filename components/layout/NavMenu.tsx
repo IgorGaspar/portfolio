@@ -5,7 +5,14 @@ import { useEffect, useRef } from "react";
 type Props = {
   label: string;
   navLabel: string;
-  links: { href: string; label: string; accent?: boolean; smallOnly?: boolean }[];
+  links: {
+    href: string;
+    label: string;
+    accent?: boolean;
+    smallOnly?: boolean;
+    /** Opens in a new tab (WhatsApp). */
+    external?: boolean;
+  }[];
 };
 
 /** Mobile menu. A native <details>, so it opens without JavaScript; this adds closing. */
@@ -48,6 +55,7 @@ export function NavMenu({ label, navLabel, links }: Props) {
             <li key={link.href + link.label} className={link.smallOnly ? "sm:hidden" : undefined}>
               <a
                 href={link.href}
+                {...(link.external && { target: "_blank", rel: "noopener noreferrer" })}
                 onClick={() => ref.current?.removeAttribute("open")}
                 className={`block rounded-lg px-3 py-2.5 hover:bg-bg ${link.accent ? "text-accent" : ""}`}
               >

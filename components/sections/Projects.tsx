@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { Dictionary } from "@/content";
 import { projectIds, projects } from "@/content/projects";
 import { ArchitectureDiagram } from "../diagrams/ArchitectureDiagram";
@@ -19,6 +20,11 @@ export function Projects({ dict }: { dict: Dictionary }) {
           title={dict.projects.title}
           subtitle={dict.projects.subtitle}
         />
+        {dict.projects.productsLink && (
+          <Link href="/" data-reveal="up" className="link mt-6 inline-block">
+            {dict.projects.productsLink} →
+          </Link>
+        )}
 
         <div data-projects-viewport className="mt-16">
           <div data-projects-track className="space-y-10">

@@ -10,6 +10,7 @@ export function RoboClosing() {
       aria-labelledby="contato-title"
       className="section relative overflow-hidden"
     >
+      <div aria-hidden="true" className="neural-static" />
       {/* Same glow as the hero, closing the page where it started. */}
       <div
         aria-hidden="true"

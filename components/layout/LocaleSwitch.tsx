@@ -1,7 +1,14 @@
 import Link from "next/link";
-import { htmlLang, localeHome, locales, type Locale } from "@/lib/i18n";
+import { aboutPath, htmlLang, locales, type Locale } from "@/lib/i18n";
 
-export function LocaleSwitch({ locale, label }: { locale: Locale; label: string }) {
+type Props = {
+  locale: Locale;
+  label: string;
+  /** Destination per language. Defaults to the portfolio, the page that exists in both. */
+  hrefs?: Partial<Record<Locale, string>>;
+};
+
+export function LocaleSwitch({ locale, label, hrefs }: Props) {
   return (
     <div role="group" aria-label={label} className="flex items-center gap-2 font-mono text-sm">
       {locales.map((item, i) => (
@@ -12,7 +19,7 @@ export function LocaleSwitch({ locale, label }: { locale: Locale; label: string 
             </span>
           )}
           <Link
-            href={localeHome(item)}
+            href={hrefs?.[item] ?? aboutPath(item)}
             prefetch={false}
             hrefLang={htmlLang[item]}
             lang={htmlLang[item]}

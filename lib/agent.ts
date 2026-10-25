@@ -31,12 +31,17 @@ function readAgentFile(name: string): string {
 
 let cachedSystem: string | undefined;
 
+/**
+ * Products and services (offers bot and prices included). Unlike the two private files it is
+ * public, committed and shipped with the app, so the agent knows what the site sells without
+ * anyone editing the server's knowledge.md.
+ */
+const productsFile = path.join(agentDir, "products.md");
+
 /** Instructions with the knowledge base injected. Stable across requests so it can be cached. */
 export function getSystemPrompt(): string {
-  cachedSystem ??= readAgentFile("instructions.md").replace(
-    KNOWLEDGE_PLACEHOLDER,
-    readAgentFile("knowledge.md"),
-  );
+  const knowledge = `${readAgentFile("knowledge.md")}\n\n${readFileSync(productsFile, "utf8").trim()}`;
+  cachedSystem ??= readAgentFile("instructions.md").replace(KNOWLEDGE_PLACEHOLDER, knowledge);
   return cachedSystem;
 }
 

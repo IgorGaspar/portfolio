@@ -1,6 +1,5 @@
 import type { Dictionary } from "@/content";
-import { mailto } from "@/lib/contact";
-import { AgentCta } from "../agent/AgentCta";
+import { WhatsAppLink } from "../robo/WhatsAppLink";
 
 export function Hero({ dict }: { dict: Dictionary }) {
   const { hero, ui } = dict;
@@ -27,12 +26,12 @@ export function Hero({ dict }: { dict: Dictionary }) {
         <p className="hero-in mt-8 max-w-2xl text-lead text-muted [--i:3]">{hero.subtitle}</p>
 
         <div className="hero-in mt-10 flex flex-col gap-4 sm:flex-row [--i:4]">
-          <AgentCta href={mailto(ui.subjectHire)} draft={ui.draftHire} className="btn">
+          <WhatsAppLink draft={ui.whatsappHire} className="btn">
             {hero.ctaHire}
-          </AgentCta>
-          <AgentCta href={mailto(ui.subjectProject)} draft={ui.draftProject} className="btn">
+          </WhatsAppLink>
+          <WhatsAppLink draft={ui.whatsappProject} className="btn">
             {hero.ctaProject}
-          </AgentCta>
+          </WhatsAppLink>
         </div>
 
         <a

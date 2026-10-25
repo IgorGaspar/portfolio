@@ -21,10 +21,12 @@ const subscribeDesktop = (onChange: () => void) => {
 type Props = {
   locale: Locale;
   labels: ChatLabels & { title: string; openAgent: string; close: string; email: string };
+  /** Lifts the button above a fixed bottom bar on phones (the offers-bot page has one). */
+  raised?: boolean;
 };
 
 /** Floating agent button plus the side panel (desktop) or bottom sheet (mobile). */
-export function AgentDock({ locale, labels }: Props) {
+export function AgentDock({ locale, labels, raised = false }: Props) {
   const { panelOpen, draft } = useAgent();
   const [buttonVisible, setButtonVisible] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -59,8 +61,11 @@ export function AgentDock({ locale, labels }: Props) {
         !window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
         startFlight(
           { x: icon.left + icon.width / 2, y: -24 },
-          // Centre of the button: 56 px wide, 20 px from the corner.
-          { x: window.innerWidth - 48, y: window.innerHeight - 48 },
+          // Centre of the button: 56 px wide, 20 px from the corner (80 px when raised on phones).
+          {
+            x: window.innerWidth - 48,
+            y: window.innerHeight - 48 - (raised && window.innerWidth < 640 ? 60 : 0),
+          },
         );
 
       if (flying) timer = window.setTimeout(() => setButtonVisible(true), FLIGHT_MS * 0.8);
@@ -71,7 +76,7 @@ export function AgentDock({ locale, labels }: Props) {
       observer.disconnect();
       window.clearTimeout(timer);
     };
-  }, []);
+  }, [raised]);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -121,11 +126,11 @@ export function AgentDock({ locale, labels }: Props) {
               aria-label={labels.openAgent}
               data-agent-open
               onClick={() => agent.openPanel()}
-              initial={{ scale: 0, opacity: 0 }}
+              initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
+              exit={{ scale: 0.5, opacity: 0 }}
               transition={{ type: "spring", stiffness: 420, damping: 24 }}
-              className="fixed bottom-5 right-5 z-30 inline-flex size-14 items-center justify-center rounded-full border border-accent-2/60 bg-surface shadow-[0_0_32px_-6px_var(--accent-2)]"
+              className={`fixed right-5 z-30 inline-flex size-14 items-center justify-center rounded-full border border-accent-2/60 bg-surface shadow-[0_0_32px_-6px_var(--accent-2)] ${raised ? "bottom-20 sm:bottom-5" : "bottom-5"}`}
             >
               <AgentIcon className="size-8" />
             </m.button>
