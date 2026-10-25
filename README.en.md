@@ -29,7 +29,8 @@ Not a template with the lorem ipsum swapped out: it is the production site of a 
 | **Motion in three levels** | Full on desktop, light on touch screens, fades-only for `prefers-reduced-motion`. Driven by `data-*` attributes (GSAP, ScrollTrigger, SplitText, Lenis) in its own lazy chunk, so the content never depends on it. |
 | **Fast by construction** | The hero is painted from CSS alone, CSS is inlined, fonts are not preloaded, and the JavaScript for the scene and the choreography waits for idle. Mobile Lighthouse scores 92-94 in the default run, with a real-throttling LCP of about 1.1-1.4 s. |
 | **Accessible** | AA contrast in both themes, visible focus, a keyboard-operable chat dialog that returns focus to its opener, pinned sections that never trap focus, and zero axe violations in the automated audit. |
-| **Bilingual and indexable** | Portuguese at `/`, English at `/en`, per-locale metadata and `hreflang`, generated Open Graph images, Person JSON-LD, `robots.txt` and `sitemap.xml`. |
+| **Bilingual and indexable** | The portfolio exists in both languages (`/sobre` ↔ `/en`, with `hreflang`), generated Open Graph images, Person JSON-LD, `robots.txt` and `sitemap.xml`. Portuguese-only pages declare just their canonical. |
+| **Showcase and portfolio, apart** | `/` is the showcase of my products and services for clients (Portuguese only, a light hero without WebGL). The portfolio lives at `/sobre`, with its English version at `/en`. |
 | **A sales page on the same stack** | [`/robo-de-ofertas`](https://igorgaspar.tech/robo-de-ofertas) sells my WhatsApp offers bot as a managed service. Portuguese only (the English route is a 404 on purpose), with its own metadata, Service JSON-LD with monthly offers, WhatsApp CTAs with a prefilled message, and the same motion, themes and axe audits as the portfolio. |
 
 <table>
@@ -91,6 +92,7 @@ Server-side only. Nothing here is ever prefixed with `NEXT_PUBLIC_`.
 | `ANTHROPIC_MODEL` | Model used by the agent (defaults to Claude Haiku 4.5) |
 | `AGENT_RATE_LIMIT_MAX`, `AGENT_RATE_LIMIT_WINDOW` | Requests per IP and window (default 20 per hour) |
 | `AGENT_DAILY_LIMIT` | Site-wide ceiling of agent calls per UTC day (default 200). Past it the agent points visitors to e-mail |
+| `SITE_ENV` | `staging` on the staging deploy: `noindex` on every response and a `robots.txt` that blocks everything. Read at build time, so it must be a build variable too. Leave empty in production |
 
 ### Scripts
 
@@ -115,7 +117,7 @@ You are welcome to start from this code. What to change:
 ## Project layout
 
 ```
-app/             routes (portfolio and the /robo-de-ofertas sales page), the agent Route Handler, health check, robots, sitemap
+app/             routes (showcase at /, portfolio at /sobre and /en, the /robo-de-ofertas sales page), the agent Route Handler, health check, robots, sitemap
 components/      sections, agent chat, 3D scene, architecture diagrams, sales page, layout and UI
 content/         typed pt/en dictionaries, project data, sales page copy and plans, agent prompt templates
 lib/             agent, rate limit, i18n, scroll choreography
@@ -137,6 +139,16 @@ A few decisions worth reading before you copy them:
 ## Deployment
 
 The app builds with `output: "standalone"` and ships as a container (`Dockerfile`: Node 22 Alpine, non-root user, healthcheck on `/api/health`). It runs on a VPS managed by [Coolify](https://coolify.io), which handles routing and HTTPS. Any container host works the same way: expose port 3000, set the environment variables as runtime variables, and mount the two agent prompt files.
+
+### Branches and environments
+
+| Branch | Environment | Purpose |
+|---|---|---|
+| `main` | Production, `igorgaspar.tech` | Only takes merges from `develop`, once validated on staging |
+| `develop` | Staging, with `SITE_ENV=staging` | Where changes are integrated and tested live |
+| `feat/*`, `fix/*` | Local | One branch per change, cut from `develop`, with a PR into `develop` |
+
+CI (lint, typecheck, unit tests, build and e2e) runs on every PR and on each push to `main` and `develop`. To promote, open a PR from `develop` into `main`.
 
 ## License
 
