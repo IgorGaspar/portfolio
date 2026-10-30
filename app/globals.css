@@ -585,3 +585,69 @@ html[data-neural="static"] .neural-static {
     translate: 0 4%;
   }
 }
+
+/*
+ * Gasparzinho sprite: 11 frames of 256x255 in one row. Every length is a multiple of
+ * --gaspar-size (the rendered frame width), so the same rules serve any size.
+ * Frames (0-based): 0-3 idle, 4 happy, 5-6 thinking, 7 settling, 8-10 flying.
+ */
+.gaspar {
+  --gaspar-size: 72px;
+  display: inline-block;
+  flex: none;
+  width: var(--gaspar-size);
+  height: calc(var(--gaspar-size) * 255 / 256);
+  background: url("/assets/gasparzinho-spritesheet.webp") 0 0 / calc(var(--gaspar-size) * 11) 100%
+    no-repeat;
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent-2) 50%, transparent));
+}
+
+.gaspar[data-state="happy"] {
+  background-position-x: calc(var(--gaspar-size) * -4);
+}
+
+.gaspar[data-state="thinking"] {
+  background-position-x: calc(var(--gaspar-size) * -5);
+}
+
+.gaspar[data-state="flying"] {
+  background-position-x: calc(var(--gaspar-size) * -8);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gaspar[data-state="idle"] {
+    animation: gaspar-idle 0.9s steps(4) infinite;
+  }
+
+  .gaspar[data-state="thinking"] {
+    animation: gaspar-thinking 0.7s steps(2) infinite;
+  }
+
+  .gaspar[data-state="flying"] {
+    animation: gaspar-flying 0.36s steps(3) infinite;
+  }
+}
+
+@keyframes gaspar-idle {
+  to {
+    background-position-x: calc(var(--gaspar-size) * -4);
+  }
+}
+
+@keyframes gaspar-thinking {
+  from {
+    background-position-x: calc(var(--gaspar-size) * -5);
+  }
+  to {
+    background-position-x: calc(var(--gaspar-size) * -7);
+  }
+}
+
+@keyframes gaspar-flying {
+  from {
+    background-position-x: calc(var(--gaspar-size) * -8);
+  }
+  to {
+    background-position-x: calc(var(--gaspar-size) * -11);
+  }
+}

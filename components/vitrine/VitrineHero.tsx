@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { vitrine } from "@/content/vitrine";
 import { WhatsAppLink } from "../robo/WhatsAppLink";
 
@@ -30,10 +29,14 @@ export function VitrineHero() {
           <WhatsAppLink draft={vitrine.draft} className="btn btn-solid">
             {hero.cta}
           </WhatsAppLink>
-          <Link href="/robo-de-ofertas" className="btn">
+          <a href="#produtos" className="btn">
             {hero.secondary}
-          </Link>
+          </a>
         </div>
+        <p className="hero-in mt-8 inline-flex items-center gap-2 font-mono text-sm text-muted [--i:5]">
+          <span aria-hidden="true" className="size-2 rounded-full bg-accent" />
+          {hero.status}
+        </p>
       </div>
     </section>
   );

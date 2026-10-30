@@ -241,18 +241,12 @@ export const pt: Dictionary = {
   journey: {
     title: "Da engenharia mecânica à IA.",
     subtitle:
-      "Um caminho pouco linear, que me ensinou a resolver problemas antes de escolher a ferramenta.",
+      "Sem intermediários: o suporte e o desenvolvimento são feitos diretamente por mim. O foco, desde 2023, é colocar IA em produção.",
     items: [
-      { period: "2014–2019", heading: "**Engenharia Mecânica**, UniABC" },
       {
-        period: "2020–2021",
-        heading: "**Conferente em logística**, Paulo Vieira Transportes.",
-        body: "Operação, planejamento de carregamento e atendimento.",
-      },
-      {
-        period: "2021–2023",
-        heading: "**Técnico de TI**, Santa Casa de Misericórdia de Mauá.",
-        body: "Suporte a um hospital inteiro: rede, Active Directory e sistema hospitalar.",
+        period: "Antes de 2023",
+        heading: "**Engenharia Mecânica**, logística e **TI em um hospital**.",
+        body: "Um caminho pouco linear, que me ensinou a resolver o problema antes de escolher a ferramenta.",
       },
       {
         period: "2022–2023",

@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { ajuda } from "@/content/ajuda";
 
 // isStaging is read when lib/i18n loads, so each case imports the modules fresh.
 async function load(siteEnv?: string) {
@@ -39,6 +40,8 @@ describe("sitemap", () => {
       "https://igorgaspar.tech/sobre",
       "https://igorgaspar.tech/en",
       "https://igorgaspar.tech/robo-de-ofertas",
+      "https://igorgaspar.tech/robo-de-ofertas/ajuda",
+      ...ajuda.topics.map((topic) => `https://igorgaspar.tech/robo-de-ofertas/ajuda/${topic.slug}`),
     ]);
     const languages = { "pt-BR": "https://igorgaspar.tech/sobre", en: "https://igorgaspar.tech/en" };
     expect(entries[1].alternates?.languages).toEqual(languages);
