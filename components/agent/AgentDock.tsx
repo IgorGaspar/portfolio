@@ -68,19 +68,24 @@ export function AgentDock({ locale, labels, raised = false }: Props) {
     () => false,
   );
 
-  // The floating button appears once the inline chat has scrolled out above the
-  // viewport: the mascot flies from the chat icon to the corner and rests there. When the
-  // chat icon scrolls back into view, the mascot flies back up to take its place.
+  // Where the mascot lives, decided on every scroll frame:
+  // - "home": the chat card's icon, once that card reaches the upper half of the screen;
+  // - "corner": the floating button, once the neural core has flown there (half of the hero
+  //   scrolled) and whenever the chat card is not in reach;
+  // - "none": at the very top, where the neural core is still on its way.
+  // Moving between homes is a flight of the mascot; reaching the corner from the hero is the
+  // neural core's own flight (components/three), which this swaps for the mascot.
   useEffect(() => {
     const section = document.getElementById("agent");
     const icon = document.querySelector<HTMLElement>("[data-agent-core]");
     const flier = flierRef.current;
     if (!section || !icon || !flier) return;
+    const hero = document.querySelector("[data-hero]");
+    type Place = "none" | "home" | "corner";
+    let place: Place | null = null;
     let timer = 0;
+    let frame = 0;
     let cancel = () => {};
-    let firstCheck = true;
-    let wasPast = false;
-    let shown = false;
 
     const reduced = () => window.matchMedia(REDUCED_QUERY).matches;
     const corner = (): Point => ({
@@ -92,60 +97,82 @@ export function AgentDock({ locale, labels, raised = false }: Props) {
       const rect = icon.getBoundingClientRect();
       return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
     };
-    const land = () => {
-      flier.style.visibility = "hidden";
-      icon.style.removeProperty("visibility");
+    const showIcon = (shown: boolean) => {
+      if (shown) icon.style.removeProperty("visibility");
+      else icon.style.visibility = "hidden";
     };
-    const show = (value: boolean) => {
-      shown = value;
-      setButtonVisible(value);
-    };
-
-    const sectionObserver = new IntersectionObserver(([entry]) => {
-      const past = !entry.isIntersecting && entry.boundingClientRect.bottom < 0;
-      const arriving = past && !wasPast && !firstCheck;
-      const returning = !past && wasPast;
-      firstCheck = false;
-      wasPast = past;
-
-      if (arriving && !reduced()) {
-        window.clearTimeout(timer);
-        cancel();
-        const from = { x: iconCentre().x, y: -24 };
-        flier.style.visibility = "visible";
-        cancel = fly(flier, from, corner, land);
-        timer = window.setTimeout(() => {
-          setLanding(true);
-          show(true);
-        }, FLIGHT_MS * 0.8);
-      } else if (!returning || reduced()) {
-        window.clearTimeout(timer);
-        show(past);
-      }
-      // Returning with motion: the button stays until the chat icon is in view (below).
-    });
-
-    const iconObserver = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting || !shown || wasPast || reduced()) return;
-        window.clearTimeout(timer);
-        cancel();
-        // The icon stays hidden until the mascot lands on it.
-        icon.style.visibility = "hidden";
-        show(false);
-        flier.style.visibility = "visible";
-        cancel = fly(flier, corner(), iconCentre, land);
-      },
-      { rootMargin: "0px 0px -15% 0px" },
-    );
-
-    sectionObserver.observe(section);
-    iconObserver.observe(icon);
-    return () => {
-      sectionObserver.disconnect();
-      iconObserver.disconnect();
+    const stopFlight = () => {
       window.clearTimeout(timer);
       cancel();
+      flier.style.visibility = "hidden";
+    };
+
+    const locate = (): Place => {
+      const rect = icon.getBoundingClientRect();
+      if (rect.bottom > 0 && rect.top < window.innerHeight * 0.55) return "home";
+      const box = hero?.getBoundingClientRect();
+      const progress = box ? Math.min(1, Math.max(0, -box.top / box.height)) : 1;
+      return rect.bottom <= 0 || progress >= 0.5 ? "corner" : "none";
+    };
+
+    const update = () => {
+      frame = 0;
+      const rect = icon.getBoundingClientRect();
+      if (reduced()) {
+        // No flights: the icon stays put and the button appears once the chat has scrolled away.
+        setButtonVisible(rect.bottom < 0);
+        return;
+      }
+      const next = locate();
+      if (next === place) return;
+      const previous = place;
+      place = next;
+      stopFlight();
+
+      if (next === "home") {
+        setButtonVisible(false);
+        if (previous === "corner") {
+          // The icon stays empty until the mascot lands on it.
+          showIcon(false);
+          flier.style.visibility = "visible";
+          cancel = fly(flier, corner(), iconCentre, () => {
+            flier.style.visibility = "hidden";
+            showIcon(true);
+          });
+        } else showIcon(true);
+      } else if (next === "corner") {
+        showIcon(false);
+        if (previous === "home") {
+          // Left through the top of the screen, or back down towards the hero.
+          const from = rect.bottom <= 0 ? { x: iconCentre().x, y: -24 } : iconCentre();
+          flier.style.visibility = "visible";
+          cancel = fly(flier, from, corner, () => (flier.style.visibility = "hidden"));
+          timer = window.setTimeout(() => {
+            setLanding(true);
+            setButtonVisible(true);
+          }, FLIGHT_MS * 0.8);
+        } else {
+          // From the hero: the neural core arrives here and turns into the mascot.
+          setLanding(true);
+          setButtonVisible(true);
+        }
+      } else {
+        showIcon(false);
+        setButtonVisible(false);
+      }
+    };
+
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(frame);
+      stopFlight();
       icon.style.removeProperty("visibility");
     };
   }, [raised]);
