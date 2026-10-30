@@ -1,5 +1,5 @@
 import type { Dictionary } from "@/content";
-import { mailto } from "@/lib/contact";
+import { WhatsAppLink } from "../robo/WhatsAppLink";
 import { SectionHeading } from "../ui/SectionHeading";
 
 export function WorkWithMe({ dict }: { dict: Dictionary }) {
@@ -35,10 +35,10 @@ export function WorkWithMe({ dict }: { dict: Dictionary }) {
           </ol>
         </div>
 
-        {/* Opens e-mail until a scheduling link (Cal.com or Calendly) is provided. */}
-        <a href={mailto(ui.subjectProject)} data-pulse className="btn btn-solid mt-12">
+        {/* WhatsApp until a scheduling link (Cal.com or Calendly) is provided. */}
+        <WhatsAppLink draft={ui.whatsappSchedule} data-pulse className="btn btn-solid mt-12">
           {workWithMe.cta}
-        </a>
+        </WhatsAppLink>
       </div>
     </section>
   );

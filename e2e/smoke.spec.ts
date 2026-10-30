@@ -31,7 +31,7 @@ function collectErrors(page: Page) {
 }
 
 for (const [path, lang, hreflangOther] of [
-  ["/", "pt-BR", "en"],
+  ["/sobre", "pt-BR", "en"],
   ["/en", "en", "pt-BR"],
 ] as const) {
   test(`loads ${path}`, async ({ page }) => {
@@ -48,6 +48,38 @@ for (const [path, lang, hreflangOther] of [
     expect(errors).toEqual([]);
   });
 }
+
+test("the home is the products showcase, in Portuguese only", async ({ page, request }) => {
+  const errors = collectErrors(page);
+  await mockAgent(page);
+  const response = await page.goto("/");
+  expect(response?.status()).toBe(200);
+  await expect(page.locator("html")).toHaveAttribute("lang", "pt-BR");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Automação e IA");
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://igorgaspar.tech");
+  await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(0);
+  await expect(page.locator('meta[property="og:image"]')).toHaveCount(1);
+
+  const main = page.locator("main");
+  // The offers bot leads to its sales page, never with a price on the showcase.
+  expect(await main.locator('a[href="/robo-de-ofertas"]').count()).toBeGreaterThan(0);
+  await expect(main).not.toContainText("R$");
+  await expect(main.locator('a[href="https://monai.page"]')).toHaveCount(1);
+  await expect(main.locator('a[href^="/sobre"]').first()).toBeAttached();
+  for (const href of await main
+    .locator('a[href^="https://wa.me/"]')
+    .evaluateAll((links) => links.map((a) => a.getAttribute("href")))) {
+    expect(href).toMatch(/^https:\/\/wa\.me\/\d+\?text=.+/);
+  }
+  await page.waitForTimeout(1500);
+  expect(errors).toEqual([]);
+
+  expect((await request.get("/en/sobre")).status()).toBe(404);
+  // The old Portuguese prefix still lands on the unprefixed page.
+  const prefixed = await request.get("/pt/sobre", { maxRedirects: 0 });
+  expect(prefixed.status()).toBe(308);
+  expect(prefixed.headers().location).toBe("/sobre");
+});
 
 test("loads the offers-bot page in Portuguese only", async ({ page, request }) => {
   const errors = collectErrors(page);
@@ -75,16 +107,95 @@ test("loads the offers-bot page in Portuguese only", async ({ page, request }) =
   expect((await request.get("/en/robo-de-ofertas")).status()).toBe(404);
 });
 
-test("language switch goes PT -> EN", async ({ page }) => {
+test("serves the offers-bot help center in Portuguese only", async ({ request }) => {
+  for (const path of [
+    "/robo-de-ofertas/ajuda",
+    "/robo-de-ofertas/ajuda/shopee-api",
+    "/robo-de-ofertas/ajuda/comandos",
+  ]) {
+    const response = await request.get(path);
+    expect(response.status()).toBe(200);
+    expect(await response.text()).toContain('lang="pt-BR"');
+  }
+  expect((await request.get("/robo-de-ofertas/ajuda/nao-existe")).status()).toBe(404);
+  expect((await request.get("/en/robo-de-ofertas/ajuda")).status()).toBe(404);
+});
+
+test("every page has the neural core and the agent", async ({ browser }) => {
+  for (const path of ["/", "/sobre", "/robo-de-ofertas"]) {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+    const page = await context.newPage();
+    await mockAgent(page);
+    await page.goto(path);
+    await expect(page.locator("[data-hero]")).toHaveCount(1);
+    await expect(page.locator("#agent [data-agent-core]")).toHaveCount(1);
+    await page.mouse.move(400, 300);
+    await expect(page.locator("canvas").first()).toBeAttached({ timeout: 25_000 });
+    // Past the inline chat, the core has become the floating button.
+    await page.evaluate(() => document.getElementById("agent")!.scrollIntoView());
+    await page.mouse.wheel(0, 900);
+    await expect(page.getByRole("button", { name: "Abrir o agente" })).toBeVisible();
+    await context.close();
+  }
+});
+
+test("the contact buttons open WhatsApp with a message, next to e-mail and LinkedIn", async ({ page }) => {
+  for (const path of ["/", "/sobre", "/en", "/robo-de-ofertas"]) {
+    await page.goto(path);
+    const links = await page
+      .locator('a[href^="https://wa.me/"]')
+      .evaluateAll((a) => a.map((el) => el.getAttribute("href")));
+    expect(links.length, path).toBeGreaterThan(1);
+    // Nothing that asks to hire or schedule falls back to a bare mailto.
+    for (const mail of await page.locator('a[href^="mailto:"]').evaluateAll((a) => a.map((el) => el.getAttribute("href")))) {
+      expect(mail).toBe("mailto:igorfgaspar@outlook.com");
+    }
+  }
   await page.goto("/");
+  const contact = page.locator("#contato");
+  await expect(contact.getByRole("link", { name: "igorfgaspar@outlook.com" })).toHaveCount(1);
+  await expect(contact.getByRole("link", { name: /linkedin/i })).toHaveCount(1);
+  // E-mail and "Conversa" used to be the same thing twice.
+  await expect(contact.getByText("Agendar uma conversa")).toHaveCount(0);
+  await expect(contact.getByText("Conversa", { exact: true })).toHaveCount(0);
+  await page.goto("/sobre");
+  await expect(page.locator("#contact").getByRole("link", { name: /linkedin/i })).toHaveCount(1);
+});
+
+test("the offers bot plays as a looping clip on the showcase and on its page", async ({ page }) => {
+  for (const path of ["/", "/robo-de-ofertas"]) {
+    await page.goto(path);
+    const video = page.locator("video").first();
+    await expect(video).toHaveAttribute("poster", "/media/robo/bot-poster.webp");
+    await expect(video).toHaveJSProperty("loop", true);
+    await expect(video).toHaveJSProperty("muted", true);
+    await video.scrollIntoViewIfNeeded();
+    await expect.poll(() => video.evaluate((v: HTMLVideoElement) => !v.paused), { timeout: 15_000 }).toBe(true);
+    for (const src of ["/media/robo/bot.webm", "/media/robo/bot.mp4", "/media/robo/bot-poster.webp"]) {
+      expect((await page.request.get(src)).status()).toBe(200);
+    }
+  }
+});
+
+test("language switch pairs /sobre with /en", async ({ page }) => {
+  await page.goto("/sobre");
   await page.getByRole("group", { name: "Idioma" }).first().getByRole("link", { name: "EN" }).click();
   await expect(page).toHaveURL(/\/en$/);
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await page.getByRole("group", { name: "Language" }).first().getByRole("link", { name: "PT" }).click();
+  await expect(page).toHaveURL(/\/sobre$/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "pt-BR");
+});
+
+test("the showcase's language switch leads to the English portfolio", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("group", { name: "Idioma" }).first().getByRole("link", { name: "EN" }).click();
+  await expect(page).toHaveURL(/\/en$/);
 });
 
 test("inline chat answers a suggestion", async ({ page }) => {
   const requests = await mockAgent(page, "Resposta de teste.");
-  await page.goto("/");
+  await page.goto("/sobre");
   await page.getByRole("button", { name: /^Quais projetos/ }).click();
   await expect(page.getByText("Resposta de teste.").first()).toBeVisible();
   expect(requests).toHaveLength(1);
@@ -92,7 +203,7 @@ test("inline chat answers a suggestion", async ({ page }) => {
 
 test("floating button opens the panel; Escape closes it and returns focus", async ({ page }) => {
   await mockAgent(page);
-  await page.goto("/");
+  await page.goto("/sobre");
   await page.waitForTimeout(1000);
   await page.mouse.wheel(0, 2500);
   const open = page.getByRole("button", { name: "Abrir o agente" });
@@ -113,7 +224,7 @@ test.describe("reduced motion", () => {
   test("no pinning, no smooth scroll, static neural image, all content visible", async ({ page }) => {
     const errors = collectErrors(page);
     await mockAgent(page);
-    await page.goto("/");
+    await page.goto("/sobre");
 
     expect(await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches)).toBe(true);
 
@@ -159,7 +270,7 @@ test.describe("reduced motion", () => {
 
   test("agent panel still works", async ({ page }) => {
     await mockAgent(page, "Resposta reduzida.");
-    await page.goto("/");
+    await page.goto("/sobre");
     await page.getByRole("button", { name: /^Quais projetos/ }).click();
     await expect(page.getByText("Resposta reduzida.").first()).toBeVisible();
   });
@@ -169,7 +280,7 @@ test("full motion (control): WebGL scene, smooth scroll and pinned sections are 
   const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
   const page = await context.newPage();
   await mockAgent(page);
-  await page.goto("/");
+  await page.goto("/sobre");
   // The scene loads on the first sign of life from the visitor.
   await expect(page.locator("canvas")).toHaveCount(0);
   await page.mouse.move(400, 300);
@@ -182,7 +293,7 @@ test("full motion (control): WebGL scene, smooth scroll and pinned sections are 
 
 test("the agent card's suggestions are clickable as soon as they are visible", async ({ page }) => {
   await mockAgent(page);
-  await page.goto("/");
+  await page.goto("/sobre");
   await page.mouse.move(300, 300); // wakes the WebGL scene, which must never cover the page
   await expect(page.locator("canvas").first()).toBeAttached({ timeout: 25_000 });
   // Card entering from the bottom of the screen, as it does when scrolling down.
@@ -211,7 +322,7 @@ test("the OG image is served directly, without a redirect", async ({ request }) 
 
 test("switching language starts a fresh chat", async ({ page }) => {
   await mockAgent(page, "Resposta em português.");
-  await page.goto("/");
+  await page.goto("/sobre");
   await page.getByRole("button", { name: /^Quais projetos/ }).click();
   await expect(page.getByText("Resposta em português.").first()).toBeVisible();
 
@@ -225,7 +336,7 @@ test.describe("touch screens", () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 
   test("tapping a selected project again clears the stack highlight", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/sobre");
     const chip = page.getByRole("button", { name: "MonAI", exact: true });
     await chip.scrollIntoViewIfNeeded();
     const dimmed = page.locator("[data-pill].opacity-20");
@@ -240,7 +351,7 @@ test.describe("touch screens", () => {
   });
 
   test("architecture diagrams fit the screen without scrolling sideways", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/sobre");
     await page.evaluate(() => document.querySelectorAll("details").forEach((d) => (d.open = true)));
     const diagrams = page.locator("svg[data-diagram]:visible");
     await expect(diagrams).toHaveCount(2);
@@ -266,7 +377,7 @@ test.describe("touch screens", () => {
       (window as unknown as { __vv: typeof fake }).__vv = fake;
     });
     await mockAgent(page);
-    await page.goto("/");
+    await page.goto("/sobre");
     await page.waitForTimeout(1000);
     await page.mouse.wheel(0, 2500);
     await page.getByRole("button", { name: "Abrir o agente" }).tap();

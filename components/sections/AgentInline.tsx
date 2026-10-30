@@ -1,6 +1,6 @@
 import type { Dictionary } from "@/content";
 import type { Locale } from "@/lib/i18n";
-import { AgentIcon } from "../agent/AgentIcon";
+import { Gasparzinho } from "../agent/Gasparzinho";
 import { ChatBox, type ChatLabels } from "../agent/ChatBox";
 
 type Props = { locale: Locale; dict: Dictionary; chatLabels: ChatLabels };
@@ -17,8 +17,8 @@ export function AgentInline({ locale, dict, chatLabels }: Props) {
         >
           <div className="flex items-start gap-4">
             {/* The hero core "lands" here: it fades out as this icon fades in. */}
-            <span data-agent-core className="mt-1 shrink-0">
-              <AgentIcon className="size-10" />
+            <span data-agent-core className="shrink-0">
+              <Gasparzinho state="idle" size={56} />
             </span>
             <div>
               <h2 id="agent-title" className="text-3xl font-semibold sm:text-4xl">

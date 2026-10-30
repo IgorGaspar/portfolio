@@ -311,7 +311,7 @@ export default function NeuralScene({ count, interactive, onFailure }: Props) {
     });
     // The contact network starts opening while "work with me" is still on screen.
     document
-      .querySelectorAll("[data-hero], [data-work-with-me], #contact")
+      .querySelectorAll("[data-hero], [data-work-with-me], #contact, #contato")
       .forEach((el) => observer.observe(el));
     document.addEventListener("visibilitychange", update);
 

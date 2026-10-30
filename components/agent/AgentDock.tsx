@@ -7,7 +7,7 @@ import { agent, useAgent } from "@/lib/agent-store";
 import { contact } from "@/lib/contact";
 import type { Locale } from "@/lib/i18n";
 import { FLIGHT_MS, startFlight } from "../three/flight";
-import { AgentIcon } from "./AgentIcon";
+import { Gasparzinho, type GasparzinhoState } from "./Gasparzinho";
 import { ChatBox, type ChatLabels } from "./ChatBox";
 
 const DESKTOP_QUERY = "(min-width: 768px)";
@@ -21,12 +21,16 @@ const subscribeDesktop = (onChange: () => void) => {
 type Props = {
   locale: Locale;
   labels: ChatLabels & { title: string; openAgent: string; close: string; email: string };
+  /** Lifts the button above a fixed bottom bar on phones (the offers-bot page has one). */
+  raised?: boolean;
 };
 
 /** Floating agent button plus the side panel (desktop) or bottom sheet (mobile). */
-export function AgentDock({ locale, labels }: Props) {
-  const { panelOpen, draft } = useAgent();
+export function AgentDock({ locale, labels, raised = false }: Props) {
+  const { panelOpen, draft, status } = useAgent();
   const [buttonVisible, setButtonVisible] = useState(false);
+  const [landing, setLanding] = useState(false);
+  const [attended, setAttended] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const openerRef = useRef<HTMLElement | null>(null);
   const isDesktop = useSyncExternalStore(
@@ -59,19 +63,33 @@ export function AgentDock({ locale, labels }: Props) {
         !window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
         startFlight(
           { x: icon.left + icon.width / 2, y: -24 },
-          // Centre of the button: 56 px wide, 20 px from the corner.
-          { x: window.innerWidth - 48, y: window.innerHeight - 48 },
+          // Centre of the mascot: 64 px wide, 12 px from the corner (80 px up when raised on phones).
+          {
+            x: window.innerWidth - 44,
+            y: window.innerHeight - 44 - (raised && window.innerWidth < 640 ? 68 : 0),
+          },
         );
 
-      if (flying) timer = window.setTimeout(() => setButtonVisible(true), FLIGHT_MS * 0.8);
-      else setButtonVisible(past);
+      if (flying) {
+        timer = window.setTimeout(() => {
+          setLanding(true);
+          setButtonVisible(true);
+        }, FLIGHT_MS * 0.8);
+      } else setButtonVisible(past);
     });
     observer.observe(section);
     return () => {
       observer.disconnect();
       window.clearTimeout(timer);
     };
-  }, []);
+  }, [raised]);
+
+  // The mascot arrives in flight and settles into its idle float once it has landed.
+  useEffect(() => {
+    if (!landing) return;
+    const timer = window.setTimeout(() => setLanding(false), 900);
+    return () => window.clearTimeout(timer);
+  }, [landing]);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -108,6 +126,8 @@ export function AgentDock({ locale, labels }: Props) {
     };
   }, [panelOpen]);
 
+  const mascot: GasparzinhoState =
+    status !== "idle" ? "thinking" : landing ? "flying" : attended ? "happy" : "idle";
   const offscreen = isDesktop ? { x: "100%" } : { y: "100%" };
 
   return (
@@ -121,13 +141,23 @@ export function AgentDock({ locale, labels }: Props) {
               aria-label={labels.openAgent}
               data-agent-open
               onClick={() => agent.openPanel()}
-              initial={{ scale: 0, opacity: 0 }}
+              onPointerEnter={() => setAttended(true)}
+              onPointerLeave={() => setAttended(false)}
+              onFocus={(event) => setAttended(event.currentTarget.matches(":focus-visible"))}
+              onBlur={() => setAttended(false)}
+              initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
+              exit={{ scale: 0.5, opacity: 0 }}
               transition={{ type: "spring", stiffness: 420, damping: 24 }}
-              className="fixed bottom-5 right-5 z-30 inline-flex size-14 items-center justify-center rounded-full border border-accent-2/60 bg-surface shadow-[0_0_32px_-6px_var(--accent-2)]"
+              className={`fixed right-3 z-30 inline-flex items-center justify-center rounded-2xl ${raised ? "bottom-20 sm:bottom-3" : "bottom-3"}`}
             >
-              <AgentIcon className="size-8" />
+              <m.span
+                animate={{ y: [0, -6, 0] }}
+                transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+                className="inline-flex"
+              >
+                <Gasparzinho state={mascot} size={64} />
+              </m.span>
             </m.button>
           )}
         </AnimatePresence>
@@ -169,7 +199,7 @@ export function AgentDock({ locale, labels }: Props) {
               >
                 <header className="mb-4 flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <AgentIcon className="size-9 shrink-0" />
+                    <Gasparzinho state={status !== "idle" ? "thinking" : "idle"} size={44} />
                     <h2 id="agent-panel-title" className="text-xl font-semibold">
                       {labels.title}
                     </h2>

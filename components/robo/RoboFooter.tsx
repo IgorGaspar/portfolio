@@ -7,9 +7,14 @@ export function RoboFooter() {
     <footer className="border-t border-border pb-20 sm:pb-0">
       <div className="container-page flex flex-wrap items-center justify-between gap-4 py-8 text-sm text-muted">
         <p>{robo.footer}</p>
-        <Link href="/" className="py-2 transition-colors hover:text-text">
-          {robo.backHome}
-        </Link>
+        <div className="flex flex-wrap items-center gap-x-6">
+          <Link href="/robo-de-ofertas/ajuda" className="py-2 transition-colors hover:text-text">
+            Central de ajuda
+          </Link>
+          <Link href="/" className="py-2 transition-colors hover:text-text">
+            {robo.backHome}
+          </Link>
+        </div>
       </div>
       {/* Bottom bar on phones, where the header button is hidden; the footer leaves room for it.
           It lives inside the footer so it stays within a landmark. */}

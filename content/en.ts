@@ -240,18 +240,13 @@ export const en: Dictionary = {
   },
   journey: {
     title: "From mechanical engineering to AI.",
-    subtitle: "A non-linear path that taught me to solve the problem before picking the tool.",
+    subtitle:
+      "No middlemen: support and development come directly from me. Since 2023 the focus has been putting AI into production.",
     items: [
-      { period: "2014–2019", heading: "**Mechanical Engineering**, UniABC" },
       {
-        period: "2020–2021",
-        heading: "**Logistics checker**, Paulo Vieira Transportes.",
-        body: "Operations, load planning and customer service.",
-      },
-      {
-        period: "2021–2023",
-        heading: "**IT Technician**, Santa Casa de Misericórdia de Mauá (hospital).",
-        body: "Support for an entire hospital: network, Active Directory and the hospital management system.",
+        period: "Before 2023",
+        heading: "**Mechanical Engineering**, logistics and **IT at a hospital**.",
+        body: "A non-linear path that taught me to solve the problem before picking the tool.",
       },
       {
         period: "2022–2023",
@@ -329,10 +324,10 @@ export const en: Dictionary = {
     close: "Close",
     you: "You",
     agentName: "Agent",
-    draftHire: "I'm hiring for my team. What should I know about Igor?",
-    draftProject: "I have a project in mind. How can Igor help?",
-    subjectHire: "Role",
-    subjectProject: "Project",
+    whatsappHire: "Hi Igor! I saw your portfolio and I'd like to talk about a role at my company.",
+    whatsappProject: "Hi Igor! I saw your portfolio and I have a freelance project in mind.",
+    whatsappSchedule: "Hi Igor! I found you through your site and I'd like to schedule a call.",
+    whatsappGeneral: "Hi Igor! I found you through your site and I'd like to talk.",
     photoAlt: "IG monogram",
     notFoundTitle: "Page not found.",
     notFoundText: "The address you opened doesn't exist on this site.",

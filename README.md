@@ -2,7 +2,7 @@
 
 # igorgaspar.tech
 
-**O código do meu site: um portfólio em português e inglês, com um agente de IA que responde sobre mim, um núcleo neural em 3D e animações que se adaptam a cada aparelho.**
+**O código do meu site: uma vitrine dos meus produtos e serviços, um portfólio em português e inglês, um agente de IA que responde sobre mim e o que eu faço, um núcleo neural em 3D e animações que se adaptam a cada aparelho.**
 
 **Português** · [English](README.en.md)
 
@@ -18,7 +18,7 @@
 
 </div>
 
-Oi, eu sou o Igor! Este é o código do site onde apresento meu trabalho, e ele está no ar em [igorgaspar.tech](https://igorgaspar.tech). Se quiser ver o resultado antes de ler o código, comece por lá e faça uma pergunta ao agente.
+Oi, eu sou o Igor! Este é o código do site onde apresento o que vendo e o que já construí, e ele está no ar em [igorgaspar.tech](https://igorgaspar.tech). Quem chega pela página inicial encontra a vitrine de produtos e serviços; quem quer saber mais sobre mim encontra o portfólio em `/sobre`. Se quiser ver o resultado antes de ler o código, comece por lá e faça uma pergunta ao agente.
 
 Aqui você encontra as partes que costumam ficar de fora dos portfólios: como colocar uma funcionalidade com LLM em produção, um hero 3D pesado e uma página cheia de animações sem abrir mão de acessibilidade, de desempenho nem do controle da fatura de API. Fique à vontade para ler como referência, copiar o que servir ou usar o projeto inteiro como ponto de partida.
 
@@ -26,19 +26,22 @@ Aqui você encontra as partes que costumam ficar de fora dos portfólios: como c
 
 | | |
 |---|---|
-| **Um agente para conversar de verdade** | As respostas chegam em tempo real: um Route Handler transmite a saída da API da Anthropic em NDJSON. Antes de chegar ao modelo, cada pedido passa por verificação de origem, validação com Zod, limite por IP e um teto diário do site inteiro. Se o visitante fecha o chat, a chamada é cancelada. E a chave nunca chega ao navegador. |
+| **Uma vitrine para quem quer contratar** | A página inicial fala com donos de negócio, não com devs. Mostra meus dois produtos próprios (o robô de ofertas para WhatsApp e o MonAI), as aplicações de IA sob medida, como trabalho e o agente para tirar dúvidas. Os botões abrem o WhatsApp com a mensagem já escrita. É só em português, porque o que vendo aqui é para o Brasil. |
+| **Um agente para conversar de verdade** | As respostas chegam em tempo real: um Route Handler transmite a saída da API da Anthropic em NDJSON. Antes de chegar ao modelo, cada pedido passa por verificação de origem, validação com Zod, limite por IP e um teto diário do site inteiro. Se o visitante fecha o chat, a chamada é cancelada. E a chave nunca chega ao navegador. Ele também conhece os produtos e os preços públicos, que ficam em `content/agent/products.md`. |
 | **3D que justifica os bytes** | Um único canvas React Three Fiber fixo atende o hero e a seção de contato. Ele carrega na primeira interação, cresce a partir de um ponto e pausa fora da tela. Em aparelhos fracos ou com movimento reduzido, dá lugar a uma imagem pré-renderizada. |
 | **Movimento na medida de cada aparelho** | São três níveis: completo no desktop, leve em telas de toque e só fades para `prefers-reduced-motion`. Tudo é guiado por atributos `data-*` (GSAP, ScrollTrigger, SplitText, Lenis) em um chunk próprio e preguiçoso, então o conteúdo nunca depende das animações. |
-| **Rápido desde a base** | O hero é pintado só com CSS, o CSS vai inline, as fontes não são pré-carregadas e o JavaScript da cena e da coreografia espera o idle. O Lighthouse mobile marca 92-94 na execução padrão, com LCP real (throttling real) de cerca de 1,1-1,4 s. |
+| **Rápido desde a base** | O hero é pintado só com CSS, o CSS vai inline, as fontes não são pré-carregadas e o JavaScript da cena e da coreografia espera o idle. No portfólio, o Lighthouse mobile marca 92-94 na execução padrão, com LCP real (throttling real) de cerca de 1,1-1,4 s. |
 | **Acessível para quem chega** | Contraste AA nos dois temas, foco visível, chat operável por teclado que devolve o foco a quem o abriu, seções fixadas que nunca prendem o foco e zero violações do axe na auditoria automatizada. |
-| **Em dois idiomas e fácil de encontrar** | Português em `/`, inglês em `/en`, metadados e `hreflang` por idioma, imagens Open Graph geradas, JSON-LD de Person, `robots.txt` e `sitemap.xml`. |
-| **Uma página de vendas na mesma base** | Em [`/robo-de-ofertas`](https://igorgaspar.tech/robo-de-ofertas) eu vendo meu robô de ofertas para WhatsApp como serviço gerenciado. A página é só em português (a rota em inglês dá 404 de propósito), com metadados próprios, JSON-LD de Service com ofertas mensais, CTAs para o WhatsApp com mensagem pronta e o mesmo motion, temas e auditorias axe do portfólio. |
+| **Em dois idiomas e fácil de encontrar** | O portfólio existe em português (`/sobre`) e em inglês (`/en`), ligados por `hreflang`. As páginas só em português declaram apenas o canonical. Tudo com metadados próprios, imagens Open Graph, JSON-LD, `robots.txt` e `sitemap.xml`. |
+| **Uma página de vendas na mesma base** | Em [`/robo-de-ofertas`](https://igorgaspar.tech/robo-de-ofertas) eu vendo meu robô de ofertas para WhatsApp como serviço gerenciado. A página é só em português (a rota em inglês dá 404 de propósito), com metadados próprios, JSON-LD de Service com ofertas mensais, CTAs para o WhatsApp com mensagem pronta e o mesmo motion, temas e auditorias axe do portfólio. Quem já é cliente tem uma [central de ajuda](https://igorgaspar.tech/robo-de-ofertas/ajuda), com uma página para cada assunto e uma busca entre os comandos do robô. |
+
+![A vitrine de produtos na página inicial](docs/screenshots/vitrine-pt.jpg)
 
 <table>
   <tr>
-    <td width="42%"><img src="docs/screenshots/hero-light-pt.jpg" alt="Hero no tema claro"></td>
+    <td width="42%"><img src="docs/screenshots/hero-light-pt.jpg" alt="Hero do portfólio no tema claro"></td>
     <td width="42%"><img src="docs/screenshots/agent-inline-pt.jpg" alt="O cartão do agente de IA embutido"></td>
-    <td width="16%"><img src="docs/screenshots/hero-mobile-pt.jpg" alt="Hero no celular"></td>
+    <td width="16%"><img src="docs/screenshots/hero-mobile-pt.jpg" alt="Hero do portfólio no celular"></td>
   </tr>
   <tr>
     <td align="center"><sub>No tema claro, a cena troca de cor a partir dos design tokens.</sub></td>
@@ -93,6 +96,7 @@ Todas ficam só no servidor: nada aqui recebe o prefixo `NEXT_PUBLIC_`.
 | `ANTHROPIC_MODEL` | Modelo usado pelo agente (padrão: Claude Haiku 4.5) |
 | `AGENT_RATE_LIMIT_MAX`, `AGENT_RATE_LIMIT_WINDOW` | Requisições por IP e janela (padrão: 20 por hora) |
 | `AGENT_DAILY_LIMIT` | Teto de chamadas ao agente por dia UTC, para o site inteiro (padrão: 200). Acima disso, o agente encaminha os visitantes ao e-mail |
+| `SITE_ENV` | `staging` no ambiente de ensaio: `noindex` em todas as respostas e `robots.txt` bloqueando tudo. É lida no build, então também precisa ser variável de build. Em produção, deixe vazia |
 
 ### Scripts
 
@@ -101,7 +105,7 @@ Todas ficam só no servidor: nada aqui recebe o prefixo `NEXT_PUBLIC_`.
 | `npm run dev` | Servidor de desenvolvimento |
 | `npm run build` / `npm start` | Build e servidor de produção |
 | `npm run lint` / `npm run typecheck` | ESLint e `tsc --noEmit` |
-| `npm test` | Vitest: biblioteca do agente, route handler e store do chat, com o SDK mockado |
+| `npm test` | Vitest: biblioteca do agente, route handler, store do chat e SEO, com o SDK mockado |
 | `npm run test:e2e` | Playwright: testes de fumaça, navegação por teclado, auditorias axe e o caminho de movimento reduzido. A API do agente é sempre mockada |
 | `npm run eval:agent` | Envia um conjunto fixo de perguntas ao modelo real. **Atenção: gasta crédito de API** |
 
@@ -109,17 +113,17 @@ Todas ficam só no servidor: nada aqui recebe o prefixo `NEXT_PUBLIC_`.
 
 Pode ficar à vontade! Estes são os pontos para deixar o projeto com a sua cara:
 
-1. **Textos e projetos:** `content/pt.ts`, `content/en.ts` e `content/projects.ts` (dicionários tipados, um por idioma).
+1. **Textos e projetos:** `content/pt.ts`, `content/en.ts` e `content/projects.ts` (dicionários tipados, um por idioma). A vitrine fica em `content/vitrine.ts`, a página de vendas em `content/robo.ts` e a central de ajuda em `content/ajuda.ts`.
 2. **Identidade:** `siteUrl` em `lib/i18n.ts`, os metadados em `app/[locale]/layout.tsx` e a imagem Open Graph em `app/[locale]/opengraph-image.tsx`.
 3. **Mídia:** `public/media/` e `assets/` (veja `assets/README.md`). Se mudar o visual da cena 3D, regenere os fallbacks estáticos com `node scripts/render-neural-fallback.mjs`.
-4. **O agente:** copie `content/agent/instructions.example.md` para `instructions.md` e `knowledge.example.md` para `knowledge.md`, e preencha. Os dois estão no `.gitignore` de propósito, para que um repositório público não exponha as regras do seu agente.
+4. **O agente:** copie `content/agent/instructions.example.md` para `instructions.md` e `knowledge.example.md` para `knowledge.md`, e preencha. Os dois estão no `.gitignore` de propósito, para que um repositório público não exponha as regras do seu agente. Já `content/agent/products.md` é público e descreve o que o site vende: troque pelos seus produtos.
 
 ## Como o projeto está organizado
 
 ```
-app/             rotas (portfólio e a página de vendas /robo-de-ofertas), o Route Handler do agente, health check, robots, sitemap
-components/      seções, chat do agente, cena 3D, diagramas de arquitetura, página de vendas, layout e UI
-content/         dicionários pt/en tipados, dados dos projetos, textos e planos da página de vendas, modelos do prompt do agente
+app/             rotas (vitrine em /, portfólio em /sobre e /en, página de vendas e central de ajuda em /robo-de-ofertas), o Route Handler do agente, health check, robots, sitemap
+components/      seções, vitrine, chat do agente, cena 3D, diagramas de arquitetura, página de vendas, central de ajuda, layout e UI
+content/         dicionários pt/en tipados, dados dos projetos, textos da vitrine, da página de vendas e da ajuda, produtos e modelos do prompt do agente
 lib/             agente, rate limit, i18n, coreografia de rolagem
 e2e/             specs do Playwright
 tests/           specs do Vitest
@@ -139,6 +143,16 @@ Algumas escolhas que eu explicaria para quem pensa em copiá-las:
 ## Como vai para o ar
 
 O app compila com `output: "standalone"` e roda em um contêiner (`Dockerfile`: Node 22 Alpine, usuário sem privilégios, healthcheck em `/api/health`). O meu está em uma VPS gerenciada pelo [Coolify](https://coolify.io), que cuida do roteamento e do HTTPS. Qualquer host de contêiner funciona do mesmo jeito: exponha a porta 3000, defina as variáveis de ambiente como variáveis de runtime e monte os dois arquivos de prompt do agente.
+
+### Branches e ambientes
+
+| Branch | Ambiente | Para que serve |
+|---|---|---|
+| `main` | Produção, `igorgaspar.tech` | Só recebe merge da `develop`, depois de testado no ensaio |
+| `develop` | Ensaio, com `SITE_ENV=staging` | Onde as mudanças se juntam e são testadas no ar |
+| `feat/*`, `fix/*` | Local | Uma branch por mudança, criada a partir da `develop`, com PR para a `develop` |
+
+O CI (lint, typecheck, testes unitários, build e e2e) roda em todo PR e a cada push na `main` e na `develop`.
 
 ## Licença
 

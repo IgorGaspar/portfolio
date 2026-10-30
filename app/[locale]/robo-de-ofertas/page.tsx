@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { AgentDockLazy } from "@/components/agent/AgentDockLazy";
+import { buildChatLabels } from "@/components/agent/chat-labels";
 import { MotionRoot } from "@/components/motion/MotionRoot";
+import { AgentInline } from "@/components/sections/AgentInline";
+import { NeuralBackdrop } from "@/components/three/NeuralBackdrop";
 import { RoboAbout } from "@/components/robo/RoboAbout";
 import { RoboBenefits } from "@/components/robo/RoboBenefits";
 import { RoboClosing } from "@/components/robo/RoboClosing";
@@ -59,6 +63,10 @@ export default async function Page({ params }: PageProps<"/[locale]/robo-de-ofer
   const { locale } = await params;
   if (locale !== "pt") notFound();
 
+  // The shared agent, with copy about the bot.
+  const dict = { ...pt, agent: { ...pt.agent, ...robo.agent } };
+  const { chat: chatLabels, dock: dockLabels } = buildChatLabels(dict);
+
   const service = {
     "@context": "https://schema.org",
     "@type": "Service",
@@ -110,11 +118,16 @@ export default async function Page({ params }: PageProps<"/[locale]/robo-de-ofer
         <RoboPlans />
         <RoboSetup />
         <RoboFaq />
+        <AgentInline locale="pt" dict={dict} chatLabels={chatLabels} />
         <RoboAbout />
+        {/* Where the calm network of the closing section starts opening (see NeuralScene). */}
+        <div aria-hidden="true" data-work-with-me className="h-px" />
         <RoboClosing />
       </main>
       <RoboFooter />
+      <NeuralBackdrop />
       <MotionRoot />
+      <AgentDockLazy locale="pt" labels={dockLabels} raised />
     </>
   );
 }

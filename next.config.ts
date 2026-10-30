@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 
+// Staging (develop branch) is a public URL too: keep every response out of search engines.
+const isStaging = process.env.SITE_ENV === "staging";
+
 const nextConfig: NextConfig = {
   // Self-hosted on a VPS with Coolify (see Dockerfile).
   output: "standalone",
@@ -11,6 +14,10 @@ const nextConfig: NextConfig = {
   experimental: { inlineCss: true },
   images: {
     formats: ["image/avif", "image/webp"],
+  },
+  async headers() {
+    if (!isStaging) return [];
+    return [{ source: "/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] }];
   },
   // Portuguese is served unprefixed ("/"), English under "/en".
   async redirects() {

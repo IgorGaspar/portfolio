@@ -2,7 +2,7 @@
 
 # igorgaspar.tech
 
-**The code behind my website: a portfolio in Portuguese and English, with an AI agent that answers questions about me, a 3D neural core and animations that adapt to every device.**
+**The code behind my website: a showcase of my products and services, a portfolio in Portuguese and English, an AI agent that answers questions about me and what I do, a 3D neural core and animations that adapt to every device.**
 
 [Português](README.md) · **English**
 
@@ -18,7 +18,7 @@
 
 </div>
 
-Hi, I'm Igor! This is the code for the site where I present my work, and it's live at [igorgaspar.tech](https://igorgaspar.tech). If you'd like to see the result before reading the code, start there and ask the agent a question.
+Hi, I'm Igor! This is the code for the site where I present what I sell and what I've built, and it's live at [igorgaspar.tech](https://igorgaspar.tech). The home page is the products and services showcase; if you'd like to know more about me, the portfolio is at `/en`. If you'd like to see the result before reading the code, start there and ask the agent a question.
 
 Here you'll find the parts portfolios usually leave out: how to put an LLM feature in production, a heavy 3D hero and a page full of animations without giving up accessibility, performance or control of your API bill. Feel free to read it as a reference, copy what's useful or use the whole project as a starting point.
 
@@ -26,19 +26,22 @@ Here you'll find the parts portfolios usually leave out: how to put an LLM featu
 
 | | |
 |---|---|
-| **An agent you can really talk to** | Answers arrive in real time: a Route Handler streams the Anthropic API's output as NDJSON. Before reaching the model, each request goes through an origin check, Zod validation, a per-IP rate limit and a site-wide daily ceiling. If the visitor closes the chat, the call is cancelled. And the key never reaches the browser. |
+| **A showcase for people who want to hire** | The home page speaks to business owners, not developers. It shows my two own products (the WhatsApp offers bot and MonAI), the custom AI applications, how I work and the agent for questions. The buttons open WhatsApp with the message already typed. It's Portuguese only, because what I sell here is for Brazil. |
+| **An agent you can really talk to** | Answers arrive in real time: a Route Handler streams the Anthropic API's output as NDJSON. Before reaching the model, each request goes through an origin check, Zod validation, a per-IP rate limit and a site-wide daily ceiling. If the visitor closes the chat, the call is cancelled. And the key never reaches the browser. It also knows the products and the public prices, which live in `content/agent/products.md`. |
 | **3D that earns its bytes** | One fixed React Three Fiber canvas serves the hero and the contact section. It loads on the first user input, grows from a single point and pauses off screen. On weak devices or under reduced motion, it gives way to a pre-rendered image. |
 | **Motion that fits each device** | There are three levels: full on desktop, light on touch screens and fades-only for `prefers-reduced-motion`. Everything is driven by `data-*` attributes (GSAP, ScrollTrigger, SplitText, Lenis) in its own lazy chunk, so the content never depends on the animations. |
-| **Fast from the ground up** | The hero is painted from CSS alone, CSS is inlined, fonts are not preloaded, and the JavaScript for the scene and the choreography waits for idle. Mobile Lighthouse scores 92-94 in the default run, with a real-throttling LCP of about 1.1-1.4 s. |
+| **Fast from the ground up** | The hero is painted from CSS alone, CSS is inlined, fonts are not preloaded, and the JavaScript for the scene and the choreography waits for idle. On the portfolio, mobile Lighthouse scores 92-94 in the default run, with a real-throttling LCP of about 1.1-1.4 s. |
 | **Accessible to whoever arrives** | AA contrast in both themes, visible focus, a keyboard-operable chat that returns focus to its opener, pinned sections that never trap focus, and zero axe violations in the automated audit. |
-| **In two languages and easy to find** | Portuguese at `/`, English at `/en`, per-locale metadata and `hreflang`, generated Open Graph images, Person JSON-LD, `robots.txt` and `sitemap.xml`. |
-| **A sales page on the same stack** | At [`/robo-de-ofertas`](https://igorgaspar.tech/robo-de-ofertas) I sell my WhatsApp offers bot as a managed service. The page is Portuguese only (the English route is a 404 on purpose), with its own metadata, Service JSON-LD with monthly offers, WhatsApp CTAs with a prefilled message, and the same motion, themes and axe audits as the portfolio. |
+| **In two languages and easy to find** | The portfolio exists in Portuguese (`/sobre`) and English (`/en`), linked by `hreflang`. Portuguese-only pages declare just their canonical. Everything has its own metadata, Open Graph images, JSON-LD, `robots.txt` and `sitemap.xml`. |
+| **A sales page on the same stack** | At [`/robo-de-ofertas`](https://igorgaspar.tech/robo-de-ofertas) I sell my WhatsApp offers bot as a managed service. The page is Portuguese only (the English route is a 404 on purpose), with its own metadata, Service JSON-LD with monthly offers, WhatsApp CTAs with a prefilled message, and the same motion, themes and axe audits as the portfolio. Existing customers get a [help center](https://igorgaspar.tech/robo-de-ofertas/ajuda), with one page per topic and a search across the bot's commands. |
+
+![The products showcase on the home page](docs/screenshots/vitrine-pt.jpg)
 
 <table>
   <tr>
-    <td width="42%"><img src="docs/screenshots/hero-light.jpg" alt="Hero in the light theme"></td>
+    <td width="42%"><img src="docs/screenshots/hero-light.jpg" alt="Portfolio hero in the light theme"></td>
     <td width="42%"><img src="docs/screenshots/agent-inline.jpg" alt="The inline AI agent card"></td>
-    <td width="16%"><img src="docs/screenshots/hero-mobile.jpg" alt="Hero on a phone"></td>
+    <td width="16%"><img src="docs/screenshots/hero-mobile.jpg" alt="Portfolio hero on a phone"></td>
   </tr>
   <tr>
     <td align="center"><sub>In the light theme, the scene recolours from the design tokens.</sub></td>
@@ -93,6 +96,7 @@ They all stay on the server: nothing here is ever prefixed with `NEXT_PUBLIC_`.
 | `ANTHROPIC_MODEL` | Model used by the agent (defaults to Claude Haiku 4.5) |
 | `AGENT_RATE_LIMIT_MAX`, `AGENT_RATE_LIMIT_WINDOW` | Requests per IP and window (default 20 per hour) |
 | `AGENT_DAILY_LIMIT` | Site-wide ceiling of agent calls per UTC day (default 200). Past it the agent points visitors to e-mail |
+| `SITE_ENV` | `staging` on the staging environment: `noindex` on every response and a `robots.txt` that blocks everything. It's read at build time, so it also has to be a build variable. Leave it empty in production |
 
 ### Scripts
 
@@ -101,7 +105,7 @@ They all stay on the server: nothing here is ever prefixed with `NEXT_PUBLIC_`.
 | `npm run dev` | Development server |
 | `npm run build` / `npm start` | Production build and server |
 | `npm run lint` / `npm run typecheck` | ESLint and `tsc --noEmit` |
-| `npm test` | Vitest: agent library, route handler and chat store, with the SDK mocked |
+| `npm test` | Vitest: agent library, route handler, chat store and SEO, with the SDK mocked |
 | `npm run test:e2e` | Playwright: smoke tests, keyboard navigation, axe audits and the reduced-motion path. The agent API is always mocked |
 | `npm run eval:agent` | Sends a fixed question set to the real model. **Heads up: it spends API credit** |
 
@@ -109,17 +113,17 @@ They all stay on the server: nothing here is ever prefixed with `NEXT_PUBLIC_`.
 
 Go right ahead! These are the places to make the project your own:
 
-1. **Copy and projects:** `content/pt.ts`, `content/en.ts` and `content/projects.ts` (typed dictionaries, one per language).
+1. **Copy and projects:** `content/pt.ts`, `content/en.ts` and `content/projects.ts` (typed dictionaries, one per language). The showcase lives in `content/vitrine.ts`, the sales page in `content/robo.ts` and the help center in `content/ajuda.ts`.
 2. **Identity:** `siteUrl` in `lib/i18n.ts`, the metadata in `app/[locale]/layout.tsx` and the Open Graph image in `app/[locale]/opengraph-image.tsx`.
 3. **Media:** `public/media/` and `assets/` (see `assets/README.md`). If you change the look of the 3D scene, regenerate the static fallbacks with `node scripts/render-neural-fallback.mjs`.
-4. **The agent:** copy `content/agent/instructions.example.md` to `instructions.md` and `knowledge.example.md` to `knowledge.md`, then fill them in. Both are git-ignored on purpose, so a public repository doesn't expose your agent's rules.
+4. **The agent:** copy `content/agent/instructions.example.md` to `instructions.md` and `knowledge.example.md` to `knowledge.md`, then fill them in. Both are git-ignored on purpose, so a public repository doesn't expose your agent's rules. `content/agent/products.md`, on the other hand, is public and describes what the site sells: swap in your own products.
 
 ## How the project is organised
 
 ```
-app/             routes (portfolio and the /robo-de-ofertas sales page), the agent Route Handler, health check, robots, sitemap
-components/      sections, agent chat, 3D scene, architecture diagrams, sales page, layout and UI
-content/         typed pt/en dictionaries, project data, sales page copy and plans, agent prompt templates
+app/             routes (showcase at /, portfolio at /sobre and /en, sales page and help center at /robo-de-ofertas), the agent Route Handler, health check, robots, sitemap
+components/      sections, showcase, agent chat, 3D scene, architecture diagrams, sales page, help center, layout and UI
+content/         typed pt/en dictionaries, project data, showcase, sales page and help copy, products and agent prompt templates
 lib/             agent, rate limit, i18n, scroll choreography
 e2e/             Playwright specs
 tests/           Vitest specs
@@ -139,6 +143,16 @@ A few choices I'd explain to anyone thinking of copying them:
 ## How it goes live
 
 The app builds with `output: "standalone"` and runs as a container (`Dockerfile`: Node 22 Alpine, non-root user, healthcheck on `/api/health`). Mine lives on a VPS managed by [Coolify](https://coolify.io), which handles routing and HTTPS. Any container host works the same way: expose port 3000, set the environment variables as runtime variables, and mount the two agent prompt files.
+
+### Branches and environments
+
+| Branch | Environment | What it's for |
+|---|---|---|
+| `main` | Production, `igorgaspar.tech` | Only takes merges from `develop`, after testing on staging |
+| `develop` | Staging, with `SITE_ENV=staging` | Where changes come together and get tested live |
+| `feat/*`, `fix/*` | Local | One branch per change, created from `develop`, with a PR into `develop` |
+
+CI (lint, typecheck, unit tests, build and e2e) runs on every PR and on every push to `main` and `develop`.
 
 ## License
 

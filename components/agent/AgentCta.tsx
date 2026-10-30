@@ -3,7 +3,7 @@
 import { agent } from "@/lib/agent-store";
 
 type Props = {
-  /** Fallback destination when JavaScript is unavailable (e-mail or the inline chat). */
+  /** Fallback destination when JavaScript is unavailable (the inline chat). */
   href: string;
   /** First message placed in the chat input, ready to edit and send. */
   draft?: string;
