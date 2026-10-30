@@ -2,7 +2,7 @@
 
 # igorgaspar.tech
 
-**Um portfólio de desenvolvedor bilíngue, com agente de IA em streaming, núcleo neural em WebGL e coreografia de rolagem que degrada com elegância.**
+**O código do meu site: um portfólio em português e inglês, com um agente de IA que responde sobre mim, um núcleo neural em 3D e animações que se adaptam a cada aparelho.**
 
 **Português** · [English](README.en.md)
 
@@ -14,38 +14,40 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=flat-square&logo=typescript&logoColor=white)
 ![Tailwind CSS v4](https://img.shields.io/badge/Tailwind-v4-38bdf8?style=flat-square&logo=tailwindcss&logoColor=white)
 
-![Hero com o núcleo neural em WebGL](docs/screenshots/hero-dark.jpg)
+![Hero com o núcleo neural em WebGL](docs/screenshots/hero-dark-pt.jpg)
 
 </div>
 
-Não é um template com o lorem ipsum trocado: é o site em produção de um engenheiro em atividade, com bem feitas as partes que costumam ser puladas. Leia como referência de como entregar uma funcionalidade com LLM, um hero 3D pesado e uma página animada sem abrir mão de acessibilidade, desempenho ou da sua fatura de API.
+Oi, eu sou o Igor! Este é o código do site onde apresento meu trabalho, e ele está no ar em [igorgaspar.tech](https://igorgaspar.tech). Se quiser ver o resultado antes de ler o código, comece por lá e faça uma pergunta ao agente.
 
-## Destaques
+Aqui você encontra as partes que costumam ficar de fora dos portfólios: como colocar uma funcionalidade com LLM em produção, um hero 3D pesado e uma página cheia de animações sem abrir mão de acessibilidade, de desempenho nem do controle da fatura de API. Fique à vontade para ler como referência, copiar o que servir ou usar o projeto inteiro como ponto de partida.
+
+## O que vale olhar por aqui
 
 | | |
 |---|---|
-| **Um agente com quem se conversa** | Um Route Handler transmite as respostas da API da Anthropic em NDJSON. Verificação de origem, validação com Zod, limite por IP e um teto diário do site inteiro ficam na frente do modelo, e a chamada é cancelada quando o visitante fecha o chat. A chave nunca chega ao navegador. |
-| **3D que justifica os bytes** | Um único canvas React Three Fiber fixo atende o hero e a seção de contato. Carrega na primeira interação do usuário, cresce a partir de um ponto, pausa fora da tela e cai para uma imagem pré-renderizada em dispositivos fracos ou com movimento reduzido. |
-| **Movimento em três níveis** | Completo no desktop, leve em telas de toque, apenas fades para `prefers-reduced-motion`. Guiado por atributos `data-*` (GSAP, ScrollTrigger, SplitText, Lenis) em um chunk próprio e preguiçoso, então o conteúdo nunca depende dele. |
-| **Rápido por construção** | O hero é pintado só com CSS, o CSS vai inline, as fontes não são pré-carregadas, e o JavaScript da cena e da coreografia espera o idle. O Lighthouse mobile marca 92-94 na execução padrão, com LCP real (throttling real) de cerca de 1,1-1,4 s. |
-| **Acessível** | Contraste AA nos dois temas, foco visível, diálogo de chat operável por teclado que devolve o foco a quem o abriu, seções fixadas que nunca prendem o foco e zero violações do axe na auditoria automatizada. |
-| **Bilíngue e indexável** | Português em `/`, inglês em `/en`, metadados e `hreflang` por idioma, imagens Open Graph geradas, JSON-LD de Person, `robots.txt` e `sitemap.xml`. |
-| **Uma página de vendas na mesma base** | [`/robo-de-ofertas`](https://igorgaspar.tech/robo-de-ofertas) vende meu robô de ofertas para WhatsApp como serviço gerenciado. Só em português (a rota em inglês dá 404 de propósito), com metadados próprios, JSON-LD de Service com ofertas mensais, CTAs para o WhatsApp com mensagem pronta e o mesmo motion, temas e auditorias axe do portfólio. |
+| **Um agente para conversar de verdade** | As respostas chegam em tempo real: um Route Handler transmite a saída da API da Anthropic em NDJSON. Antes de chegar ao modelo, cada pedido passa por verificação de origem, validação com Zod, limite por IP e um teto diário do site inteiro. Se o visitante fecha o chat, a chamada é cancelada. E a chave nunca chega ao navegador. |
+| **3D que justifica os bytes** | Um único canvas React Three Fiber fixo atende o hero e a seção de contato. Ele carrega na primeira interação, cresce a partir de um ponto e pausa fora da tela. Em aparelhos fracos ou com movimento reduzido, dá lugar a uma imagem pré-renderizada. |
+| **Movimento na medida de cada aparelho** | São três níveis: completo no desktop, leve em telas de toque e só fades para `prefers-reduced-motion`. Tudo é guiado por atributos `data-*` (GSAP, ScrollTrigger, SplitText, Lenis) em um chunk próprio e preguiçoso, então o conteúdo nunca depende das animações. |
+| **Rápido desde a base** | O hero é pintado só com CSS, o CSS vai inline, as fontes não são pré-carregadas e o JavaScript da cena e da coreografia espera o idle. O Lighthouse mobile marca 92-94 na execução padrão, com LCP real (throttling real) de cerca de 1,1-1,4 s. |
+| **Acessível para quem chega** | Contraste AA nos dois temas, foco visível, chat operável por teclado que devolve o foco a quem o abriu, seções fixadas que nunca prendem o foco e zero violações do axe na auditoria automatizada. |
+| **Em dois idiomas e fácil de encontrar** | Português em `/`, inglês em `/en`, metadados e `hreflang` por idioma, imagens Open Graph geradas, JSON-LD de Person, `robots.txt` e `sitemap.xml`. |
+| **Uma página de vendas na mesma base** | Em [`/robo-de-ofertas`](https://igorgaspar.tech/robo-de-ofertas) eu vendo meu robô de ofertas para WhatsApp como serviço gerenciado. A página é só em português (a rota em inglês dá 404 de propósito), com metadados próprios, JSON-LD de Service com ofertas mensais, CTAs para o WhatsApp com mensagem pronta e o mesmo motion, temas e auditorias axe do portfólio. |
 
 <table>
   <tr>
-    <td width="42%"><img src="docs/screenshots/hero-light.jpg" alt="Hero no tema claro"></td>
-    <td width="42%"><img src="docs/screenshots/agent-inline.jpg" alt="O cartão do agente de IA embutido"></td>
-    <td width="16%"><img src="docs/screenshots/hero-mobile.jpg" alt="Hero no celular"></td>
+    <td width="42%"><img src="docs/screenshots/hero-light-pt.jpg" alt="Hero no tema claro"></td>
+    <td width="42%"><img src="docs/screenshots/agent-inline-pt.jpg" alt="O cartão do agente de IA embutido"></td>
+    <td width="16%"><img src="docs/screenshots/hero-mobile-pt.jpg" alt="Hero no celular"></td>
   </tr>
   <tr>
-    <td align="center"><sub>Tema claro: a cena troca de cor a partir dos design tokens.</sub></td>
-    <td align="center"><sub>O agente, com perguntas sugeridas.</sub></td>
-    <td align="center"><sub>Celular.</sub></td>
+    <td align="center"><sub>No tema claro, a cena troca de cor a partir dos design tokens.</sub></td>
+    <td align="center"><sub>O agente já chega com perguntas sugeridas.</sub></td>
+    <td align="center"><sub>E no celular.</sub></td>
   </tr>
 </table>
 
-## Caminho de uma requisição ao agente
+## O caminho de uma pergunta ao agente
 
 ```mermaid
 flowchart LR
@@ -61,15 +63,15 @@ flowchart LR
   A -->|deltas NDJSON| V
 ```
 
-Toda recusa é uma mensagem curta, no idioma do visitante, que aponta para o e-mail: o chat nunca termina num beco sem saída.
+Quando o agente precisa recusar, o visitante recebe uma mensagem curta, no idioma dele, que aponta para o e-mail. Assim a conversa nunca termina num beco sem saída.
 
-## Stack
+## Com o que foi feito
 
 Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · GSAP + ScrollTrigger + SplitText · Lenis · Motion · React Three Fiber / three.js · Anthropic SDK · Zod · Vitest · Playwright · axe-core · Docker
 
-## Início rápido
+## Para rodar na sua máquina
 
-Requer Node 22.
+Você só precisa do Node 22.
 
 ```bash
 git clone https://github.com/IgorGaspar/portfolio.git
@@ -79,11 +81,11 @@ cp .env.example .env.local   # depois preencha ANTHROPIC_API_KEY
 npm run dev
 ```
 
-Abra http://localhost:3000. Sem o prompt privado do agente (veja abaixo), o agente roda com os modelos genéricos em `content/agent/*.example.md`, então tudo funciona de primeira.
+Depois é só abrir http://localhost:3000. O prompt privado do agente não vem no repositório (explico abaixo), mas não tem problema: sem ele, o agente usa os modelos genéricos em `content/agent/*.example.md`, e tudo funciona de primeira.
 
 ### Variáveis de ambiente
 
-Somente no servidor. Nada aqui recebe o prefixo `NEXT_PUBLIC_`.
+Todas ficam só no servidor: nada aqui recebe o prefixo `NEXT_PUBLIC_`.
 
 | Variável | Para que serve |
 |---|---|
@@ -101,18 +103,18 @@ Somente no servidor. Nada aqui recebe o prefixo `NEXT_PUBLIC_`.
 | `npm run lint` / `npm run typecheck` | ESLint e `tsc --noEmit` |
 | `npm test` | Vitest: biblioteca do agente, route handler e store do chat, com o SDK mockado |
 | `npm run test:e2e` | Playwright: testes de fumaça, navegação por teclado, auditorias axe e o caminho de movimento reduzido. A API do agente é sempre mockada |
-| `npm run eval:agent` | Envia um conjunto fixo de perguntas ao modelo real. **Gasta crédito de API** |
+| `npm run eval:agent` | Envia um conjunto fixo de perguntas ao modelo real. **Atenção: gasta crédito de API** |
 
-## Use como base
+## Quer usar como base?
 
-Pode partir deste código. O que trocar:
+Pode ficar à vontade! Estes são os pontos para deixar o projeto com a sua cara:
 
 1. **Textos e projetos:** `content/pt.ts`, `content/en.ts` e `content/projects.ts` (dicionários tipados, um por idioma).
 2. **Identidade:** `siteUrl` em `lib/i18n.ts`, os metadados em `app/[locale]/layout.tsx` e a imagem Open Graph em `app/[locale]/opengraph-image.tsx`.
-3. **Mídia:** `public/media/` e `assets/` (veja `assets/README.md`). Depois de mudar o visual da cena 3D, regenere os fallbacks estáticos com `node scripts/render-neural-fallback.mjs`.
-4. **O agente:** copie `content/agent/instructions.example.md` para `instructions.md` e `knowledge.example.md` para `knowledge.md`, e preencha. Os dois estão no `.gitignore` de propósito, para que um repositório público não publique as regras do seu agente.
+3. **Mídia:** `public/media/` e `assets/` (veja `assets/README.md`). Se mudar o visual da cena 3D, regenere os fallbacks estáticos com `node scripts/render-neural-fallback.mjs`.
+4. **O agente:** copie `content/agent/instructions.example.md` para `instructions.md` e `knowledge.example.md` para `knowledge.md`, e preencha. Os dois estão no `.gitignore` de propósito, para que um repositório público não exponha as regras do seu agente.
 
-## Estrutura do projeto
+## Como o projeto está organizado
 
 ```
 app/             rotas (portfólio e a página de vendas /robo-de-ofertas), o Route Handler do agente, health check, robots, sitemap
@@ -124,29 +126,29 @@ tests/           specs do Vitest
 scripts/         avaliação do agente e renderização dos fallbacks estáticos
 ```
 
-## Notas de engenharia
+## Decisões que valem uma conversa
 
-Algumas decisões que valem a leitura antes de copiá-las:
+Algumas escolhas que eu explicaria para quem pensa em copiá-las:
 
-- **O prompt é configuração de deploy, não código-fonte.** `instructions.md` e `knowledge.md` são montados no contêiner em `/app/content/agent/`. Fora de produção, um arquivo ausente cai para o seu `.example.md`; em produção é erro, então o agente nunca roda em silêncio sobre um modelo genérico.
-- **O IP do cliente é a última entrada de `x-forwarded-for`.** O site fica atrás de um proxy que acrescenta o endereço que viu. As entradas anteriores vêm do cliente e são forjáveis; confiar nelas deixaria qualquer um burlar o limite com um IP falso novo a cada requisição.
-- **O canvas 3D nunca recebe eventos de ponteiro.** O wrapper do React Three Fiber captura cliques se não for instruído do contrário, o que cobria em silêncio os botões da página quando o canvas estava acima deles. Um teste de regressão cobre isso.
+- **O prompt é configuração de deploy, não código-fonte.** `instructions.md` e `knowledge.md` são montados no contêiner em `/app/content/agent/`. Fora de produção, um arquivo ausente cai para o seu `.example.md`. Em produção é erro, para que o agente nunca rode em silêncio com um modelo genérico.
+- **O IP do cliente é a última entrada de `x-forwarded-for`.** O site fica atrás de um proxy que acrescenta o endereço que viu. As entradas anteriores vêm do cliente e podem ser forjadas: se eu confiasse nelas, qualquer um burlaria o limite com um IP falso a cada requisição.
+- **O canvas 3D nunca recebe eventos de ponteiro.** Se não for instruído do contrário, o wrapper do React Three Fiber captura os cliques, e isso cobria em silêncio os botões da página quando o canvas estava acima deles. Um teste de regressão cuida disso.
 - **O movimento tem um piso.** Todo efeito tem um caminho sob `prefers-reduced-motion`, e o estado de repouso da página é sempre o conteúdo completo.
-- **Os contadores ficam em memória.** O site roda como uma única instância, então o limitador e o teto diário dispensam um armazenamento compartilhado. Com várias réplicas, vai querer Redis.
+- **Os contadores ficam em memória.** O site roda como uma única instância, então o limitador e o teto diário dispensam um armazenamento compartilhado. Com várias réplicas, você vai querer Redis.
 
-## Deploy
+## Como vai para o ar
 
-O app compila com `output: "standalone"` e vai em um contêiner (`Dockerfile`: Node 22 Alpine, usuário sem privilégios, healthcheck em `/api/health`). Roda em uma VPS gerenciada pelo [Coolify](https://coolify.io), que cuida do roteamento e do HTTPS. Qualquer host de contêiner funciona do mesmo jeito: exponha a porta 3000, defina as variáveis de ambiente como variáveis de runtime e monte os dois arquivos de prompt do agente.
+O app compila com `output: "standalone"` e roda em um contêiner (`Dockerfile`: Node 22 Alpine, usuário sem privilégios, healthcheck em `/api/health`). O meu está em uma VPS gerenciada pelo [Coolify](https://coolify.io), que cuida do roteamento e do HTTPS. Qualquer host de contêiner funciona do mesmo jeito: exponha a porta 3000, defina as variáveis de ambiente como variáveis de runtime e monte os dois arquivos de prompt do agente.
 
 ## Licença
 
-O **código** é liberado sob a [Licença MIT](LICENSE): use, altere, publique, e mantenha o aviso de copyright.
+O **código** está sob a [Licença MIT](LICENSE): use, altere e publique, mantendo o aviso de copyright.
 
-O **conteúdo** (textos, descrições de projetos, imagens e a identidade do autor) não é coberto por essa licença e continua © Igor Gaspar. Veja [LICENSE-CONTENT.md](LICENSE-CONTENT.md).
+O **conteúdo** (textos, descrições de projetos, imagens e a identidade do autor) não entra nessa licença e continua © Igor Gaspar. Os detalhes estão em [LICENSE-CONTENT.md](LICENSE-CONTENT.md).
 
-## Autor
+## Vamos conversar?
 
-**Igor Gaspar**, engenheiro de IA e desenvolvedor fullstack.
+Sou **Igor Gaspar**, engenheiro de IA e desenvolvedor fullstack. Se quiser falar sobre este projeto ou sobre um projeto seu, me encontre aqui:
 [igorgaspar.tech](https://igorgaspar.tech) · [LinkedIn](https://www.linkedin.com/in/igorfgaspar) · [GitHub](https://github.com/IgorGaspar)
 
-Se este repositório ajudou, uma estrela é a forma mais gentil de dizer.
+E se este repositório te ajudou, deixe uma estrela. É o jeito mais gentil de me contar!

@@ -2,7 +2,7 @@
 
 # igorgaspar.tech
 
-**A bilingual developer portfolio with a streaming AI agent, a WebGL neural core and scroll choreography that degrades gracefully.**
+**The code behind my website: a portfolio in Portuguese and English, with an AI agent that answers questions about me, a 3D neural core and animations that adapt to every device.**
 
 [Português](README.md) · **English**
 
@@ -18,19 +18,21 @@
 
 </div>
 
-Not a template with the lorem ipsum swapped out: it is the production site of a working engineer, with the parts that usually get skipped done properly. Read it as a reference for how to ship an LLM feature, a heavy 3D hero and an animated page without giving up accessibility, performance or your API bill.
+Hi, I'm Igor! This is the code for the site where I present my work, and it's live at [igorgaspar.tech](https://igorgaspar.tech). If you'd like to see the result before reading the code, start there and ask the agent a question.
 
-## Highlights
+Here you'll find the parts portfolios usually leave out: how to put an LLM feature in production, a heavy 3D hero and a page full of animations without giving up accessibility, performance or control of your API bill. Feel free to read it as a reference, copy what's useful or use the whole project as a starting point.
+
+## What's worth a look
 
 | | |
 |---|---|
-| **An agent you can talk to** | A Route Handler streams answers from the Anthropic API as NDJSON. Origin check, Zod validation, per-IP rate limit and a site-wide daily ceiling sit in front of the model, and the call is cancelled when the visitor closes the chat. The key never reaches the browser. |
-| **3D that earns its bytes** | One fixed React Three Fiber canvas serves the hero and the contact section. It loads on the first user input, grows from a single point, pauses off screen and falls back to a pre-rendered image on weak devices or under reduced motion. |
-| **Motion in three levels** | Full on desktop, light on touch screens, fades-only for `prefers-reduced-motion`. Driven by `data-*` attributes (GSAP, ScrollTrigger, SplitText, Lenis) in its own lazy chunk, so the content never depends on it. |
-| **Fast by construction** | The hero is painted from CSS alone, CSS is inlined, fonts are not preloaded, and the JavaScript for the scene and the choreography waits for idle. Mobile Lighthouse scores 92-94 in the default run, with a real-throttling LCP of about 1.1-1.4 s. |
-| **Accessible** | AA contrast in both themes, visible focus, a keyboard-operable chat dialog that returns focus to its opener, pinned sections that never trap focus, and zero axe violations in the automated audit. |
-| **Bilingual and indexable** | Portuguese at `/`, English at `/en`, per-locale metadata and `hreflang`, generated Open Graph images, Person JSON-LD, `robots.txt` and `sitemap.xml`. |
-| **A sales page on the same stack** | [`/robo-de-ofertas`](https://igorgaspar.tech/robo-de-ofertas) sells my WhatsApp offers bot as a managed service. Portuguese only (the English route is a 404 on purpose), with its own metadata, Service JSON-LD with monthly offers, WhatsApp CTAs with a prefilled message, and the same motion, themes and axe audits as the portfolio. |
+| **An agent you can really talk to** | Answers arrive in real time: a Route Handler streams the Anthropic API's output as NDJSON. Before reaching the model, each request goes through an origin check, Zod validation, a per-IP rate limit and a site-wide daily ceiling. If the visitor closes the chat, the call is cancelled. And the key never reaches the browser. |
+| **3D that earns its bytes** | One fixed React Three Fiber canvas serves the hero and the contact section. It loads on the first user input, grows from a single point and pauses off screen. On weak devices or under reduced motion, it gives way to a pre-rendered image. |
+| **Motion that fits each device** | There are three levels: full on desktop, light on touch screens and fades-only for `prefers-reduced-motion`. Everything is driven by `data-*` attributes (GSAP, ScrollTrigger, SplitText, Lenis) in its own lazy chunk, so the content never depends on the animations. |
+| **Fast from the ground up** | The hero is painted from CSS alone, CSS is inlined, fonts are not preloaded, and the JavaScript for the scene and the choreography waits for idle. Mobile Lighthouse scores 92-94 in the default run, with a real-throttling LCP of about 1.1-1.4 s. |
+| **Accessible to whoever arrives** | AA contrast in both themes, visible focus, a keyboard-operable chat that returns focus to its opener, pinned sections that never trap focus, and zero axe violations in the automated audit. |
+| **In two languages and easy to find** | Portuguese at `/`, English at `/en`, per-locale metadata and `hreflang`, generated Open Graph images, Person JSON-LD, `robots.txt` and `sitemap.xml`. |
+| **A sales page on the same stack** | At [`/robo-de-ofertas`](https://igorgaspar.tech/robo-de-ofertas) I sell my WhatsApp offers bot as a managed service. The page is Portuguese only (the English route is a 404 on purpose), with its own metadata, Service JSON-LD with monthly offers, WhatsApp CTAs with a prefilled message, and the same motion, themes and axe audits as the portfolio. |
 
 <table>
   <tr>
@@ -39,13 +41,13 @@ Not a template with the lorem ipsum swapped out: it is the production site of a 
     <td width="16%"><img src="docs/screenshots/hero-mobile.jpg" alt="Hero on a phone"></td>
   </tr>
   <tr>
-    <td align="center"><sub>Light theme: the scene recolours from the design tokens.</sub></td>
-    <td align="center"><sub>The agent, with suggested questions.</sub></td>
-    <td align="center"><sub>Phone.</sub></td>
+    <td align="center"><sub>In the light theme, the scene recolours from the design tokens.</sub></td>
+    <td align="center"><sub>The agent comes with suggested questions.</sub></td>
+    <td align="center"><sub>And on a phone.</sub></td>
   </tr>
 </table>
 
-## How the agent request flows
+## The path of a question to the agent
 
 ```mermaid
 flowchart LR
@@ -61,15 +63,15 @@ flowchart LR
   A -->|NDJSON deltas| V
 ```
 
-Every refusal is a short message in the visitor's language that points to e-mail, so the chat never ends in a dead end.
+When the agent has to refuse, the visitor gets a short message in their own language that points to e-mail. That way the conversation never ends in a dead end.
 
-## Stack
+## What it's made with
 
 Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · GSAP + ScrollTrigger + SplitText · Lenis · Motion · React Three Fiber / three.js · Anthropic SDK · Zod · Vitest · Playwright · axe-core · Docker
 
-## Quick start
+## Run it on your machine
 
-Requires Node 22.
+All you need is Node 22.
 
 ```bash
 git clone https://github.com/IgorGaspar/portfolio.git
@@ -79,11 +81,11 @@ cp .env.example .env.local   # then fill in ANTHROPIC_API_KEY
 npm run dev
 ```
 
-Open http://localhost:3000. Without the private agent prompt (see below) the agent runs on the generic templates in `content/agent/*.example.md`, so everything works out of the box.
+Then just open http://localhost:3000. The agent's private prompt isn't in the repository (I explain why below), but that's fine: without it, the agent uses the generic templates in `content/agent/*.example.md`, and everything works out of the box.
 
-### Environment
+### Environment variables
 
-Server-side only. Nothing here is ever prefixed with `NEXT_PUBLIC_`.
+They all stay on the server: nothing here is ever prefixed with `NEXT_PUBLIC_`.
 
 | Variable | Purpose |
 |---|---|
@@ -101,18 +103,18 @@ Server-side only. Nothing here is ever prefixed with `NEXT_PUBLIC_`.
 | `npm run lint` / `npm run typecheck` | ESLint and `tsc --noEmit` |
 | `npm test` | Vitest: agent library, route handler and chat store, with the SDK mocked |
 | `npm run test:e2e` | Playwright: smoke tests, keyboard navigation, axe audits and the reduced-motion path. The agent API is always mocked |
-| `npm run eval:agent` | Sends a fixed question set to the real model. **Spends API credit** |
+| `npm run eval:agent` | Sends a fixed question set to the real model. **Heads up: it spends API credit** |
 
-## Use it as a base
+## Want to use it as a base?
 
-You are welcome to start from this code. What to change:
+Go right ahead! These are the places to make the project your own:
 
 1. **Copy and projects:** `content/pt.ts`, `content/en.ts` and `content/projects.ts` (typed dictionaries, one per language).
-2. **Identity:** `siteUrl` in `lib/i18n.ts`, the metadata in `app/[locale]/layout.tsx`, the Open Graph image in `app/[locale]/opengraph-image.tsx`.
-3. **Media:** `public/media/` and `assets/` (see `assets/README.md`). After changing the look of the 3D scene, regenerate the static fallbacks with `node scripts/render-neural-fallback.mjs`.
-4. **The agent:** copy `content/agent/instructions.example.md` to `instructions.md` and `knowledge.example.md` to `knowledge.md`, then fill them in. Both are git-ignored on purpose, so a public repository does not publish your agent's rules.
+2. **Identity:** `siteUrl` in `lib/i18n.ts`, the metadata in `app/[locale]/layout.tsx` and the Open Graph image in `app/[locale]/opengraph-image.tsx`.
+3. **Media:** `public/media/` and `assets/` (see `assets/README.md`). If you change the look of the 3D scene, regenerate the static fallbacks with `node scripts/render-neural-fallback.mjs`.
+4. **The agent:** copy `content/agent/instructions.example.md` to `instructions.md` and `knowledge.example.md` to `knowledge.md`, then fill them in. Both are git-ignored on purpose, so a public repository doesn't expose your agent's rules.
 
-## Project layout
+## How the project is organised
 
 ```
 app/             routes (portfolio and the /robo-de-ofertas sales page), the agent Route Handler, health check, robots, sitemap
@@ -124,29 +126,29 @@ tests/           Vitest specs
 scripts/         agent evaluation and static fallback rendering
 ```
 
-## Engineering notes
+## Decisions worth a conversation
 
-A few decisions worth reading before you copy them:
+A few choices I'd explain to anyone thinking of copying them:
 
-- **The prompt is deployment config, not source.** `instructions.md` and `knowledge.md` are mounted into the container at `/app/content/agent/`. Outside production a missing file falls back to its `.example.md`; in production it is an error, so the agent can never silently run on a template.
-- **The client IP is the last `x-forwarded-for` entry.** The site sits behind one proxy that appends the address it saw. Earlier entries are client-supplied and forgeable, and trusting them would let anyone bypass the rate limit with a new fake IP per request.
-- **The 3D canvas never takes pointer events.** React Three Fiber's wrapper catches clicks unless told otherwise, which silently covered the page's buttons while the canvas was raised above them. A regression test checks it.
+- **The prompt is deployment config, not source.** `instructions.md` and `knowledge.md` are mounted into the container at `/app/content/agent/`. Outside production, a missing file falls back to its `.example.md`. In production it's an error, so the agent can never silently run on a template.
+- **The client IP is the last `x-forwarded-for` entry.** The site sits behind one proxy that appends the address it saw. Earlier entries are client-supplied and can be forged: if I trusted them, anyone could bypass the rate limit with a fake IP per request.
+- **The 3D canvas never takes pointer events.** Unless told otherwise, React Three Fiber's wrapper catches clicks, and that silently covered the page's buttons while the canvas was raised above them. A regression test takes care of it.
 - **Motion has a floor.** Every effect has a path under `prefers-reduced-motion`, and the resting state of the page is always the complete content.
-- **Counters live in memory.** The site runs as a single instance, so the rate limiter and the daily ceiling need no shared store. Run several replicas and you will want Redis.
+- **Counters live in memory.** The site runs as a single instance, so the rate limiter and the daily ceiling need no shared store. With several replicas, you'll want Redis.
 
-## Deployment
+## How it goes live
 
-The app builds with `output: "standalone"` and ships as a container (`Dockerfile`: Node 22 Alpine, non-root user, healthcheck on `/api/health`). It runs on a VPS managed by [Coolify](https://coolify.io), which handles routing and HTTPS. Any container host works the same way: expose port 3000, set the environment variables as runtime variables, and mount the two agent prompt files.
+The app builds with `output: "standalone"` and runs as a container (`Dockerfile`: Node 22 Alpine, non-root user, healthcheck on `/api/health`). Mine lives on a VPS managed by [Coolify](https://coolify.io), which handles routing and HTTPS. Any container host works the same way: expose port 3000, set the environment variables as runtime variables, and mount the two agent prompt files.
 
 ## License
 
-The **code** is released under the [MIT License](LICENSE): use it, change it, ship it, and keep the copyright notice.
+The **code** is under the [MIT License](LICENSE): use it, change it and ship it, keeping the copyright notice.
 
-The **content** (copy, project descriptions, images and the author's identity) is not covered by that license and stays © Igor Gaspar. See [LICENSE-CONTENT.md](LICENSE-CONTENT.md).
+The **content** (copy, project descriptions, images and the author's identity) isn't covered by that license and stays © Igor Gaspar. The details are in [LICENSE-CONTENT.md](LICENSE-CONTENT.md).
 
-## Author
+## Let's talk?
 
-**Igor Gaspar**, AI engineer and fullstack developer.
+I'm **Igor Gaspar**, an AI engineer and fullstack developer. If you'd like to talk about this project or one of your own, here's where to find me:
 [igorgaspar.tech](https://igorgaspar.tech) · [LinkedIn](https://www.linkedin.com/in/igorfgaspar) · [GitHub](https://github.com/IgorGaspar)
 
-If this repository helped you, a star is the kindest way to say so.
+And if this repository helped you, leave a star. It's the kindest way to let me know!
