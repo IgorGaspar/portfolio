@@ -12,18 +12,13 @@ import { buildNetwork, linesFragment, linesVertex, pointsFragment, pointsVertex 
 const MAX_TILT = THREE.MathUtils.degToRad(8);
 // The scene mounts on the visitor's first input, so it opens up from a point instead of popping in.
 const INTRO_MS = 1900;
+// Centre of the dock's mascot (64 px wide, 12 px from the corner) from the screen edges.
+const CORNER_OFFSET = 44;
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
 const smoothstep = (edge0: number, edge1: number, value: number) => {
   const t = clamp01((value - edge0) / (edge1 - edge0));
   return t * t * (3 - 2 * t);
 };
-
-/** The agent icon is faded and scaled in by the frame loop; this puts it back to normal. */
-function resetIcon() {
-  const icon = document.querySelector<HTMLElement>("[data-agent-core]");
-  icon?.style.removeProperty("opacity");
-  icon?.style.removeProperty("scale");
-}
 
 const cssColor = (name: string) =>
   new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue(name).trim());
@@ -117,9 +112,6 @@ function Network({ count, interactive }: NetworkProps) {
     return () => window.removeEventListener("pointermove", onMove);
   }, [interactive]);
 
-  // The agent icon fades in as the core arrives; it must never stay half-faded.
-  useEffect(() => () => resetIcon(), []);
-
   const center = useRef(new THREE.Vector3());
   const born = useRef<number | null>(null);
 
@@ -129,8 +121,6 @@ function Network({ count, interactive }: NetworkProps) {
 
     const viewportHeight = window.innerHeight;
     const hero = document.querySelector("[data-hero]")?.getBoundingClientRect();
-    const icon = document.querySelector<HTMLElement>("[data-agent-core]");
-    const layer = state.gl.domElement.closest<HTMLElement>("[data-neural-canvas]");
 
     // Hero: 0 at the top of the page, 1 when the hero has scrolled away.
     const progress = hero ? clamp01(-hero.top / hero.height) : 1;
@@ -158,28 +148,25 @@ function Network({ count, interactive }: NetworkProps) {
     let follow = false;
 
     if (inHero) {
-      // 0-60%: the network condenses into the core. 60-100%: the core flies to the
-      // agent icon, shrinking to a small dot that turns into the mascot as it lands.
-      condense = Math.max(smoothstep(0, 0.6, progress), intro);
-      const travel = smoothstep(0.55, 0.97, progress);
-      const landing = smoothstep(0.8, 0.97, progress);
-      opacity = (1 - smoothstep(0.9, 1, progress)) * smoothstep(0, 0.12, introT);
+      // Pages with the agent dock: 0-30% the network condenses into the core, 25-50% the core
+      // shrinks to a small dot and flies to the corner, where the dock swaps it for the mascot
+      // (see AgentDock). Elsewhere it only condenses and fades out with the hero.
+      const toCorner = Boolean(document.getElementById("agent"));
+      const end = toCorner ? 0.5 : 1;
+      condense = Math.max(smoothstep(0, end * 0.6, progress), intro);
+      opacity = (1 - smoothstep(end * 0.9, end, progress)) * smoothstep(0, 0.12, introT);
       follow = interactive;
-      u.uScale.value = 1 - 0.8 * landing;
-
-      if (icon) {
-        const rect = icon.getBoundingClientRect();
-        towards(rect.left + rect.width / 2, rect.top + rect.height / 2, travel);
-        // Hidden for the whole flight, so it only ever appears where the core lands,
-        // growing from the dot's size into the mascot.
-        icon.style.opacity = String(landing);
-        icon.style.scale = String(0.35 + 0.65 * landing);
+      if (toCorner) {
+        u.uScale.value = 1 - 0.8 * smoothstep(0.2, 0.5, progress);
+        towards(
+          window.innerWidth - CORNER_OFFSET,
+          viewportHeight - CORNER_OFFSET,
+          smoothstep(0.25, 0.5, progress),
+        );
       } else {
+        u.uScale.value = 1;
         u.uShift.value.set(0, 0);
       }
-      // The agent card is opaque, so the core has to fly in front of the page to reach it.
-      if (travel > 0) layer?.style.setProperty("z-index", "30");
-      else layer?.style.removeProperty("z-index");
     } else {
       // Contact: the reverse of the hero. Once the "work with me" line has filled,
       // a small core leaves its end and opens up into the calm network.
@@ -200,9 +187,6 @@ function Network({ count, interactive }: NetworkProps) {
       u.uScale.value = 1;
       if (fill) towards(fill.right, fill.bottom, 1 - smoothstep(0, 0.85, opening));
       else u.uShift.value.set(0, 0);
-
-      resetIcon();
-      layer?.style.removeProperty("z-index");
     }
 
     u.uTime.value += delta;
@@ -216,7 +200,7 @@ function Network({ count, interactive }: NetworkProps) {
     u.uResolution.value.set(size.width, size.height);
     u.uSize.value = (narrow ? 2.2 : 2.6) * state.gl.getPixelRatio();
     // On narrow screens the open network sits behind the text, so it is dimmed to keep the text
-    // readable; the condensed core (flying to the agent icon) is small and must stay visible.
+    // readable; the condensed core (flying to the corner) is small and must stay visible.
     u.uOpacity.value = opacity * (narrow ? 0.45 + 0.55 * condense : 1);
 
     // The contact version is calmer: a third of the points, no lines, no pointer play.
@@ -288,15 +272,6 @@ export default function NeuralScene({ count, interactive, onFailure }: Props) {
       document.removeEventListener("visibilitychange", update);
     };
   }, []);
-
-  // When rendering stops, the agent icon must not be left half-faded and the canvas
-  // must not stay raised above the page (the frame loop that lowers it has stopped).
-  useEffect(() => {
-    if (!active) {
-      resetIcon();
-      document.querySelector<HTMLElement>("[data-neural-canvas]")?.style.removeProperty("z-index");
-    }
-  }, [active]);
 
   return (
     <div
