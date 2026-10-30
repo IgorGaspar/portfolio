@@ -6,11 +6,39 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { agent, useAgent } from "@/lib/agent-store";
 import { contact } from "@/lib/contact";
 import type { Locale } from "@/lib/i18n";
-import { FLIGHT_MS, startFlight } from "../three/flight";
 import { Gasparzinho, type GasparzinhoState } from "./Gasparzinho";
 import { ChatBox, type ChatLabels } from "./ChatBox";
 
 const DESKTOP_QUERY = "(min-width: 768px)";
+const REDUCED_QUERY = "(prefers-reduced-motion: reduce)";
+const FLIGHT_MS = 650;
+const MASCOT_PX = 64;
+
+type Point = { x: number; y: number };
+
+/**
+ * Flies the mascot element between two screen points (its centre) on a slight arc. The
+ * sprite flies facing right, so it is mirrored when the flight heads left.
+ * `to` is read every frame, so a target that scrolls with the page is still reached.
+ * Returns a function that cancels the flight.
+ */
+function fly(el: HTMLElement, from: Point, to: () => Point, onDone: () => void) {
+  const start = performance.now();
+  const mirror = to().x < from.x ? " scaleX(-1)" : "";
+  let frame = 0;
+  const step = (now: number) => {
+    const t = Math.min(1, (now - start) / FLIGHT_MS);
+    const eased = t * t * (3 - 2 * t);
+    const end = to();
+    const x = from.x + (end.x - from.x) * eased - MASCOT_PX / 2;
+    const y = from.y + (end.y - from.y) * eased - Math.sin(Math.PI * eased) * 48 - MASCOT_PX / 2;
+    el.style.transform = `translate3d(${x}px, ${y}px, 0)${mirror}`;
+    if (t < 1) frame = requestAnimationFrame(step);
+    else onDone();
+  };
+  frame = requestAnimationFrame(step);
+  return () => cancelAnimationFrame(frame);
+}
 
 const subscribeDesktop = (onChange: () => void) => {
   const query = window.matchMedia(DESKTOP_QUERY);
@@ -31,6 +59,7 @@ export function AgentDock({ locale, labels, raised = false }: Props) {
   const [buttonVisible, setButtonVisible] = useState(false);
   const [landing, setLanding] = useState(false);
   const [attended, setAttended] = useState(false);
+  const flierRef = useRef<HTMLSpanElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const openerRef = useRef<HTMLElement | null>(null);
   const isDesktop = useSyncExternalStore(
@@ -40,47 +69,84 @@ export function AgentDock({ locale, labels, raised = false }: Props) {
   );
 
   // The floating button appears once the inline chat has scrolled out above the
-  // viewport. Where the 3D scene is running, the agent's core flies down from the
-  // chat to the corner first, and the button fades in as it lands.
+  // viewport: the mascot flies from the chat icon to the corner and rests there. When the
+  // chat icon scrolls back into view, the mascot flies back up to take its place.
   useEffect(() => {
     const section = document.getElementById("agent");
-    if (!section) return;
+    const icon = document.querySelector<HTMLElement>("[data-agent-core]");
+    const flier = flierRef.current;
+    if (!section || !icon || !flier) return;
     let timer = 0;
+    let cancel = () => {};
     let firstCheck = true;
     let wasPast = false;
+    let shown = false;
 
-    const observer = new IntersectionObserver(([entry]) => {
+    const reduced = () => window.matchMedia(REDUCED_QUERY).matches;
+    const corner = (): Point => ({
+      x: window.innerWidth - MASCOT_PX / 2 - 12,
+      // 80 px up when the button is raised above the bottom bar on phones.
+      y: window.innerHeight - MASCOT_PX / 2 - 12 - (raised && window.innerWidth < 640 ? 68 : 0),
+    });
+    const iconCentre = (): Point => {
+      const rect = icon.getBoundingClientRect();
+      return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    };
+    const land = () => {
+      flier.style.visibility = "hidden";
+      icon.style.removeProperty("visibility");
+    };
+    const show = (value: boolean) => {
+      shown = value;
+      setButtonVisible(value);
+    };
+
+    const sectionObserver = new IntersectionObserver(([entry]) => {
       const past = !entry.isIntersecting && entry.boundingClientRect.bottom < 0;
       const arriving = past && !wasPast && !firstCheck;
+      const returning = !past && wasPast;
       firstCheck = false;
       wasPast = past;
-      window.clearTimeout(timer);
 
-      const icon = document.querySelector("[data-agent-core]")?.getBoundingClientRect();
-      const flying =
-        arriving &&
-        icon !== undefined &&
-        !window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
-        startFlight(
-          { x: icon.left + icon.width / 2, y: -24 },
-          // Centre of the mascot: 64 px wide, 12 px from the corner (80 px up when raised on phones).
-          {
-            x: window.innerWidth - 44,
-            y: window.innerHeight - 44 - (raised && window.innerWidth < 640 ? 68 : 0),
-          },
-        );
-
-      if (flying) {
+      if (arriving && !reduced()) {
+        window.clearTimeout(timer);
+        cancel();
+        const from = { x: iconCentre().x, y: -24 };
+        flier.style.visibility = "visible";
+        cancel = fly(flier, from, corner, land);
         timer = window.setTimeout(() => {
           setLanding(true);
-          setButtonVisible(true);
+          show(true);
         }, FLIGHT_MS * 0.8);
-      } else setButtonVisible(past);
+      } else if (!returning || reduced()) {
+        window.clearTimeout(timer);
+        show(past);
+      }
+      // Returning with motion: the button stays until the chat icon is in view (below).
     });
-    observer.observe(section);
+
+    const iconObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting || !shown || wasPast || reduced()) return;
+        window.clearTimeout(timer);
+        cancel();
+        // The icon stays hidden until the mascot lands on it.
+        icon.style.visibility = "hidden";
+        show(false);
+        flier.style.visibility = "visible";
+        cancel = fly(flier, corner(), iconCentre, land);
+      },
+      { rootMargin: "0px 0px -15% 0px" },
+    );
+
+    sectionObserver.observe(section);
+    iconObserver.observe(icon);
     return () => {
-      observer.disconnect();
+      sectionObserver.disconnect();
+      iconObserver.disconnect();
       window.clearTimeout(timer);
+      cancel();
+      icon.style.removeProperty("visibility");
     };
   }, [raised]);
 
@@ -161,6 +227,15 @@ export function AgentDock({ locale, labels, raised = false }: Props) {
             </m.button>
           )}
         </AnimatePresence>
+
+        {/* The mascot in flight between the chat icon and the corner (see `fly`). */}
+        <span
+          ref={flierRef}
+          aria-hidden="true"
+          className="pointer-events-none fixed left-0 top-0 z-40 invisible"
+        >
+          <Gasparzinho state="flying" size={MASCOT_PX} />
+        </span>
 
         <dialog
           ref={dialogRef}
