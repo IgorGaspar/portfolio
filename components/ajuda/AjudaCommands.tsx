@@ -39,7 +39,12 @@ export function AjudaCommands() {
       </p>
 
       {rows.length > 0 && (
-        <div className="mt-4 overflow-x-auto rounded-xl border border-border">
+        <div
+          role="region"
+          aria-label={ajuda.commands.search}
+          tabIndex={0}
+          className="mt-4 overflow-x-auto rounded-xl border border-border"
+        >
           <table className="w-full min-w-[34rem] text-left text-sm">
             <thead className="bg-surface text-muted">
               <tr>

@@ -40,8 +40,10 @@ const productsFile = path.join(agentDir, "products.md");
 
 /** Instructions with the knowledge base injected. Stable across requests so it can be cached. */
 export function getSystemPrompt(): string {
-  const knowledge = `${readAgentFile("knowledge.md")}\n\n${readFileSync(productsFile, "utf8").trim()}`;
-  cachedSystem ??= readAgentFile("instructions.md").replace(KNOWLEDGE_PLACEHOLDER, knowledge);
+  if (cachedSystem === undefined) {
+    const knowledge = `${readAgentFile("knowledge.md")}\n\n${readFileSync(productsFile, "utf8").trim()}`;
+    cachedSystem = readAgentFile("instructions.md").replace(KNOWLEDGE_PLACEHOLDER, knowledge);
+  }
   return cachedSystem;
 }
 

@@ -19,7 +19,7 @@ function Cell({ text }: { text: string }) {
 /** Renders the blocks of one help section (see content/ajuda.ts). */
 export function AjudaBlocks({ blocks }: { blocks: Block[] }) {
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 break-words">
       {blocks.map((block, i) => {
         switch (block.type) {
           case "p":
@@ -54,7 +54,7 @@ export function AjudaBlocks({ blocks }: { blocks: Block[] }) {
                       <span aria-hidden="true" className="font-mono text-sm text-accent">
                         {String(n + 1).padStart(2, "0")}
                       </span>
-                      <h4 className="font-semibold">{step.title}</h4>
+                      <h3 className="font-semibold">{step.title}</h3>
                     </div>
                     {step.body && <p className="mt-2 text-muted">{step.body}</p>}
                     {step.code && <CodeBox text={step.code} />}
@@ -81,7 +81,14 @@ export function AjudaBlocks({ blocks }: { blocks: Block[] }) {
             );
           case "table":
             return (
-              <div key={i} className="overflow-x-auto rounded-xl border border-border">
+              // Focusable so the table can be scrolled sideways from the keyboard on phones.
+              <div
+                key={i}
+                role="region"
+                aria-label={block.head.join(", ")}
+                tabIndex={0}
+                className="overflow-x-auto rounded-xl border border-border"
+              >
                 <table className="w-full min-w-[28rem] text-left text-sm">
                   <thead className="bg-surface text-muted">
                     <tr>
@@ -145,7 +152,9 @@ export function AjudaBlocks({ blocks }: { blocks: Block[] }) {
 function CodeBox({ text }: { text: string }) {
   return (
     <div className="mt-3 flex items-start justify-between gap-3 rounded-xl border border-border bg-bg p-3">
-      <pre className="min-w-0 overflow-x-auto font-mono text-sm">{text}</pre>
+      <pre tabIndex={0} className="min-w-0 overflow-x-auto font-mono text-sm">
+        {text}
+      </pre>
       <CopyButton value={text} label={ajuda.topicPage.copy} copiedLabel={ajuda.topicPage.copied} />
     </div>
   );
