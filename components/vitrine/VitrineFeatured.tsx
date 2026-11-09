@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { vitrine } from "@/content/vitrine";
+import { DeviceMockup } from "../media/DeviceMockup";
 import { BotClip } from "../robo/BotClip";
 import { Badge } from "../ui/Badge";
 import { SectionHeading } from "../ui/SectionHeading";
@@ -47,7 +47,7 @@ export function VitrineFeatured() {
         <article
           data-reveal="up"
           aria-labelledby="monai-title"
-          className="mt-8 grid items-center gap-10 rounded-2xl border border-accent/40 bg-surface p-6 sm:p-10 lg:grid-cols-[1fr_1fr] lg:gap-14"
+          className="mt-8 rounded-2xl border border-accent/40 bg-surface p-6 sm:p-10"
         >
           <div className="min-w-0">
             <Badge>{monai.badge}</Badge>
@@ -56,7 +56,12 @@ export function VitrineFeatured() {
             </h3>
             <p className="mt-5 max-w-2xl text-lead text-muted">{monai.body}</p>
             <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
-              <a href={monai.href} target="_blank" rel="noopener noreferrer" className="btn btn-solid">
+              <a
+                href={monai.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-solid"
+              >
                 {monai.cta}
               </a>
               <Link href={monai.howItWasMade} className="link py-2 text-sm">
@@ -64,14 +69,14 @@ export function VitrineFeatured() {
               </Link>
             </div>
           </div>
-          <Image
-            src={monai.image.src}
-            alt={monai.image.alt}
-            width={monai.image.width}
-            height={monai.image.height}
-            sizes="(min-width: 1024px) 560px, 100vw"
-            className="aspect-[4/3] h-auto w-full rounded-xl border border-border object-cover object-top"
-          />
+          {/* Below the text and as wide as the card, so the app can be read. */}
+          {monai.screens && (
+            <DeviceMockup
+              screens={monai.screens}
+              label={monai.screensAlt}
+              className="mx-auto mt-12 max-w-5xl"
+            />
+          )}
         </article>
       </div>
     </section>

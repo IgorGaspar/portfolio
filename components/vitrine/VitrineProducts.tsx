@@ -1,11 +1,11 @@
-import Image from "next/image";
 import Link from "next/link";
 import { vitrine } from "@/content/vitrine";
+import { DeviceMockup } from "../media/DeviceMockup";
 import { WhatsAppLink } from "../robo/WhatsAppLink";
 import { Badge } from "../ui/Badge";
 import { SectionHeading } from "../ui/SectionHeading";
 
-/** One card per product or service, in the same format so the grid can grow. */
+/** One card per product or service, in the same format so the list can grow. */
 export function VitrineProducts() {
   const { products } = vitrine;
 
@@ -14,24 +14,14 @@ export function VitrineProducts() {
       <div className="container-page">
         <SectionHeading id="products-title" title={products.title} subtitle={products.subtitle} />
 
-        <ul className="mt-16 grid gap-8 lg:grid-cols-2">
+        <ul className="mt-16 grid gap-8">
           {products.items.map((item) => (
             <li key={item.id} data-reveal="up" className="flex">
               <article
                 aria-labelledby={`product-${item.id}`}
                 className="flex w-full flex-col overflow-hidden rounded-2xl border border-border bg-surface"
               >
-                {item.image && (
-                  <Image
-                    src={item.image.src}
-                    alt={item.image.alt}
-                    width={item.image.width}
-                    height={item.image.height}
-                    sizes="(min-width: 1024px) 600px, 100vw"
-                    className="aspect-[4/3] h-auto w-full border-b border-border object-cover object-top"
-                  />
-                )}
-                <div className="flex flex-1 flex-col p-6 sm:p-8">
+                <div className="flex flex-1 flex-col p-6 sm:p-10">
                   <div>
                     <Badge>{item.badge}</Badge>
                   </div>
@@ -57,6 +47,16 @@ export function VitrineProducts() {
                     </Link>
                   </div>
                 </div>
+                {/* Below the text and as wide as the card, so the screens can be read. */}
+                {item.screens && item.screensAlt && (
+                  <div className="border-t border-border bg-bg px-6 py-10 sm:px-10">
+                    <DeviceMockup
+                      screens={item.screens}
+                      label={item.screensAlt}
+                      className="mx-auto max-w-5xl"
+                    />
+                  </div>
+                )}
               </article>
             </li>
           ))}

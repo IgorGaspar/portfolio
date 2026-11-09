@@ -87,7 +87,8 @@ export const en: Dictionary = {
           "GitHub Actions",
         ],
         linkNote: "(app interface in Portuguese)",
-        mediaAlt: "MonAI screen with the agent input and bank accounts",
+        mediaAlt:
+          "MonAI on a laptop and a phone: an expense is written in plain language, the agent shows a preview with account, category and new balance, and the entry is confirmed",
       },
       b2b: {
         badge: "Engineering case · live",
@@ -114,6 +115,8 @@ export const en: Dictionary = {
           "Tavily",
           "Railway",
         ],
+        mediaAlt:
+          "B2B agent dashboard on a laptop and a phone, with the event funnel: total leads, confirmed attendance, booked meetings and distribution by stage",
         diagram: {
           label:
             "Architecture diagram: Telegram → Agent (Claude + 8 tools) → Supabase · Sequence scheduler → Telegram · Enrichment → Agent",
@@ -153,7 +156,8 @@ export const en: Dictionary = {
           "Vercel",
         ],
         linkNote: "(site in Portuguese)",
-        mediaAlt: "Home page of the EstetiCaah website",
+        mediaAlt:
+          "EstetiCaah website on a laptop and a phone: a tour of the page and the Luna assistant answering a question about a treatment",
         diagram: {
           label:
             "Architecture diagram: Website (treatment) → Typebot → n8n → Claude Sonnet 4.6 → Clinic's WhatsApp",
@@ -322,6 +326,8 @@ export const en: Dictionary = {
     stop: "Stop",
     openAgent: "Open the agent",
     close: "Close",
+    enlargeDesktop: "Enlarge the laptop screen",
+    enlargeMobile: "Enlarge the phone screen",
     you: "You",
     agentName: "Agent",
     whatsappHire: "Hi Igor! I saw your portfolio and I'd like to talk about a role at my company.",
