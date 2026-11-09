@@ -108,6 +108,8 @@ export type Dictionary = {
     stop: string;
     openAgent: string;
     close: string;
+    enlargeDesktop: string;
+    enlargeMobile: string;
     you: string;
     agentName: string;
     /** Messages sent to Igor on WhatsApp. */

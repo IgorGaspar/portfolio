@@ -25,13 +25,13 @@ export const projects: Record<ProjectId, ProjectData> = {
     link: { label: "monai.page", href: "https://monai.page" },
     screens: {
       desktop: {
-        image: { src: "/media/monai.webp", width: 1280, height: 800 },
+        image: { src: "/media/monai.webp", width: 1072, height: 670 },
         clip: {
           webm: "/media/monai-agente.webm",
           mp4: "/media/monai-agente.mp4",
           poster: "/media/monai.webp",
-          width: 1280,
-          height: 800,
+          width: 1072,
+          height: 670,
         },
       },
       mobile: {

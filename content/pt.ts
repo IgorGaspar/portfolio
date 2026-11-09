@@ -325,6 +325,8 @@ export const pt: Dictionary = {
     stop: "Parar",
     openAgent: "Abrir o agente",
     close: "Fechar",
+    enlargeDesktop: "Ampliar a tela do computador",
+    enlargeMobile: "Ampliar a tela do celular",
     you: "Você",
     agentName: "Agente",
     whatsappHire: "Oi, Igor! Vi o seu portfólio e quero conversar sobre uma vaga na minha empresa.",

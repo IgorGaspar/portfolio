@@ -1,38 +1,10 @@
 import Link from "next/link";
 import type { Dictionary } from "@/content";
-import { type ProjectData, projectIds, projects } from "@/content/projects";
+import { projectIds, projects } from "@/content/projects";
 import { DeviceMockup } from "../media/DeviceMockup";
 import { ArchitectureDiagram } from "../diagrams/ArchitectureDiagram";
 import { Badge } from "../ui/Badge";
 import { SectionHeading } from "../ui/SectionHeading";
-
-/** The project on a laptop and a phone, linking to it when it is online. */
-function ProjectMedia({ data, alt, view }: { data: ProjectData; alt: string; view: string }) {
-  if (!data.screens) return null;
-  const mockup = (
-    // Smaller on wide screens, where the card is pinned and also holds the diagram.
-    <DeviceMockup
-      screens={data.screens}
-      label={alt}
-      width="360px"
-      className="mx-auto lg:max-w-[360px]"
-    />
-  );
-
-  return data.link ? (
-    <a
-      href={data.link.href}
-      target="_blank"
-      rel="noopener noreferrer"
-      data-cursor={`${view} ↗`}
-      className="block shrink-0"
-    >
-      {mockup}
-    </a>
-  ) : (
-    <div className="shrink-0">{mockup}</div>
-  );
-}
 
 const labelClass = "font-mono text-xs uppercase tracking-widest text-muted";
 
@@ -54,19 +26,19 @@ export function Projects({ dict }: { dict: Dictionary }) {
           </Link>
         )}
 
-        <div data-projects-viewport className="mt-16">
-          <div data-projects-track className="space-y-10">
-            {projectIds.map((id, i) => {
-              const data = projects[id];
-              const copy = dict.projects.items[id];
+        <div className="mt-16 space-y-10">
+          {projectIds.map((id, i) => {
+            const data = projects[id];
+            const copy = dict.projects.items[id];
 
-              return (
-                <article
-                  key={id}
-                  aria-labelledby={`project-${id}`}
-                  data-project
-                  className="project-card grid gap-10 rounded-2xl border border-border bg-surface p-6 sm:p-10 lg:grid-cols-2 lg:gap-14"
-                >
+            return (
+              <article
+                key={id}
+                aria-labelledby={`project-${id}`}
+                data-project
+                className="project-card rounded-2xl border border-border bg-surface p-6 sm:p-10"
+              >
+                <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
                   <div data-project-text className="min-w-0">
                     <div data-project-text-inner>
                       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -95,65 +67,61 @@ export function Projects({ dict }: { dict: Dictionary }) {
                           <dd className="mt-2 text-muted">{copy.solution}</dd>
                         </div>
                       </dl>
-
-                      <details className="group mt-8 rounded-xl border border-border">
-                        <summary className="flex list-none items-center justify-between gap-4 px-4 py-3 font-medium">
-                          {ui.lookInside}
-                          <span
-                            aria-hidden="true"
-                            className="font-mono text-accent transition-transform group-open:rotate-45"
-                          >
-                            +
-                          </span>
-                        </summary>
-                        <div className="border-t border-border px-4 py-4">
-                          <h4 className={labelClass}>{ui.engineering}</h4>
-                          <ul className="mt-3 space-y-2 text-sm text-muted">
-                            {copy.engineering.map((item) => (
-                              <li key={item} className="flex gap-3">
-                                <span
-                                  aria-hidden="true"
-                                  className="mt-2 size-1 shrink-0 rounded-full bg-accent"
-                                />
-                                {item}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </details>
-
-                      <h4 className={`mt-8 ${labelClass}`}>{ui.stack}</h4>
-                      <ul className="mt-3 flex flex-wrap gap-2">
-                        {copy.stack.map((item) => (
-                          <li key={item} className="pill bg-bg">
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-
-                      {data.link && (
-                        <p className="mt-8 text-sm">
-                          <span className="sr-only">{ui.links}: </span>
-                          <a
-                            href={data.link.href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="link"
-                          >
-                            {data.link.label} ↗
-                          </a>
-                          {copy.linkNote && (
-                            <span className="ml-2 text-muted">{copy.linkNote}</span>
-                          )}
-                        </p>
-                      )}
                     </div>
                   </div>
 
-                  <div data-project-media className="flex min-w-0 flex-col justify-center gap-6">
-                    <ProjectMedia data={data} alt={copy.mediaAlt ?? ""} view={ui.view} />
+                  <div className="min-w-0">
+                    <details className="group rounded-xl lg:mt-8 border border-border">
+                      <summary className="flex list-none items-center justify-between gap-4 px-4 py-3 font-medium">
+                        {ui.lookInside}
+                        <span
+                          aria-hidden="true"
+                          className="font-mono text-accent transition-transform group-open:rotate-45"
+                        >
+                          +
+                        </span>
+                      </summary>
+                      <div className="border-t border-border px-4 py-4">
+                        <h4 className={labelClass}>{ui.engineering}</h4>
+                        <ul className="mt-3 space-y-2 text-sm text-muted">
+                          {copy.engineering.map((item) => (
+                            <li key={item} className="flex gap-3">
+                              <span
+                                aria-hidden="true"
+                                className="mt-2 size-1 shrink-0 rounded-full bg-accent"
+                              />
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </details>
+
+                    <h4 className={`mt-8 ${labelClass}`}>{ui.stack}</h4>
+                    <ul className="mt-3 flex flex-wrap gap-2">
+                      {copy.stack.map((item) => (
+                        <li key={item} className="pill bg-bg">
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+
+                    {data.link && (
+                      <p className="mt-8 text-sm">
+                        <span className="sr-only">{ui.links}: </span>
+                        <a
+                          href={data.link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="link"
+                        >
+                          {data.link.label} ↗
+                        </a>
+                        {copy.linkNote && <span className="ml-2 text-muted">{copy.linkNote}</span>}
+                      </p>
+                    )}
                     {data.diagram && copy.diagram && (
-                      <div className="rounded-xl border border-border bg-bg p-4">
+                      <div className="mt-8 rounded-xl border border-border bg-bg p-4">
                         <ArchitectureDiagram
                           variant={data.diagram}
                           label={copy.diagram.label}
@@ -162,10 +130,26 @@ export function Projects({ dict }: { dict: Dictionary }) {
                       </div>
                     )}
                   </div>
-                </article>
-              );
-            })}
-          </div>
+                </div>
+
+                {/* Below the text and as wide as the card, so the screens can be read. */}
+                {data.screens && (
+                  <div data-project-media className="mt-12">
+                    <DeviceMockup
+                      screens={data.screens}
+                      label={copy.mediaAlt ?? ""}
+                      labels={{
+                        desktop: ui.enlargeDesktop,
+                        mobile: ui.enlargeMobile,
+                        close: ui.close,
+                      }}
+                      className="mx-auto max-w-5xl"
+                    />
+                  </div>
+                )}
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>

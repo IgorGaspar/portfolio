@@ -47,7 +47,7 @@ export function VitrineFeatured() {
         <article
           data-reveal="up"
           aria-labelledby="monai-title"
-          className="mt-8 grid items-center gap-10 rounded-2xl border border-accent/40 bg-surface p-6 sm:p-10 lg:grid-cols-[1fr_1fr] lg:gap-14"
+          className="mt-8 rounded-2xl border border-accent/40 bg-surface p-6 sm:p-10"
         >
           <div className="min-w-0">
             <Badge>{monai.badge}</Badge>
@@ -69,8 +69,13 @@ export function VitrineFeatured() {
               </Link>
             </div>
           </div>
+          {/* Below the text and as wide as the card, so the app can be read. */}
           {monai.screens && (
-            <DeviceMockup screens={monai.screens} label={monai.screensAlt} width="560px" />
+            <DeviceMockup
+              screens={monai.screens}
+              label={monai.screensAlt}
+              className="mx-auto mt-12 max-w-5xl"
+            />
           )}
         </article>
       </div>
