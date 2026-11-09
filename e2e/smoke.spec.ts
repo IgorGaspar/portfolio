@@ -107,6 +107,20 @@ test("loads the offers-bot page in Portuguese only", async ({ page, request }) =
   expect((await request.get("/en/robo-de-ofertas")).status()).toBe(404);
 });
 
+test("serves the offers-bot help center in Portuguese only", async ({ request }) => {
+  for (const path of [
+    "/robo-de-ofertas/ajuda",
+    "/robo-de-ofertas/ajuda/shopee-api",
+    "/robo-de-ofertas/ajuda/comandos",
+  ]) {
+    const response = await request.get(path);
+    expect(response.status()).toBe(200);
+    expect(await response.text()).toContain('lang="pt-BR"');
+  }
+  expect((await request.get("/robo-de-ofertas/ajuda/nao-existe")).status()).toBe(404);
+  expect((await request.get("/en/robo-de-ofertas/ajuda")).status()).toBe(404);
+});
+
 test("every page has the neural core and the agent", async ({ browser }) => {
   for (const path of ["/", "/sobre", "/robo-de-ofertas"]) {
     const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });

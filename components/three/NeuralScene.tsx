@@ -7,12 +7,13 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { FLIGHT_MS, getFlight, onFlightStart, setSceneReady } from "./flight";
 import { buildNetwork, linesFragment, linesVertex, pointsFragment, pointsVertex } from "./network";
 
 const MAX_TILT = THREE.MathUtils.degToRad(8);
 // The scene mounts on the visitor's first input, so it opens up from a point instead of popping in.
 const INTRO_MS = 1900;
+// Centre of the dock's mascot (64 px wide, 12 px from the corner) from the screen edges.
+const CORNER_OFFSET = 44;
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
 const smoothstep = (edge0: number, edge1: number, value: number) => {
   const t = clamp01((value - edge0) / (edge1 - edge0));
@@ -111,14 +112,6 @@ function Network({ count, interactive }: NetworkProps) {
     return () => window.removeEventListener("pointermove", onMove);
   }, [interactive]);
 
-  // The agent icon fades in as the core arrives; it must never stay half-faded.
-  useEffect(
-    () => () => {
-      document.querySelector<HTMLElement>("[data-agent-core]")?.style.removeProperty("opacity");
-    },
-    [],
-  );
-
   const center = useRef(new THREE.Vector3());
   const born = useRef<number | null>(null);
 
@@ -128,14 +121,11 @@ function Network({ count, interactive }: NetworkProps) {
 
     const viewportHeight = window.innerHeight;
     const hero = document.querySelector("[data-hero]")?.getBoundingClientRect();
-    const icon = document.querySelector<HTMLElement>("[data-agent-core]");
-    const layer = state.gl.domElement.closest<HTMLElement>("[data-neural-canvas]");
 
     // Hero: 0 at the top of the page, 1 when the hero has scrolled away.
     const progress = hero ? clamp01(-hero.top / hero.height) : 1;
     const inHero = Boolean(hero && hero.bottom > 0);
     const narrow = size.width < 768;
-    const flight = inHero ? null : getFlight();
 
     // Screen position (in clip space) of the centre of the network when nothing moves it.
     const wide = viewport.aspect > 1.1;
@@ -158,42 +148,25 @@ function Network({ count, interactive }: NetworkProps) {
     let follow = false;
 
     if (inHero) {
-      // 0-60%: the network condenses into the core. 60-100%: the core flies to the
-      // agent icon, shrinking to its size, and the two cross-fade as it lands.
-      condense = Math.max(smoothstep(0, 0.6, progress), intro);
-      const travel = smoothstep(0.55, 0.97, progress);
-      const landing = smoothstep(0.8, 0.97, progress);
-      opacity = (1 - smoothstep(0.9, 1, progress)) * smoothstep(0, 0.12, introT);
+      // Pages with the agent dock: 0-30% the network condenses into the core, 25-50% the core
+      // shrinks to a small dot and flies to the corner, where the dock swaps it for the mascot
+      // (see AgentDock). Elsewhere it only condenses and fades out with the hero.
+      const toCorner = Boolean(document.getElementById("agent"));
+      const end = toCorner ? 0.5 : 1;
+      condense = Math.max(smoothstep(0, end * 0.6, progress), intro);
+      opacity = (1 - smoothstep(end * 0.9, end, progress)) * smoothstep(0, 0.12, introT);
       follow = interactive;
-      u.uScale.value = 1 - 0.55 * landing;
-
-      if (icon) {
-        const rect = icon.getBoundingClientRect();
-        towards(rect.left + rect.width / 2, rect.top + rect.height / 2, travel);
-        // Hidden for the whole flight, so it only ever appears where the core lands.
-        icon.style.opacity = String(landing);
+      if (toCorner) {
+        u.uScale.value = 1 - 0.8 * smoothstep(0.2, 0.5, progress);
+        towards(
+          window.innerWidth - CORNER_OFFSET,
+          viewportHeight - CORNER_OFFSET,
+          smoothstep(0.25, 0.5, progress),
+        );
       } else {
+        u.uScale.value = 1;
         u.uShift.value.set(0, 0);
       }
-      // The agent card is opaque, so the core has to fly in front of the page to reach it.
-      if (travel > 0) layer?.style.setProperty("z-index", "30");
-      else layer?.style.removeProperty("z-index");
-    } else if (flight) {
-      // The core comes down from the inline chat and settles in the corner,
-      // where the floating button fades in as it arrives.
-      const t = clamp01((performance.now() - flight.start) / FLIGHT_MS);
-      const eased = smoothstep(0, 1, t);
-      condense = 1;
-      opacity = smoothstep(0, 0.15, t) * (1 - smoothstep(0.8, 1, t));
-      u.uScale.value = 0.5;
-      towards(
-        flight.from.x + (flight.to.x - flight.from.x) * eased,
-        // A slight arc, so it reads as a flight rather than a slide.
-        flight.from.y + (flight.to.y - flight.from.y) * eased - Math.sin(Math.PI * eased) * 48,
-        1,
-      );
-      icon?.style.removeProperty("opacity");
-      layer?.style.setProperty("z-index", "30");
     } else {
       // Contact: the reverse of the hero. Once the "work with me" line has filled,
       // a small core leaves its end and opens up into the calm network.
@@ -214,9 +187,6 @@ function Network({ count, interactive }: NetworkProps) {
       u.uScale.value = 1;
       if (fill) towards(fill.right, fill.bottom, 1 - smoothstep(0, 0.85, opening));
       else u.uShift.value.set(0, 0);
-
-      icon?.style.removeProperty("opacity");
-      layer?.style.removeProperty("z-index");
     }
 
     u.uTime.value += delta;
@@ -226,11 +196,11 @@ function Network({ count, interactive }: NetworkProps) {
     // The core is the sum of every point piled up, so a phone's lighter network (fewer points)
     // gets a proportionally stronger alpha to keep the core as bright as on desktop.
     const density = Math.min(4, 4000 / count);
-    u.uCoreAlpha.value = (inHero ? 0.025 : flight ? 0.07 : 0.2) * density;
+    u.uCoreAlpha.value = (inHero ? 0.025 : 0.2) * density;
     u.uResolution.value.set(size.width, size.height);
     u.uSize.value = (narrow ? 2.2 : 2.6) * state.gl.getPixelRatio();
     // On narrow screens the open network sits behind the text, so it is dimmed to keep the text
-    // readable; the condensed core (flying to the agent icon) is small and must stay visible.
+    // readable; the condensed core (flying to the corner) is small and must stay visible.
     u.uOpacity.value = opacity * (narrow ? 0.45 + 0.55 * condense : 1);
 
     // The contact version is calmer: a third of the points, no lines, no pointer play.
@@ -279,24 +249,6 @@ type Props = { count: number; interactive: boolean; onFailure: () => void };
 export default function NeuralScene({ count, interactive, onFailure }: Props) {
   const [active, setActive] = useState(true);
   const [ready, setReady] = useState(false);
-  const [flying, setFlying] = useState(false);
-
-  // Flights happen mid-page, where the scene is otherwise paused.
-  useEffect(() => {
-    if (!ready) return;
-    setSceneReady(true);
-    let timer = 0;
-    const stop = onFlightStart(() => {
-      setFlying(true);
-      window.clearTimeout(timer);
-      timer = window.setTimeout(() => setFlying(false), FLIGHT_MS + 80);
-    });
-    return () => {
-      setSceneReady(false);
-      window.clearTimeout(timer);
-      stop();
-    };
-  }, [ready]);
 
   useEffect(() => {
     const onScreen = new Set<Element>();
@@ -321,15 +273,6 @@ export default function NeuralScene({ count, interactive, onFailure }: Props) {
     };
   }, []);
 
-  // When rendering stops, the agent icon must not be left half-faded and the canvas
-  // must not stay raised above the page (the frame loop that lowers it has stopped).
-  useEffect(() => {
-    if (!active) {
-      document.querySelector<HTMLElement>("[data-agent-core]")?.style.removeProperty("opacity");
-      document.querySelector<HTMLElement>("[data-neural-canvas]")?.style.removeProperty("z-index");
-    }
-  }, [active]);
-
   return (
     <div
       aria-hidden="true"
@@ -337,7 +280,7 @@ export default function NeuralScene({ count, interactive, onFailure }: Props) {
       className={`pointer-events-none fixed inset-0 -z-10 transition-opacity duration-[800ms] ${ready ? "opacity-100" : "opacity-0"}`}
     >
       <Canvas
-        frameloop={active || flying ? "always" : "never"}
+        frameloop={active ? "always" : "never"}
         // R3F makes its wrapper (and so the canvas) catch pointer events unless told not to.
         // The scene is decoration: it must never swallow a click meant for the page.
         style={{ pointerEvents: "none" }}

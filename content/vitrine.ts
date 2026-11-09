@@ -2,14 +2,14 @@
 // products and services are sold in Brazil. The portfolio moved to /sobre.
 
 export type Product = {
-  id: "site" | "automacoes" | "monai";
+  id: "site" | "agente-b2b";
   badge: string;
   title: string;
   body: string;
   /** Real work that shows the product, with its own label. */
   example?: { label: string; text: string };
   image?: { src: string; width: number; height: number; alt: string };
-  cta: { label: string } & ({ href: string } | { draft: string });
+  cta: { label: string; draft: string };
   /** Link to the technical case in the portfolio. */
   howItWasMade: string;
 };
@@ -35,12 +35,18 @@ export const vitrine = {
     eyebrow: "Igor Gaspar · Automação e IA para negócios",
     title: "Automação e IA que trabalham pelo seu negócio.",
     subtitle:
-      "Robôs, sites com atendimento automático e sistemas sob medida. Eu construo, coloco no ar e cuido para que funcionem todos os dias.",
-    cta: "Tenho um projeto",
-    secondary: "Conhecer o robô de ofertas",
+      "Crio robôs, sites com atendimento inteligente e sistemas sob medida. Tudo rodando em produção, sem complicações técnicas para você.",
+    cta: "Falar sobre um projeto customizado",
+    secondary: "Ver produtos e robôs",
+    /** Availability line under the CTAs. Only count what is running today. */
+    status: "Operação online · 3 sistemas rodando 24/7",
+  },
+  own: {
+    title: "Produtos próprios, prontos para usar.",
+    subtitle: "Dois produtos que eu criei, mantenho e uso todos os dias.",
   },
   featured: {
-    badge: "Serviço pronto · em produção",
+    badge: "Produto próprio · em produção",
     title: "Robô de ofertas para WhatsApp",
     body: "Seu grupo de ofertas no piloto automático. O robô posta ofertas da Shopee, do Mercado Livre e da Shein com o seu link de afiliado, todos os dias, e eu cuido da implantação e da manutenção.",
     points: [
@@ -52,9 +58,23 @@ export const vitrine = {
     mediaAlt:
       "O robô em ação num grupo de ofertas real: mensagens com foto, preço de e por, cupom e link de compra chegando uma após a outra",
   },
+  monai: {
+    badge: "Produto próprio · disponível",
+    title: "MonAI",
+    body: "App de finanças pessoais em que você registra os gastos escrevendo como falaria. A IA entende, mostra uma prévia e só grava com a sua confirmação. Também cuida de contas, recorrentes e da previsão do mês.",
+    image: {
+      src: "/media/monai.webp",
+      width: 1274,
+      height: 903,
+      alt: "Tela do MonAI com o campo do agente e as contas bancárias",
+    },
+    cta: "Criar minha conta",
+    href: "https://monai.page",
+    howItWasMade: "/sobre#projects",
+  },
   products: {
-    title: "O que mais eu faço para você.",
-    subtitle: "Cada exemplo já existe e está no ar. Você pode ver como foi feito antes de conversar comigo.",
+    title: "Aplicações de IA sob medida.",
+    subtitle: "Cases feitos para clientes e para operações reais. Você pode ver como foram feitos antes de conversar comigo.",
     exampleLabel: "Exemplo",
     items: [
       {
@@ -79,32 +99,14 @@ export const vitrine = {
         howItWasMade: "/sobre#projects",
       },
       {
-        id: "automacoes",
-        badge: "Sob medida",
-        title: "Automações e agentes sob medida",
-        body: "Tarefas repetitivas viram fluxo automático: atendimento, acompanhamento de clientes, cadastros, avisos. Quando faz sentido, com um agente de IA que conversa e decide o próximo passo.",
-        example: {
-          label: "Agente de vendas para eventos",
-          text: "Capta, qualifica e acompanha cada contato de um evento até marcar a reunião comercial.",
-        },
+        id: "agente-b2b",
+        badge: "Case real · sob medida",
+        title: "Agente de vendas B2B",
+        body: "Um agente de IA que capta, qualifica e acompanha cada contato até marcar a reunião comercial. Tarefas repetitivas viram fluxo automático, com confirmação humana onde importa.",
         cta: {
-          label: "Tenho um projeto",
+          label: "Quero algo assim",
           draft: "Oi, Igor! Vim pelo site e quero automatizar uma parte do meu negócio.",
         },
-        howItWasMade: "/sobre#projects",
-      },
-      {
-        id: "monai",
-        badge: "Produto próprio · disponível",
-        title: "MonAI",
-        body: "App de finanças pessoais em que você registra os gastos escrevendo como falaria. A IA entende, mostra uma prévia e só grava com a sua confirmação. Também cuida de contas, recorrentes e da previsão do mês.",
-        image: {
-          src: "/media/monai.webp",
-          width: 1274,
-          height: 903,
-          alt: "Tela do MonAI com o campo do agente e as contas bancárias",
-        },
-        cta: { label: "Criar minha conta", href: "https://monai.page" },
         howItWasMade: "/sobre#projects",
       },
     ] satisfies Product[],

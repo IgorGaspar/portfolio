@@ -5,7 +5,7 @@ import { flushSync } from "react-dom";
 import { MAX_MESSAGE_LENGTH } from "@/lib/agent-shared";
 import { agent, useAgent } from "@/lib/agent-store";
 import type { Locale } from "@/lib/i18n";
-import { AgentIcon } from "./AgentIcon";
+import { Gasparzinho } from "./Gasparzinho";
 import { ChatText } from "./ChatText";
 
 export type ChatLabels = {
@@ -144,7 +144,7 @@ export function ChatBox({ locale, labels, variant, initialDraft = "" }: Props) {
               </p>
             ) : (
               <div key={message.id} className="flex max-w-[92%] gap-3">
-                <AgentIcon className="mt-0.5 size-6 shrink-0" />
+                <Gasparzinho state="still" size={32} className="mt-0.5" />
                 <p className={`whitespace-pre-wrap ${message.notice ? "text-muted" : ""}`}>
                   <span className="sr-only">{labels.agentName}: </span>
                   {message.content ? (

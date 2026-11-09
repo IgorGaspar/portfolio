@@ -240,18 +240,13 @@ export const en: Dictionary = {
   },
   journey: {
     title: "From mechanical engineering to AI.",
-    subtitle: "A non-linear path that taught me to solve the problem before picking the tool.",
+    subtitle:
+      "No middlemen: support and development come directly from me. Since 2023 the focus has been putting AI into production.",
     items: [
-      { period: "2014–2019", heading: "**Mechanical Engineering**, UniABC" },
       {
-        period: "2020–2021",
-        heading: "**Logistics checker**, Paulo Vieira Transportes.",
-        body: "Operations, load planning and customer service.",
-      },
-      {
-        period: "2021–2023",
-        heading: "**IT Technician**, Santa Casa de Misericórdia de Mauá (hospital).",
-        body: "Support for an entire hospital: network, Active Directory and the hospital management system.",
+        period: "Before 2023",
+        heading: "**Mechanical Engineering**, logistics and **IT at a hospital**.",
+        body: "A non-linear path that taught me to solve the problem before picking the tool.",
       },
       {
         period: "2022–2023",

@@ -14,7 +14,7 @@ export function VitrineProducts() {
       <div className="container-page">
         <SectionHeading id="products-title" title={products.title} subtitle={products.subtitle} />
 
-        <ul className="mt-16 grid gap-8 lg:grid-cols-3">
+        <ul className="mt-16 grid gap-8 lg:grid-cols-2">
           {products.items.map((item) => (
             <li key={item.id} data-reveal="up" className="flex">
               <article
@@ -27,7 +27,7 @@ export function VitrineProducts() {
                     alt={item.image.alt}
                     width={item.image.width}
                     height={item.image.height}
-                    sizes="(min-width: 1024px) 400px, 100vw"
+                    sizes="(min-width: 1024px) 600px, 100vw"
                     className="aspect-[4/3] h-auto w-full border-b border-border object-cover object-top"
                   />
                 )}
@@ -49,20 +49,9 @@ export function VitrineProducts() {
                   )}
 
                   <div className="mt-auto flex flex-wrap items-center gap-x-6 gap-y-3 pt-8">
-                    {"href" in item.cta ? (
-                      <a
-                        href={item.cta.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-solid"
-                      >
-                        {item.cta.label}
-                      </a>
-                    ) : (
-                      <WhatsAppLink draft={item.cta.draft} className="btn btn-solid">
-                        {item.cta.label}
-                      </WhatsAppLink>
-                    )}
+                    <WhatsAppLink draft={item.cta.draft} className="btn btn-solid">
+                      {item.cta.label}
+                    </WhatsAppLink>
                     <Link href={item.howItWasMade} className="link py-2 text-sm">
                       {products.howItWasMade} →
                     </Link>
