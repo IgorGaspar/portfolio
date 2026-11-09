@@ -4,7 +4,9 @@ import { WhatsAppLink } from "./WhatsAppLink";
 
 export function RoboFooter() {
   return (
-    <footer className="border-t border-border pb-20 sm:pb-0">
+    // Room at the bottom for the phone bar below and for the agent mascot resting in the
+    // corner (raised above that bar on phones), so neither covers the links.
+    <footer className="border-t border-border pb-32 sm:pb-16">
       <div className="container-page flex flex-wrap items-center justify-between gap-4 py-8 text-sm text-muted">
         <p>{robo.footer}</p>
         <div className="flex flex-wrap items-center gap-x-6">
