@@ -670,11 +670,11 @@ export const ajuda = {
           blocks: [
             {
               type: "code",
-              text: "titulo\ntitulo 🔥 ESQUENTA 11.11 {loja} 🔥\ntitulo auto",
+              text: "titulo\ntitulo 🔥 ESQUENTA 11.11 {loja} 🔥\ntitulo shein 🔥 LIQUIDA SHEIN 🔥\ntitulo shein auto\ntitulo auto",
             },
             {
               type: "p",
-              text: "titulo mostra o título de cada loja; o segundo exemplo troca o título de todas as lojas ({loja} vira SHOPEE, MERCADO LIVRE...); titulo auto volta ao automático (MELHORES OFERTAS {loja}, e ESQUENTA ou É HOJE nas datas duplas).",
+              text: "titulo mostra o título de cada loja; o segundo exemplo troca o título de todas as lojas ({loja} vira SHOPEE, MERCADO LIVRE...); com o nome da loja na frente (shopee, mercadolivre ou ml, shein, amazon), o título vale só para aquela loja e as outras seguem o geral; titulo shein auto volta a Shein ao título geral; titulo auto volta tudo ao automático (MELHORES OFERTAS {loja}, e ESQUENTA ou É HOJE nas datas duplas).",
             },
           ],
         },
@@ -712,6 +712,7 @@ export const ajuda = {
                 ["enviar 3", "Posta já o item 3 da fila."],
                 ["pular", "Descarta a próxima oferta."],
                 ["remover 4", "Tira o item 4 da fila (vários: remover 2 4 7)."],
+                ["mesclar", "Mistura as lojas da fila de novo, para não sair tudo de uma loja só."],
               ],
             },
             {
@@ -957,12 +958,13 @@ export const commandList: { command: string; does: string; topic: string; plan: 
   { command: "enviar / enviar 3", does: "Posta já a próxima oferta, ou a 3 da fila.", topic: "fila-e-horarios", plan: "Todos" },
   { command: "pular", does: "Descarta a próxima oferta.", topic: "fila-e-horarios", plan: "Todos" },
   { command: "remover 4", does: "Tira o item 4 da fila (vários: remover 2 4 7).", topic: "fila-e-horarios", plan: "Todos" },
+  { command: "mesclar", does: "Mistura as lojas da fila de novo (some a ordem fixa do mover).", topic: "fila-e-horarios", plan: "Todos" },
   { command: "horarios", does: "Mostra a grade de horários.", topic: "fila-e-horarios", plan: "Todos" },
   { command: "horarios 9h 12h 18:30", does: "Troca a grade de postagens.", topic: "fila-e-horarios", plan: "Todos" },
   { command: "horarios 8h-23h a cada 30min", does: "Um post a cada 30 minutos.", topic: "fila-e-horarios", plan: "Todos" },
   { command: "pausar / voltar", does: "Para e retoma as postagens.", topic: "fila-e-horarios", plan: "Todos" },
   { command: "grupos / grupo 2", does: "Lista os grupos e escolhe o grupo de envio.", topic: "primeiros-passos", plan: "Todos" },
-  { command: "titulo / titulo auto", does: "Mostra ou troca o título das ofertas (auto volta ao padrão).", topic: "postar-links", plan: "Todos" },
+  { command: "titulo / titulo auto", does: "Mostra ou troca o título das ofertas, de todas as lojas ou de uma só (auto volta ao padrão).", topic: "postar-links", plan: "Todos" },
   { command: "postar texto", does: "Posta no grupo exatamente o texto que vier depois.", topic: "postar-links", plan: "Todos" },
   { command: "cupom <link> / cupom off", does: "Coloca ou tira o cupom da Shopee nas ofertas.", topic: "cupons-e-avisos", plan: "Todos" },
   { command: "cupons", does: "Posta “CUPONS ATUALIZADOS” com o link do cupom.", topic: "cupons-e-avisos", plan: "Todos" },
