@@ -4,6 +4,12 @@ import type { Locale } from "./i18n";
 
 export const MAX_MESSAGES = 20;
 export const MAX_MESSAGE_LENGTH = 1000;
+/**
+ * Limit for the agent's own answers sent back as history. They are capped by the model's
+ * max_tokens (2048), not by the chat input, so they routinely pass MAX_MESSAGE_LENGTH;
+ * validating them with the visitor limit made every follow-up after a long answer fail with 400.
+ */
+export const MAX_ANSWER_LENGTH = 12_000;
 
 export type AgentMessage = { role: "user" | "assistant"; content: string };
 export type AgentRequest = { locale: Locale; messages: AgentMessage[] };

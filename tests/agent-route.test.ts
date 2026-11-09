@@ -92,6 +92,17 @@ describe("POST /api/agent", () => {
       "a conversation that ends with the assistant",
       { locale: "pt", messages: [...question.messages, { role: "assistant", content: "Oi" }] },
     ],
+    [
+      "an assistant answer over 12,000 characters",
+      {
+        locale: "pt",
+        messages: [
+          ...question.messages,
+          { role: "assistant", content: "a".repeat(12_001) },
+          { role: "user", content: "E mais?" },
+        ],
+      },
+    ],
     ["an unknown locale", { ...question, locale: "fr" }],
     ["a non-JSON body", "not json"],
   ])("rejects %s", async (_name, body) => {
@@ -99,6 +110,23 @@ describe("POST /api/agent", () => {
 
     expect(response.status).toBe(400);
     expect(streamAgentAnswer).not.toHaveBeenCalled();
+  });
+
+  it("accepts a follow-up after an answer longer than the visitor limit", async () => {
+    streamAgentAnswer.mockReturnValue(answer({ type: "text", text: "Sim." }));
+    const followUp = {
+      locale: "pt",
+      messages: [
+        ...question.messages,
+        { role: "assistant", content: "a".repeat(1500) },
+        { role: "user", content: "E o plano mensal?" },
+      ],
+    };
+
+    const response = await POST(post(followUp));
+
+    expect(response.status).toBe(200);
+    expect(await readEvents(response)).toEqual([{ type: "delta", text: "Sim." }]);
   });
 
   it("rejects requests from another origin", async () => {
