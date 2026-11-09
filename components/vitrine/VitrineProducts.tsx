@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { vitrine } from "@/content/vitrine";
+import { DeviceMockup } from "../media/DeviceMockup";
 import { WhatsAppLink } from "../robo/WhatsAppLink";
 import { Badge } from "../ui/Badge";
 import { SectionHeading } from "../ui/SectionHeading";
@@ -21,15 +21,10 @@ export function VitrineProducts() {
                 aria-labelledby={`product-${item.id}`}
                 className="flex w-full flex-col overflow-hidden rounded-2xl border border-border bg-surface"
               >
-                {item.image && (
-                  <Image
-                    src={item.image.src}
-                    alt={item.image.alt}
-                    width={item.image.width}
-                    height={item.image.height}
-                    sizes="(min-width: 1024px) 600px, 100vw"
-                    className="aspect-[4/3] h-auto w-full border-b border-border object-cover object-top"
-                  />
+                {item.screens && item.screensAlt && (
+                  <div className="border-b border-border bg-bg px-6 pt-8 pb-6 sm:px-10">
+                    <DeviceMockup screens={item.screens} label={item.screensAlt} width="520px" />
+                  </div>
                 )}
                 <div className="flex flex-1 flex-col p-6 sm:p-8">
                   <div>

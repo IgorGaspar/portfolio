@@ -88,7 +88,8 @@ export const pt: Dictionary = {
           "VPS com Coolify",
           "GitHub Actions",
         ],
-        mediaAlt: "Tela do MonAI com o campo do agente e as contas bancárias",
+        mediaAlt:
+          "MonAI no notebook e no celular: o gasto é escrito em linguagem natural, o agente mostra a prévia com conta, categoria e novo saldo, e o lançamento é confirmado",
       },
       b2b: {
         badge: "Case de engenharia · em produção",
@@ -115,6 +116,8 @@ export const pt: Dictionary = {
           "Tavily",
           "Railway",
         ],
+        mediaAlt:
+          "Painel do agente B2B no notebook e no celular, com o funil do evento: total de leads, presença confirmada, reuniões agendadas e distribuição por estágio",
         diagram: {
           label:
             "Diagrama de arquitetura: Telegram → Agente (Claude + 8 tools) → Supabase · Scheduler de réguas → Telegram · Enriquecimento → Agente",
@@ -153,7 +156,8 @@ export const pt: Dictionary = {
           "Claude Sonnet 4.6",
           "Vercel",
         ],
-        mediaAlt: "Página inicial do site da EstetiCaah",
+        mediaAlt:
+          "Site da EstetiCaah no notebook e no celular: o tour pela página e a assistente Luna respondendo uma pergunta sobre um procedimento",
         diagram: {
           label:
             "Diagrama de arquitetura: Site (procedimento) → Typebot → n8n → Claude Sonnet 4.6 → WhatsApp da clínica",

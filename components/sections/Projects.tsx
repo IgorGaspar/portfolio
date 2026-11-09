@@ -1,10 +1,38 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { Dictionary } from "@/content";
-import { projectIds, projects } from "@/content/projects";
+import { type ProjectData, projectIds, projects } from "@/content/projects";
+import { DeviceMockup } from "../media/DeviceMockup";
 import { ArchitectureDiagram } from "../diagrams/ArchitectureDiagram";
 import { Badge } from "../ui/Badge";
 import { SectionHeading } from "../ui/SectionHeading";
+
+/** The project on a laptop and a phone, linking to it when it is online. */
+function ProjectMedia({ data, alt, view }: { data: ProjectData; alt: string; view: string }) {
+  if (!data.screens) return null;
+  const mockup = (
+    // Smaller on wide screens, where the card is pinned and also holds the diagram.
+    <DeviceMockup
+      screens={data.screens}
+      label={alt}
+      width="360px"
+      className="mx-auto lg:max-w-[360px]"
+    />
+  );
+
+  return data.link ? (
+    <a
+      href={data.link.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      data-cursor={`${view} ↗`}
+      className="block shrink-0"
+    >
+      {mockup}
+    </a>
+  ) : (
+    <div className="shrink-0">{mockup}</div>
+  );
+}
 
 const labelClass = "font-mono text-xs uppercase tracking-widest text-muted";
 
@@ -123,24 +151,7 @@ export function Projects({ dict }: { dict: Dictionary }) {
                   </div>
 
                   <div data-project-media className="flex min-w-0 flex-col justify-center gap-6">
-                    {data.image && data.link && (
-                      <a
-                        href={data.link.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        data-cursor={`${ui.view} ↗`}
-                        className="block overflow-hidden rounded-xl border border-border"
-                      >
-                        <Image
-                          src={data.image.src}
-                          alt={copy.mediaAlt ?? ""}
-                          width={data.image.width}
-                          height={data.image.height}
-                          sizes="(min-width: 1024px) 540px, 92vw"
-                          className="h-auto w-full"
-                        />
-                      </a>
-                    )}
+                    <ProjectMedia data={data} alt={copy.mediaAlt ?? ""} view={ui.view} />
                     {data.diagram && copy.diagram && (
                       <div className="rounded-xl border border-border bg-bg p-4">
                         <ArchitectureDiagram

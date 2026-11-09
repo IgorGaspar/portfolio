@@ -1,6 +1,9 @@
 // Copy of the products showcase (/), the home page in Portuguese. Portuguese only: the
 // products and services are sold in Brazil. The portfolio moved to /sobre.
 
+import type { Screens } from "@/components/media/DeviceMockup";
+import { projects } from "./projects";
+
 export type Product = {
   id: "site" | "agente-b2b";
   badge: string;
@@ -8,7 +11,9 @@ export type Product = {
   body: string;
   /** Real work that shows the product, with its own label. */
   example?: { label: string; text: string };
-  image?: { src: string; width: number; height: number; alt: string };
+  /** The example on a laptop and a phone, with one description for both. */
+  screens?: Screens;
+  screensAlt?: string;
   cta: { label: string; draft: string };
   /** Link to the technical case in the portfolio. */
   howItWasMade: string;
@@ -62,19 +67,17 @@ export const vitrine = {
     badge: "Produto próprio · disponível",
     title: "MonAI",
     body: "App de finanças pessoais em que você registra os gastos escrevendo como falaria. A IA entende, mostra uma prévia e só grava com a sua confirmação. Também cuida de contas, recorrentes e da previsão do mês.",
-    image: {
-      src: "/media/monai.webp",
-      width: 1274,
-      height: 903,
-      alt: "Tela do MonAI com o campo do agente e as contas bancárias",
-    },
+    screens: projects.monai.screens,
+    screensAlt:
+      "MonAI no notebook e no celular: o gasto é escrito como se fala, o agente mostra a prévia e o lançamento é confirmado",
     cta: "Criar minha conta",
     href: "https://monai.page",
     howItWasMade: "/sobre#projects",
   },
   products: {
     title: "Aplicações de IA sob medida.",
-    subtitle: "Cases feitos para clientes e para operações reais. Você pode ver como foram feitos antes de conversar comigo.",
+    subtitle:
+      "Cases feitos para clientes e para operações reais. Você pode ver como foram feitos antes de conversar comigo.",
     exampleLabel: "Exemplo",
     items: [
       {
@@ -86,12 +89,9 @@ export const vitrine = {
           label: "EstetiCaah, clínica de estética",
           text: "O visitante escolhe um procedimento, tira dúvidas com um assistente de IA e chega ao WhatsApp da clínica para agendar.",
         },
-        image: {
-          src: "/media/esteticaah.webp",
-          width: 1207,
-          height: 903,
-          alt: "Página inicial do site da EstetiCaah",
-        },
+        screens: projects.esteticaah.screens,
+        screensAlt:
+          "Site da EstetiCaah no notebook e no celular: o tour pela página e a assistente Luna respondendo uma pergunta sobre um procedimento",
         cta: {
           label: "Quero um site assim",
           draft: "Oi, Igor! Vim pelo site e quero um site com assistente de atendimento.",
@@ -103,6 +103,9 @@ export const vitrine = {
         badge: "Case real · sob medida",
         title: "Agente de vendas B2B",
         body: "Um agente de IA que capta, qualifica e acompanha cada contato até marcar a reunião comercial. Tarefas repetitivas viram fluxo automático, com confirmação humana onde importa.",
+        screens: projects.b2b.screens,
+        screensAlt:
+          "Painel do agente no notebook e no celular, com o funil do evento: leads, presença confirmada, reuniões agendadas e distribuição por estágio",
         cta: {
           label: "Quero algo assim",
           draft: "Oi, Igor! Vim pelo site e quero automatizar uma parte do meu negócio.",
