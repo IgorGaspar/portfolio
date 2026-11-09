@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { MAX_MESSAGES, MAX_MESSAGE_LENGTH } from "./agent-shared";
+import { MAX_ANSWER_LENGTH, MAX_MESSAGES, MAX_MESSAGE_LENGTH } from "./agent-shared";
 import { locales } from "./i18n";
 
 // Server-side validation of the /api/agent request body. Kept out of agent-shared
@@ -8,10 +8,17 @@ export const agentRequestSchema = z.object({
   locale: z.enum(locales),
   messages: z
     .array(
-      z.object({
-        role: z.enum(["user", "assistant"]),
-        content: z.string().trim().min(1).max(MAX_MESSAGE_LENGTH),
-      }),
+      z.discriminatedUnion("role", [
+        z.object({
+          role: z.literal("user"),
+          content: z.string().trim().min(1).max(MAX_MESSAGE_LENGTH),
+        }),
+        // The agent's previous answers come back as history and can be much longer.
+        z.object({
+          role: z.literal("assistant"),
+          content: z.string().trim().min(1).max(MAX_ANSWER_LENGTH),
+        }),
+      ]),
     )
     .min(1)
     .max(MAX_MESSAGES)
